@@ -21,6 +21,7 @@ import { StatusChangeComponent } from '../../../status-change/status-change.comp
 import { UserPermissionService } from '../../helpers/user-permission.service';
 import { MfaSetupDialogComponent } from '../../mfa-setup-dialog/mfa-setup-dialog.component';
 import { AuthTokenService } from '../../../../auth-token.service';
+import { DeleteDailogComponent } from 'src/app/shared/delete-dailog/delete-dailog.component';
 
 @Component({
   selector: 'app-users',
@@ -76,7 +77,7 @@ export class UsersComponent implements OnInit {
       Status: ['']
     });
   }
- 
+
 
   ngOnInit() {
     // 🔥 3. Load Permissions
@@ -190,11 +191,11 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  
+
   deleteConfirmation(item: any) {
     if (this.isAdminUser(item) || !this.canDelete) return; // 🔥 Safety Guard for Admin
 
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    let dialogRef = this.dialog.open(DeleteDailogComponent, {
       width: '360px',
       panelClass: 'no-padding-dialog',
       data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
@@ -221,13 +222,13 @@ export class UsersComponent implements OnInit {
     return managerStr.split(',').filter(x => x).length;
   }
 
- 
+
 
   openManagersDialog(managerStr: string) {
     if (!managerStr || !this.canUpdate) return; // Do nothing if 0 managers or no access
 
     this.dialog.open(ManagerDialogComponent, {
-      data: managerStr, 
+      data: managerStr,
       width: '350px'
     });
   }
@@ -288,30 +289,30 @@ export class UsersComponent implements OnInit {
 
     // 1. IF TURNING MFA ON
     if (event.checked) {
-      
+
       // A) If Admin is checking their OWN row -> Show the Popup!
       if (item.userId == currentLoggedInUserId) {
-        const dialogRef = this.dialog.open(MfaSetupDialogComponent, { 
+        const dialogRef = this.dialog.open(MfaSetupDialogComponent, {
           width: '450px',
-          disableClose: true 
+          disableClose: true
         });
-        
+
         dialogRef.afterClosed().subscribe(verified => {
           if (verified) {
             // Success! They scanned the code and typed the 6 digits. Save to DB.
-            this.toggleRole(item); 
+            this.toggleRole(item);
           } else {
             // They cancelled the popup. Revert the checkbox visually.
-            item.isMfaEnabled = false; 
+            item.isMfaEnabled = false;
           }
         });
-      } 
+      }
       // B) If Admin is checking SOMEONE ELSE's row -> Enforce silently!
       else {
         this.alertService.createAlert(`MFA Enforced for ${item.userName}.`, 1);
         this.toggleRole(item);
       }
-    } 
+    }
     // 2. IF TURNING MFA OFF
     else {
       this.toggleRole(item);

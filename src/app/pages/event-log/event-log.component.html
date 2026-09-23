@@ -9,7 +9,7 @@
 <div fxLayout="row wrap" #resizedDiv *ngIf="canRead">
     <div class="flex-p w-100">
 
-        <div class="row" style="margin-bottom:14px;">
+        <div class="row" style="margin-bottom:14px;    margin-right: 2px;">
             <div class="col-sm-12 text-right">
                 <button mat-raised-button style="background-color: black; color:white;"
                     class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
@@ -22,7 +22,7 @@
             <div fxLayout="row wrap" *ngIf="filterToggle">
                 <div fxFlex="100" class="flex-p">
                     <form [formGroup]="filterForm">
-                        <mat-card class="filter" style="width: 99%; margin-left: 8px;">
+                        <mat-card class="filter" style="width: 98%; margin-left: 14px;">
                             <mat-card-content>
                                 <div class="row col-sm-12">
                                     <div class="col-sm-4">
@@ -85,7 +85,7 @@
                                     </div>
 
                                     <div class="col-sm-4 text-right" style="margin-top: 10px;">
-                                        <button mat-raised-button color="primary" class="margin-right-10"
+                                        <button mat-raised-button class=" search-btn margin-right-10"
                                             (click)="getEventLog()">
                                             <mat-icon>search</mat-icon> Search
                                         </button>

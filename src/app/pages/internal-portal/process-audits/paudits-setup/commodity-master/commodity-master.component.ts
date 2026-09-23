@@ -90,6 +90,7 @@ export class CommodityMasterComponent implements OnInit {
   toggleStatus(item: any) {
     const dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',
+      height: 'auto',
       panelClass: 'no-padding-dialog',
       disableClose: true
     });

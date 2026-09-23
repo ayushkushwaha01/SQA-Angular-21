@@ -16,6 +16,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { StatusConfirmationDialogComponent } from '../status-confirmation-dialog/status-confirmation-dialog.component';
 import { DepartmentService } from './department.service';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { DeleteDailogComponent } from 'src/app/shared/delete-dailog/delete-dailog.component';
 
 @Component({
   selector: 'app-department-master',
@@ -185,8 +186,9 @@ export class DepartmentMasterComponent implements OnInit {
   }
 
   deleteConfirmation(item: any) {
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    let dialogRef = this.dialog.open(DeleteDailogComponent, {
       width: 'auto',
+
       data: {
         title: 'Delete Confirmation',
         content: `Are you sure you want to delete the department: ${item.departmentName}?`

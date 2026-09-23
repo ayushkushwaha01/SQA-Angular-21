@@ -16,9 +16,9 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { AlertService } from '../../../shared/alert.service';
 import { AddRolesComponent } from './add-roles/add-roles.component';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
-import { ManageUsersService } from '../manage-users.service'; 
+import { ManageUsersService } from '../manage-users.service';
 import { StatusChangeComponent } from '../../../status-change/status-change.component';
-import { UserPermissionService } from '../../helpers/user-permission.service'; 
+import { UserPermissionService } from '../../helpers/user-permission.service';
 
 @Component({
   selector: 'app-roles',
@@ -65,7 +65,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
   constructor(
     public dialog: MatDialog,
     private fb: FormBuilder,
-    private api: ManageUsersService, 
+    private api: ManageUsersService,
     private alertService: AlertService
   ) { }
 
@@ -151,8 +151,8 @@ export class RolesComponent implements OnInit, AfterViewInit {
   // 3. ADD / EDIT DIALOG
   public openRoleDialog(item: any = null) {
     // 🔥 Protection Guard
-    if (!item && !this.canCreate) return; 
-    if (item && !this.canUpdate) return; 
+    if (!item && !this.canCreate) return;
+    if (item && !this.canUpdate) return;
 
     const dialogRef = this.dialog.open(AddRolesComponent, {
       width: '600px',
