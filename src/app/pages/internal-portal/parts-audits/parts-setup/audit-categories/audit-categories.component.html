@@ -57,15 +57,18 @@
 
           <div class="filter-group">
             <label class="filter-label mb-0">Status :</label>
-            <mat-select placeholder="Select Status" class="custom-mat-select" formControlName="Status">
+            <mat-select placeholder="Select Status" class="form-control" formControlName="Status">
               <mat-option [value]="true">Active</mat-option>
               <mat-option [value]="false">Inactive</mat-option>
             </mat-select>
 
+
+
+
           </div>
 
           <div class="button-group">
-            <button mat-raised-button color="primary" (click)="getPartAuditCategories()">
+            <button mat-raised-button class="search-btn" (click)="getPartAuditCategories()">
               <mat-icon>search</mat-icon> Go
             </button>
             <button mat-raised-button class="btn-clear" (click)="clearFilter()">

@@ -63,7 +63,7 @@
 
               <div style="display: flex; justify-content: center;">
 
-                <button mat-raised-button color="primary" [ngClass]="{'disable-custom': !canUpdate}"
+                <button mat-raised-button class="search-btn" [ngClass]="{'disable-custom': !canUpdate}"
                   [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Save'"
                   (click)="canUpdate && saveEscalation(item)">
 

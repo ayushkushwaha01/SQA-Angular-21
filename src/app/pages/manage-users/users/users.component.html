@@ -1,32 +1,29 @@
-
-
-
 <!-- 🔥 ACCESS DENIED MESSAGE (If canRead is false) 🔥 -->
 <div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
-  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
-    <h3 class="text-danger font-weight-bold">Access Denied</h3>
-    <p class="text-muted">You do not have permission to view this page.</p>
-    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
-  </div>
+    <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+        <h3 class="text-danger font-weight-bold">Access Denied</h3>
+        <p class="text-muted">You do not have permission to view this page.</p>
+        <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+    </div>
 </div>
 
 <!-- 🔥 MAIN SCREEN (Only renders if canRead is true) 🔥 -->
 <div *ngIf="canRead" fxLayout="row wrap" #resizedDiv>
     <div class="flex-p w-100">
 
-        <div class="row" style="margin-bottom:14px;">
+        <div class="row" style="margin-bottom:14px;margin-right: 10px;">
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"></div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <div class="w-100 flex-p">
-                    
+
                     <!-- 🔥 Add User Button (Locked by canCreate) -->
-                    <button mat-raised-button color="primary" class="pull-right" 
+                    <button mat-raised-button color="primary" class="search-btn pull-right"
                         [class.disable-custom]="!canCreate"
                         [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add User'"
                         (click)="canCreate && openEditDialog(null)">
                         <mat-icon>person_add</mat-icon> Add User
                     </button>
-                    
+
                     <button mat-raised-button style="background-color: black; color:white;"
                         class="pull-right filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
                         <mat-icon>filter_list</mat-icon> Filter
@@ -35,7 +32,8 @@
             </div>
         </div>
 
-        <div fxLayout="row wrap" *ngIf="filterToggle" style="margin-left: 5px;">
+        <div fxLayout="row wrap" *ngIf="filterToggle" style=" margin-left: 13px;
+    margin-bottom: 17px;max-width: 98%;">
             <div fxFlex="100" class="flex-p w-100">
                 <form [formGroup]="filterForm">
                     <mat-card class="filter">
@@ -63,8 +61,8 @@
                                         (click)="clearFilter()">
                                         <mat-icon>settings_backup_restore</mat-icon> Clear
                                     </button>
-                                    <button mat-raised-button color="primary" class="pull-right margin-right-10"
-                                        (click)="filter()">
+                                    <button mat-raised-button color="primary"
+                                        class="search-btn pull-right margin-right-10" (click)="filter()">
                                         <mat-icon>search</mat-icon> Search
                                     </button>
                                 </div>
@@ -78,7 +76,7 @@
         <div class="col-sm-12" style="margin-left: 13px;">
             <div id="grid-table-container" class="table-responsive" style="width: 101%; margin-left: -18px;">
                 <table class="table table-bordered">
-                  <thead class="table-dark">
+                    <thead class="table-dark">
                         <tr class="tr-grid-header">
                             <th class="text-center">Actions</th>
                             <th class="text-center">Status</th>
@@ -89,7 +87,7 @@
                             <th>Phone</th>
                             <th>Department</th>
                             <th class="text-center">MFA</th>
-                      <th class="text-center">Email OTP</th>
+                            <th class="text-center">Email OTP</th>
                             <th>Role</th>
                             <th class="text-center">HOD</th>
                             <th class="text-center">Inspector</th>
@@ -99,43 +97,42 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let item of dataSource.connect() | async">
-                            
+
                             <!-- ACTIONS -->
                             <td style="white-space:nowrap" class="text-center">
                                 <!-- 🔥 Edit User (Locked for Admin user or no update permission) -->
                                 <a [class.disable-custom]="!canUpdate || isAdminUser(item)"
-                                   [matTooltip]="isAdminUser(item) ? 'Admin account cannot be edited' : (!canUpdate ? 'You don’t have permission to update' : 'Edit User')" 
-                                   style="margin-right: 10px; cursor: pointer;"
-                                   (click)="canUpdate && !isAdminUser(item) && openEditDialog(item)">
+                                    [matTooltip]="isAdminUser(item) ? 'Admin account cannot be edited' : (!canUpdate ? 'You don’t have permission to update' : 'Edit User')"
+                                    style="margin-right: 10px; cursor: pointer;"
+                                    (click)="canUpdate && !isAdminUser(item) && openEditDialog(item)">
                                     <i class="fa fa-edit text-primary"></i>
                                 </a>
 
                                 <!-- 🔥 Delete User (Locked for Admin user or no delete permission) -->
                                 <a [class.disable-custom]="!canDelete || isAdminUser(item)"
-                                   [matTooltip]="isAdminUser(item) ? 'Admin account cannot be deleted' : (!canDelete ? 'You don’t have permission to delete' : 'Delete User')" 
-                                   style="cursor:pointer;"
-                                   (click)="canDelete && !isAdminUser(item) && deleteConfirmation(item)">
+                                    [matTooltip]="isAdminUser(item) ? 'Admin account cannot be deleted' : (!canDelete ? 'You don’t have permission to delete' : 'Delete User')"
+                                    style="cursor:pointer;"
+                                    (click)="canDelete && !isAdminUser(item) && deleteConfirmation(item)">
                                     <i class="fa fa-trash text-danger"></i>
                                 </a>
                             </td>
 
                             <!-- 🔥 STATUS TOGGLE (Locked for Admin user or no update permission) -->
                             <td class="text-center">
-                                <span (click)="canUpdate && !isAdminUser(item) && toggleStatus(item)" 
-                                      [style.color]="item.isActive ? 'green' : 'red'"
-                                      [class.disable-custom]="!canUpdate || isAdminUser(item)"
-                                      [matTooltip]="isAdminUser(item) ? 'Admin status cannot be modified' : (!canUpdate ? 'You don’t have permission to update' : 'Toggle Status')"
-                                      style="cursor:pointer; font-weight: bold;">
+                                <span (click)="canUpdate && !isAdminUser(item) && toggleStatus(item)"
+                                    [style.color]="item.isActive ? 'green' : 'red'"
+                                    [class.disable-custom]="!canUpdate || isAdminUser(item)"
+                                    [matTooltip]="isAdminUser(item) ? 'Admin status cannot be modified' : (!canUpdate ? 'You don’t have permission to update' : 'Toggle Status')"
+                                    style="cursor:pointer; font-weight: bold;">
                                     {{ item.isActive ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
 
                             <!-- 🔥 RESET PASSWORD (Locked by canUpdate) -->
                             <td class="text-center">
-                                <a style="cursor: pointer; color: cornflowerblue;" 
-                                   [class.disable-custom]="!canUpdate"
-                                   [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Reset Password'"
-                                   (click)="canUpdate && openResetPassword(item)">
+                                <a style="cursor: pointer; color: cornflowerblue;" [class.disable-custom]="!canUpdate"
+                                    [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Reset Password'"
+                                    (click)="canUpdate && openResetPassword(item)">
                                     <mat-icon>autorenew</mat-icon>
                                 </a>
                             </td>
@@ -154,30 +151,34 @@
                             <td>{{item.department}}</td>
 
                             <!-- 🔥 SMART MFA CHECKBOX -->
-              <td class="text-center">
-                  <mat-checkbox [(ngModel)]="item.isMfaEnabled" 
-                                (change)="onMfaChange(item, $event)" 
-                                [disabled]="!canUpdate || isAdminUser(item)">
-                  </mat-checkbox>
-              </td>
-              <td class="text-center">
-                  <mat-checkbox [(ngModel)]="item.twoFactor" (change)="toggleRole(item)" [disabled]="!canUpdate || isAdminUser(item)"></mat-checkbox>
-              </td>
+                            <td class="text-center">
+                                <mat-checkbox [(ngModel)]="item.isMfaEnabled" (change)="onMfaChange(item, $event)"
+                                    [disabled]="!canUpdate || isAdminUser(item)">
+                                </mat-checkbox>
+                            </td>
+                            <td class="text-center">
+                                <mat-checkbox [(ngModel)]="item.twoFactor" (change)="toggleRole(item)"
+                                    [disabled]="!canUpdate || isAdminUser(item)"></mat-checkbox>
+                            </td>
 
                             <td><b>{{item.roleName}}</b></td>
 
                             <!-- 🔥 CHECKBOXES (Locked by canUpdate via [disabled]) -->
                             <td class="text-center">
-                                <mat-checkbox [(ngModel)]="item.isHod" (change)="toggleRole(item)" [disabled]="!canUpdate"></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isHod" (change)="toggleRole(item)"
+                                    [disabled]="!canUpdate"></mat-checkbox>
                             </td>
                             <td class="text-center">
-                                <mat-checkbox [(ngModel)]="item.isInspector" (change)="toggleRole(item)" [disabled]="!canUpdate"></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isInspector" (change)="toggleRole(item)"
+                                    [disabled]="!canUpdate"></mat-checkbox>
                             </td>
                             <td class="text-center">
-                                <mat-checkbox [(ngModel)]="item.isAuditor" (change)="toggleRole(item)" [disabled]="!canUpdate"></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isAuditor" (change)="toggleRole(item)"
+                                    [disabled]="!canUpdate"></mat-checkbox>
                             </td>
                             <td class="text-center">
-                                <mat-checkbox [(ngModel)]="item.isManagerialRole" (change)="toggleRole(item)" [disabled]="!canUpdate"></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isManagerialRole" (change)="toggleRole(item)"
+                                    [disabled]="!canUpdate"></mat-checkbox>
                             </td>
                         </tr>
 

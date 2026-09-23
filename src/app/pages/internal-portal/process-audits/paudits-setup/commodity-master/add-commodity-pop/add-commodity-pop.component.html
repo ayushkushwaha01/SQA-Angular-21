@@ -33,7 +33,7 @@
     <button mat-raised-button class="btn-default" (click)="close()" style="background-color: #e0e0e0; color: #333;">
         <mat-icon>cancel</mat-icon> Close
     </button>
-    <button mat-raised-button type="submit" class="save" color="primary" [disabled]="!form.valid" (click)="save()">
+    <button mat-raised-button type="submit" class="save search-btn" [disabled]="!form.valid" (click)="save()">
         <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
     </button>
 </mat-dialog-actions>

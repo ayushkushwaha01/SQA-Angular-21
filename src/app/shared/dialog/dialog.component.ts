@@ -25,7 +25,7 @@ export class DialogComponent {
   constructor(
     public dialogRef: MatDialogRef<DialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) { }
 
   close(result: boolean): void {
     this.dialogRef.close(result);

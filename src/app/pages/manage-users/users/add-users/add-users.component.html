@@ -1,7 +1,7 @@
-<div  >
+<div>
 
   <div class="NewHeader">
-    <h1   mat-dialog-title>
+    <h1 mat-dialog-title>
       <span *ngIf="!data">Add</span><span *ngIf="data">Edit</span> User
     </h1>
   </div>
@@ -12,7 +12,8 @@
       <div class="row align-items-center mb-3">
         <label class="col-sm-4 control-label text-end fw-bold">User Name: <span class="text-danger">*</span></label>
         <div class="col-sm-8">
-          <input type="text" formControlName="userName" class="form-control" placeholder="Enter User Name" style="background-color: #fefec4 !important;">
+          <input type="text" formControlName="userName" class="form-control" placeholder="Enter User Name"
+            style="background-color: #fefec4 !important;">
           <small class="text-danger"
             *ngIf="myGroup.get('userName')?.hasError('required') && myGroup.get('userName')?.touched">
             User Name is required
@@ -43,7 +44,8 @@
       <div class="row align-items-center mb-3">
         <label class="col-sm-4 control-label text-end fw-bold">Role: <span class="text-danger">*</span></label>
         <div class="col-sm-8">
-          <mat-select formControlName="roleId" class="form-control" placeholder="Select Role" style="background-color: #fefec4 !important;">
+          <mat-select formControlName="roleId" class="form-control" placeholder="Select Role"
+            style="background-color: #fefec4 !important;">
             <mat-option *ngFor="let role of roles" [value]="role.roleId">{{role.roleName}}</mat-option>
           </mat-select>
         </div>

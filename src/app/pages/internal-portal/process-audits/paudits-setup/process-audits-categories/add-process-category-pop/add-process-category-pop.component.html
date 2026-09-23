@@ -10,8 +10,8 @@
         <div class="row mb-3 align-items-center mx-0">
             <div class="col-sm-4 fw-bold p-0">Category Name: <span class="text-danger">*</span></div>
             <div class="col-sm-8 p-0">
-                <input type="text" class="form-control" formControlName="categoryName"
-                    placeholder="Enter Category Name" style="background-color: #fefec4 !important;">
+                <input type="text" class="form-control" formControlName="categoryName" placeholder="Enter Category Name"
+                    style="background-color: #fefec4 !important;">
             </div>
         </div>
         <div class="row mb-3 align-items-center mx-0">
@@ -24,11 +24,12 @@
     </form>
 </div>
 
-<mat-dialog-actions align="end" style="padding: 15px 25px 20px 25px !important; margin: 0; display: flex !important; justify-content: flex-end !important; gap: 0px;">
+<mat-dialog-actions align="end"
+    style="padding: 15px 25px 20px 25px !important; margin: 0; display: flex !important; justify-content: flex-end !important; gap: 0px;">
     <button mat-raised-button class="btn-default" (click)="close()" style="background-color: #e0e0e0; color: #333;">
         <mat-icon>cancel</mat-icon> Close
     </button>
-    <button mat-raised-button color="primary" class="save" [disabled]="!categoryForm.valid" (click)="save()">
+    <button mat-raised-button class="save search-btn" [disabled]="!categoryForm.valid" (click)="save()">
         <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
     </button>
 </mat-dialog-actions>

@@ -9,7 +9,8 @@
     <div class="row mb-3 align-items-center">
       <div class="col-sm-4 fw-bold text-end">Code Master: <span class="text-danger">*</span></div>
       <div class="col-sm-8">
-        <mat-select class="form-control" formControlName="codeId" placeholder="Select Code Master" style="background-color: #fefec4 !important;">
+        <mat-select class="form-control" formControlName="codeId" placeholder="Select Code Master"
+          style="background-color: #fefec4 !important;">
           <mat-option *ngFor="let code of codeMasters" [value]="code.codeId">
             {{ code.codeName }}
           </mat-option>
@@ -31,7 +32,7 @@
   <button mat-raised-button (click)="close()" style="background-color: lightgray; color: red; margin-right: 5px;">
     <mat-icon>cancel</mat-icon> Close
   </button>
-  <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="saveLookup()">
+  <button mat-raised-button class="search-btn" [disabled]="!form.valid" (click)="saveLookup()">
     <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
   </button>
 </mat-dialog-actions>

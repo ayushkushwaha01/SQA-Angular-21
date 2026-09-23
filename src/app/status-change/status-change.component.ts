@@ -25,7 +25,7 @@ export class StatusChangeComponent {
   constructor(
     public dialogRef: MatDialogRef<StatusChangeComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) { }
 
   onConfirm(): void {
     this.dialogRef.close(true);

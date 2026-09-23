@@ -19,7 +19,7 @@
                         </div>
                         <div class="col-sm-8">
 
-                            <input type="text" class="form-control" placeholder="Enter Question" style="background-color: #fefec4 !important;">
+                            <input type="text" class="form-control" [(ngModel)]="questionText" name="questionText" placeholder="Enter Question" style="background-color: #fefec4 !important;">
                         </div>
 
                     </div>
@@ -29,7 +29,7 @@
                             <label class="add-member-label mt5" style="font-weight: bold;">Guideline :</label>
                         </div>
                         <div class="col-sm-8">
-                            <textarea class="form-control" [(ngModel)]="guidelineText" rows="3"
+                            <textarea class="form-control" [(ngModel)]="guidelineText" name="guidelineText" rows="3"
                                 placeholder="Enter Guideline"></textarea>
                         </div>
                     </div>
@@ -47,10 +47,10 @@
             <mat-dialog-actions align="end"
                 style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -20px;">
                 <button mat-raised-button class="ms-2 add-dark-hover btn-default"
-                    style="background-color: lightgray; color: red;margin-right: 5px;">
+                    style="background-color: lightgray; color: red;margin-right: 5px;" (click)="onCancel()">
                     <mat-icon>cancel</mat-icon> Close
                 </button>
-                <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;">
+                <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;" [disabled]="!questionText" (click)="onSave()">
                     <mat-icon>save</mat-icon>
                     {{ isEditMode ? 'Update' : 'Save' }}
                 </button>
