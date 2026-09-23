@@ -1,0 +1,175 @@
+<div class="dashboard-wrapper">
+  <!-- ==================== TOP METRICS ==================== -->
+  <div class="metrics-row">
+    <div class="metric-card">
+      Process Audits - {{ dashboardData?.metrics?.processScore || 0 }}%
+    </div>
+    <div class="metric-card">
+      Parts Audits - {{ dashboardData?.metrics?.partsScore || 0 }}%
+    </div>
+    <div class="metric-card">
+      CAPA Closed - {{ dashboardData?.metrics?.capaClosed || 0 }}
+    </div>
+    <div class="metric-card">
+      CAPA Pending - {{ dashboardData?.metrics?.capaPending || 0 }}
+    </div>
+    <div class="metric-card">
+      CAPA Overdue - {{ dashboardData?.metrics?.capaOverdue || 0 }}
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- ==================== COLUMN 1 ==================== -->
+    <div class="grid-column">
+      <!-- GLOBAL FILTER PANEL -->
+      <div class="panel filter-panel card-filter" style="height: 260px">
+        <form [formGroup]="filterForm" (ngSubmit)="onFilterSubmit()">
+          <div class="form-group">
+            <label>Commodity:</label>
+            <select formControlName="commodityId" class="form-control">
+              <option [ngValue]="null">All Commodities</option>
+              <option *ngFor="let com of commodities" [value]="com.commodityId">
+                {{ com.name || com.commodityName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Severity:</label>
+            <select formControlName="severityId" class="form-control">
+              <option [ngValue]="null">All Severities</option>
+              <option *ngFor="let sev of severities" [value]="sev.severityId">
+                {{ sev.severityName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Select Year:</label>
+            <select formControlName="finYear" class="form-control">
+              <option *ngFor="let year of years" [value]="year">
+                {{ year }}
+              </option>
+            </select>
+          </div>
+
+          <div class="button-group">
+            <button type="button" class="btn-clear" (click)="onClearFilter()"><span class="reset-icon">&#8634;</span>
+              Clear</button>
+            <button type="submit" class="btn-go">
+              <span class="search-icon">&#9906;</span> Go
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PARTS AUDITS CHART -->
+      <div class="panel chart-panel card-parts" style="height: 270px">
+        <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top: -10px">
+          <h3 class="panel-title mb-0">Parts Audits</h3>
+          <!-- Local Widget Commodity Dropdown -->
+          <select class="widget-dropdown-select" [ngModel]="localPartsCommodityId" (ngModelChange)="onPartsCommodityChange($event)">
+            <option [ngValue]="null">All Commodities</option>
+            <option *ngFor="let com of commodities" [value]="com.commodityId">
+              {{ com.name || com.commodityName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="chart-container" style="margin-top: -30px">
+          <highcharts-chart [Highcharts]="Highcharts" [options]="partsAuditOptions" [callbackFunction]="partsCallback"
+            style="width: 100%; height: 100%; display: block">
+          </highcharts-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== COLUMN 2 ==================== -->
+    <div class="grid-column">
+      <!-- CAPA DISTRIBUTION TABLE -->
+      <div class="panel table-panel card-issue" style="height: 260px;">
+        <h3 class="panel-title mb-2">CAPA Distribution</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Severity</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaDistribution">
+                <td>{{ item.severity }}</td>
+                <td>{{ item.count }}</td>
+              </tr>
+              <tr *ngIf="!dashboardData?.capaDistribution?.length">
+                <td colspan="2" class="text-center text-muted">
+                  No data available
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MONTHLY TREND CHART -->
+      <div class="panel chart-panel card-trend" style="height: 270px">
+        <h3 class="panel-title mb-0">Monthly Trend</h3>
+        <div class="chart-container" style="margin-top: -10px">
+          <highcharts-chart [Highcharts]="Highcharts" [options]="monthlyTrendOptions" [callbackFunction]="trendCallback"
+            style="width: 100%; height: 100%; display: block">
+          </highcharts-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== COLUMN 3 ==================== -->
+    <div class="grid-column">
+      <!-- PROCESS AUDITS CHART -->
+      <div class="panel chart-panel card-process" style="height: 260px">
+        <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top: -10px">
+          <h3 class="panel-title mb-0">Process Audits</h3>
+          <!-- Local Widget Commodity Dropdown -->
+          <select class="widget-dropdown-select" [ngModel]="localProcessCommodityId" (ngModelChange)="onProcessCommodityChange($event)">
+            <option [ngValue]="null">All Commodities</option>
+            <option *ngFor="let com of commodities" [value]="com.commodityId">
+              {{ com.name || com.commodityName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="chart-container" style="margin-top: -30px">
+          <highcharts-chart [Highcharts]="Highcharts" [options]="processAuditOptions"
+            [callbackFunction]="processCallback" style="width: 100%; height: 100%; display: block">
+          </highcharts-chart>
+        </div>
+      </div>
+
+      <!-- CAPA AGEING ANALYSIS TABLE -->
+      <div class="panel table-panel card-ageing" style="height: 270px;">
+        <h3 class="panel-title mb-2">CAPA Ageing Analysis</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Days</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaAgeing">
+                <td>{{ item.days }}</td>
+                <td>{{ item.volume }}</td>
+              </tr>
+              <tr *ngIf="!dashboardData?.capaAgeing?.length">
+                <td colspan="2" class="text-center text-muted">
+                  No pending CAPAs
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -282,7 +282,7 @@ export class LoginComponent implements OnInit {
 
   private navigateUser(userType: string) {
     if (userType === 'Supplier') {
-      this.router.navigate(['/manage-users/suppliers']);
+      this.router.navigate(['/app/supplier-login/dashboard']);
     } else {
       this.router.navigate(['/dashboard']);
     }

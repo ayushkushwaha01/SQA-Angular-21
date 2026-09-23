@@ -1,0 +1,465 @@
+<div style="
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    padding-right: 20px;
+  ">
+  <!-- <button mat-raised-button matTooltip="Alerts" [style.background-color]="isAlertsView ? '#a31c1c' : 'rgb(252, 45, 45)'"
+    style="color: white" class="filter-hover margin-right-10" (click)="toggleAlerts()">
+    <mat-icon class="">warning</mat-icon> Alerts ({{ alertsCount }})
+  </button> -->
+  <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
+    class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
+    <mat-icon class="">filter_list</mat-icon> Filter
+  </button>
+
+  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
+    (click)="openColumnSelector()">
+    <mat-icon>grid_on</mat-icon> Grid Columns
+  </button>
+</div>
+
+<div class="col-sm-12" style="overflow: hidden; width: 100%">
+  <!-- Filter Form -->
+  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 0px; padding: 0">
+    <div style="margin-top: 10px; width: 100%">
+      <form [formGroup]="myGroup">
+        <mat-card class="filter">
+          <mat-card-content>
+            <div class="row col-lg-12 col-sm-12">
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass"><b>Keyword:</b></div>
+                <div class="col-sm-8">
+                  <input type="text" formControlName="Keyword" class="form-control" placeholder="Search by keyword" />
+                </div>
+              </div>
+
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Process Category :</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select class="form-control" formControlName="TractorIdSections"
+                    placeholder="Select Process Category">
+                    <mat-option *ngFor="let section of TractorIdSections" [value]="section.item_id">
+                      {{ section.item_text }}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Select Supplier Name:</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select class="form-control" formControlName="ResponsibleSections"
+                    placeholder="Select Supplier Name">
+                    <mat-option *ngFor="let section of responsibleSections" [value]="section.item_id">
+                      {{ section.item_text }}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Action Type :</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select class="form-control" formControlName="ResponsibleSectionLeadId"
+                    placeholder="Select Action Type">
+                    <mat-option *ngFor="let item of resSectionFilterLeads" [value]="item.UserId">
+                      {{ item.UserName }}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-12 pull-right mt-3" style="margin-left: -15px">
+                <a (click)="filterToggle = !filterToggle" class="pull-right"
+                  style="font-size: 25px; cursor: pointer; margin-left: 5px">
+                  <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                </a>
+
+                <button mat-raised-button class="pull-right btn-default margin-right-10" (click)="clearFilter()">
+                  <mat-icon>settings_backup_restore</mat-icon>Clear
+                </button>
+                <button mat-raised-button style="margin-right: 10px" color="primary" class="pull-right" (click)="go()">
+                  <mat-icon>search</mat-icon>Search
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-sm-12" style="margin-top: 10px; width: 100%; padding: 0">
+    <div class="table-responsive" id="grid-table-container" style="scroll-behavior: smooth;">
+
+      <table class="table table-bordered table-hover audit-table">
+
+        <thead class="tbl-head">
+
+          <tr>
+
+            <th *ngFor="let col of activeColumns; let i = index" class="text-center"
+              [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+              [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+              [style.width.px]="getColumnWidth(col)">
+              {{ col }}
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let applicant of pagedTableList">
+
+            <td *ngFor="let col of activeColumns; let i = index" class="text-center"
+              [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+              [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+              [style.width.px]="getColumnWidth(col)">
+
+              <ng-container [ngSwitch]="col">
+
+                <!-- Action -->
+                <ng-container *ngSwitchCase="'Action'">
+
+                  <a matTooltip="Supplier cannot edit" style="cursor: not-allowed">
+                    <i class="fa fa-edit"></i>
+                  </a>
+
+                  <a matTooltip="Supplier cannot delete" style="margin-left: 5px; cursor: not-allowed">
+                    <i class="fa fa-trash" style="color: red"></i>
+                  </a>
+
+                </ng-container>
+
+
+                <!-- Status -->
+                <ng-container *ngSwitchCase="'Status'">
+
+                  {{ applicant.status }}
+
+                </ng-container>
+
+
+                <!-- Resolved -->
+                <ng-container *ngSwitchCase="'Resolved'">
+
+                  <mat-checkbox [(ngModel)]="applicant.resolved" (change)="onInlineChange(applicant)" color="primary">
+                  </mat-checkbox>
+
+                </ng-container>
+
+
+                <!-- Docs -->
+                <ng-container *ngSwitchCase="'Docs'">
+
+                  <span style="color: blue; cursor: pointer" (click)="docsPhoto(applicant)">
+                    {{ applicant.docs }}
+                  </span>
+
+                </ng-container>
+
+
+                <!-- Reference -->
+                <!-- <ng-container *ngSwitchCase="'Reference'">
+
+                  <a [routerLink]="[
+                  '/app',
+                  'sqm',
+                  'inspect-inner-screen',
+                  'capa-view'
+                ]" [queryParams]="{
+                  inspectionRefId: applicant.inspectionRefId,
+                  isReadOnly: true,
+                  parameterName: applicant.parameterName
+                }" [style.color]="
+                  applicant.isAlert ? 'red' : 'blue'
+                " style="
+                  font-weight: 500;
+                  text-decoration: underline;
+                ">
+                    {{ applicant.reference }}
+                  </a>
+
+                </ng-container> -->
+
+                <ng-container *ngSwitchCase="'Reference'">
+                  <a [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'capa-view']" 
+                     [queryParams]="{
+                        inspectionRefId: applicant.inspectionRefId,
+                        isReadOnly: true,
+                        parameterName: applicant.parameterName
+                     }" 
+                     style="color: blue; font-weight: 500; text-decoration: underline;">
+                    {{ applicant.reference }}
+                  </a>
+                </ng-container>
+
+
+                <!-- Subject -->
+                <!-- <ng-container *ngSwitchCase="'Subject'">
+
+                  {{ applicant.actionSubject }}
+
+                </ng-container>
+ -->
+
+
+ <ng-container *ngSwitchCase="'Subject'">
+                  <div style="line-height: 1.4;">
+                    <span [ngStyle]="{
+                        'color': applicant.calculatedDelayInDays >= overdueThreshold ? 'red' : 'inherit',
+                        'font-weight': applicant.calculatedDelayInDays >= overdueThreshold ? '600' : 'normal'
+                      }"
+                      style="display: inline-flex; align-items: center; justify-content: center;">
+                      
+                      <mat-icon *ngIf="applicant.calculatedDelayInDays >= escalateThreshold" 
+                        style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">
+                        flag
+                      </mat-icon>
+                      
+                      <span>{{ applicant.actionSubject || '-' }}</span>
+                    </span>
+                  </div>
+                </ng-container>
+
+
+
+                <!-- Parameter Name -->
+                <ng-container *ngSwitchCase="'Parameter Name'">
+
+                  {{ applicant.parameterName }}
+
+                </ng-container>
+
+
+                <!-- Part Family -->
+                <ng-container *ngSwitchCase="'Part Family'">
+
+                  {{ applicant.partFamilyName }}
+
+                </ng-container>
+
+
+                <!-- Part Name -->
+                <ng-container *ngSwitchCase="'Part Name'">
+
+                  {{ applicant.partName }}
+
+                </ng-container>
+
+
+                <!-- Supplier Name -->
+                <ng-container *ngSwitchCase="'Supplier Name'">
+
+                  {{ applicant.supplierName }}
+
+                </ng-container>
+
+
+                <!-- Action Type -->
+                <ng-container *ngSwitchCase="'Action Type'">
+
+                  {{ applicant.actionType || '-' }}
+
+                </ng-container>
+
+
+                <!-- Audit Reference -->
+                <ng-container *ngSwitchCase="'Audit Reference'">
+
+                  {{ applicant.auditReference || '-' }}
+
+                </ng-container>
+
+
+                <!-- Process Category -->
+                <ng-container *ngSwitchCase="'Process Category'">
+
+                  {{ applicant.processCategory || '-' }}
+
+                </ng-container>
+
+
+                <!-- Supplier Remarks -->
+                <ng-container *ngSwitchCase="'Supplier Remarks'">
+
+                  {{ applicant.supplierRemarks || '-' }}
+
+                </ng-container>
+
+
+                <!-- Log Date -->
+                <ng-container *ngSwitchCase="'Log Date'">
+
+                  {{ applicant.logDate }}
+
+                </ng-container>
+
+
+                <!-- Due Date -->
+                <ng-container *ngSwitchCase="'Due Date'">
+
+                  {{ applicant.dueDate }}
+
+                </ng-container>
+
+
+                <!-- ETA Date -->
+                <ng-container *ngSwitchCase="'ETA Date'">
+
+                  {{ applicant.etaDate }}
+
+                </ng-container>
+
+
+                <!-- Auditor Remarks -->
+                <ng-container *ngSwitchCase="'Auditor Remarks'">
+
+                  {{ applicant.auditorRemarks || '-' }}
+
+                </ng-container>
+
+
+                <!-- Auditee Response -->
+                <ng-container *ngSwitchCase="'Auditee Response'">
+
+                  {{ applicant.auditeeResponse || '-' }}
+
+                </ng-container>
+
+
+                <!-- Delay In Days -->
+                <ng-container *ngSwitchCase="'Delay In Days'">
+
+                  {{ applicant.delayInDays || '0' }}
+
+                </ng-container>
+
+
+                <!-- Completion Date -->
+                <ng-container *ngSwitchCase="'Completion Date'">
+
+                  {{ applicant.completion || '-' }}
+
+                </ng-container>
+
+
+                <!-- Severity -->
+                <ng-container *ngSwitchCase="'Severity'">
+
+                  {{ applicant.severity || '-' }}
+
+                </ng-container>
+
+
+                <!-- Occurrence -->
+                <ng-container *ngSwitchCase="'Occurrence'">
+
+                  {{ applicant.occurrence || '-' }}
+
+                </ng-container>
+
+
+                <!-- Detection -->
+                <ng-container *ngSwitchCase="'Detection'">
+
+                  {{ applicant.detection || '-' }}
+
+                </ng-container>
+
+
+                <!-- Risk Rating -->
+                <ng-container *ngSwitchCase="'Risk Rating'">
+
+                  <mat-select [(ngModel)]="applicant.riskRating" class="form-control" [disabled]="true">
+
+                    <mat-option value="High">
+                      High
+                    </mat-option>
+
+                    <mat-option value="Medium">
+                      Medium
+                    </mat-option>
+
+                    <mat-option value="Low">
+                      Low
+                    </mat-option>
+
+                  </mat-select>
+
+                </ng-container>
+
+
+                <!-- Rating -->
+                <ng-container *ngSwitchCase="'Rating'">
+
+                  {{ applicant.rating || '-' }}
+
+                </ng-container>
+
+
+                <!-- PDCA Status -->
+                <ng-container *ngSwitchCase="'PDCA Status'">
+
+                  {{ applicant.pdcaStatus || '-' }}
+
+                </ng-container>
+
+
+              </ng-container>
+
+            </td>
+
+          </tr>
+
+
+          <tr *ngIf="
+          !pagedTableList ||
+          pagedTableList.length === 0
+        ">
+
+            <td [attr.colspan]="activeColumns.length" class="text-center">
+              No records found.
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+
+      <!-- Horizontal Scroll Buttons -->
+
+      <button class="mine mine-right" mat-fab (click)="scrollRight()">
+        <mat-icon style="color: #37474f">
+          fast_forward
+        </mat-icon>
+      </button>
+
+      <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+        <mat-icon style="color: #37474f">
+          fast_rewind
+        </mat-icon>
+      </button>
+
+    </div>
+
+    <div style="width: 100%">
+      <!-- 🔥 Bound (page) event to run updatePagination() -->
+      <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"
+        showFirstLastButtons (page)="onPageChange($event)">
+      </mat-paginator>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,354 @@
+.active-audits-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+/* Toolbar Buttons */
+.toolbar-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 15px;
+
+  /* Overriding mat-raised-button colors */
+  .btn-dark {
+    background-color: #111 !important;
+    color: #fff !important;
+  }
+
+  .btn-blue {
+    background-color: #0d8add !important;
+    /* Light blue from image */
+    color: #fff !important;
+  }
+
+  /* Centers the icon properly with text inside a mat-button */
+  ::ng-deep .mdc-button__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+/* Data Table Styling */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  /* Optional: smooths the corners around table and paginator */
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead {
+    background-color: #2b6ca3;
+    /* The blue header */
+    color: white;
+
+    th {
+      padding: 12px 10px;
+      text-align: left;
+      font-weight: bold;
+      // border: 1px solid #5a8eb8; /* Subtle inner border for header */
+      white-space: nowrap;
+
+      &:nth-child(7),
+      &:nth-child(8),
+      &:nth-child(9),
+      &:nth-child(10),
+      &:nth-child(11) {
+        text-align: center;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e0e0e0;
+
+      &:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      &:hover {
+        background-color: #f1f5f9;
+      }
+    }
+
+    td {
+      padding: 10px;
+      border: 1px solid #e0e0e0;
+      /* Vertical column borders */
+      color: #333;
+
+      &.text-link {
+        color: #0000ee;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      &.text-center {
+        text-align: center;
+      }
+    }
+  }
+}
+
+/* Form elements in table */
+.status-dropdown {
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #fff;
+  font-size: 12px;
+}
+
+/* Manage Icons */
+.manage-icons {
+  font-size: 14px;
+
+  .edit-icon {
+    color: #5c7cb1;
+    /* Slate blue */
+    margin-right: 12px;
+    cursor: pointer;
+  }
+
+  .delete-icon {
+    color: #e53935;
+    /* Red */
+    cursor: pointer;
+  }
+}
+
+/* Fix Mat Paginator border so it blends with the table */
+::ng-deep .mat-mdc-paginator {
+  border-top: 1px solid #e0e0e0;
+}
+
+
+
+
+
+
+
+
+.active-audits-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+
+
+
+th {
+  background-color: #3f3f3f;
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #e1e1e1;
+  /* already correct */
+}
+
+td {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+/* ==========================
+   Single Bar Chart
+========================== */
+
+.charts-row {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.chart-container {
+  width: 100%;
+}
+
+.chart-container ::ng-deep highcharts-chart {
+  display: block;
+  width: 100%;
+  height: 380px;
+}
+
+.chart-container ::ng-deep .highcharts-container,
+.chart-container ::ng-deep .highcharts-root,
+.chart-container ::ng-deep svg.highcharts-root {
+  width: 100% !important;
+  height: 380px !important;
+}
+
+.archive-icon {
+  //color: #ff9800;
+  cursor: pointer;
+  margin: 0 12px;
+  font-size: 16px;
+}
+
+frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+/* Frozen Header */
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important; // Keep your existing header color
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+/* Divider after last frozen column */
+.last-frozen {
+  //border-right: 3px solid #90caf9 !important;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.mine {
+  position: fixed;
+  bottom: 80px;
+  right: 40px;
+  background-color: #e6e6e6 !important;
+}
+
+.filter-wrapper {
+  background: #efefef;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 14px;
+  margin-bottom: 15px;
+}
+
+.filter-card,
+.mat-mdc-card,
+.mat-mdc-card-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
+  column-gap: 20px;
+  row-gap: 18px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.filter-label {
+  width: 90px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.custom-mat-input,
+.custom-mat-select {
+  width: 100%;
+  max-width: 220px;
+}
+
+.custom-mat-input {
+  flex: 1;
+  height: 38px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0 10px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  grid-column: 4;
+}
+
+.btn-go {
+  background: #fff !important;
+  border: 1px solid #c5c5c5 !important;
+}
+
+.btn-clear {
+  background: #3f4a54 !important;
+  color: #fff !important;
+}
+
+.custom-mat-input {
+  width: 180px !important;
+  /* Slightly wider than select, adjust if needed */
+  height: 36px !important;
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  padding: 0 10px !important;
+  box-sizing: border-box;
+  outline: none;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: #333;
+  transition: border-color 0.2s ease-in-out;
+
+  /* Matches the green focus border from your image */
+  &:focus {
+    border: 1px solid #0c6b4b !important;
+  }
+
+  &::placeholder {
+    color: #999 !important;
+    font-size: 13px !important;
+    opacity: 1 !important;
+  }
+}
+
+.custom-mat-select {
+  width: 180px;
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px;
+  font-size: 13px;
+  display: block;
+
+  ::ng-deep .mat-select-trigger {
+    height: 32px !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  ::ng-deep .mat-select-value {
+    color: #555 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+}

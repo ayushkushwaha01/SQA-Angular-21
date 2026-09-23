@@ -32,23 +32,29 @@ export class HorizontalMenuComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.menuItems = this.menuService.getHorizontalMenuItems();
-    this.menuItems = this.menuItems.filter(item => item.parentId == this.menuParentId);
+    this.loadMenuItems();
+  }
+
+  private loadMenuItems() {
+    const url = this.router.url;
+    const allItems = url.startsWith('/app/supplier-login')
+      ? this.menuService.getSupplierMenuItems()
+      : this.menuService.getHorizontalMenuItems();
+    this.menuItems = allItems.filter(item => item.parentId == this.menuParentId);
   }
 
   ngAfterViewInit(){
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        if(this.settings.fixedHeader){
-          let mainContent = document.getElementById('main-content');
-          if(mainContent){
-            mainContent.scrollTop = 0;
-          }
+        this.loadMenuItems();
+        if (this.settings.fixedHeader) {
+          const mainContent = document.getElementById('main-content');
+          if (mainContent) { mainContent.scrollTop = 0; }
+        } else {
+          const drawer = document.getElementsByClassName('mat-drawer-content')[0] as HTMLElement;
+          if (drawer) { drawer.scrollTop = 0; }
         }
-        else{
-          document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
-        }
-      }                
+      }
     });
   }
 
@@ -58,6 +64,9 @@ export class HorizontalMenuComponent implements OnInit {
     if (menu.routerLink) {
       if (menu.routerLink === '/internal-portal/dashboard') {
         return currentUrl === '/internal-portal/dashboard' || currentUrl === '/internal-portal' || currentUrl === '/';
+      }
+      if (menu.routerLink === '/app/supplier-login/dashboard') {
+        return currentUrl === '/app/supplier-login/dashboard' || currentUrl === '/app/supplier-login';
       }
       return currentUrl === menu.routerLink || currentUrl.startsWith(menu.routerLink + '/') || (menu.routerLink === '/manage-users' && currentUrl.startsWith('/manage-users'));
     }

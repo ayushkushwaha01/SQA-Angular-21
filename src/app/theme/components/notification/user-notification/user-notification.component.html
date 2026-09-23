@@ -1,0 +1,60 @@
+<!-- <button mat-icon-button [matMenuTriggerFor]="notificationMenu" #notificationMenuTrigger="matMenuTrigger"
+    [matBadge]="getCriticalCount()" matBadgeColor="accent" matBadgeSize="small">
+    <mat-icon style="color:white;">notifications</mat-icon>
+</button> -->
+
+<button mat-icon-button [matMenuTriggerFor]="notificationMenu" #notificationMenuTrigger="matMenuTrigger"
+    [matBadge]="notifications.length" 
+    [matBadgeHidden]="notifications.length === 0"
+    matBadgeColor="accent" matBadgeSize="small">
+    <mat-icon style="color:white;">notifications</mat-icon>
+</button>
+
+
+<mat-menu #notificationMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu notifications-menu">
+    <mat-toolbar class="notification-header">
+        <div fxLayout="row" fxLayoutAlign="space-between center" class="notification-title">
+            <h3>Notifications ({{ notifications.length }})</h3>
+            <button mat-icon-button (click)="clearNotifications()" matTooltip="Clear All">
+                <mat-icon>clear_all</mat-icon>
+            </button>
+        </div>
+    </mat-toolbar>
+
+    <mat-divider></mat-divider>
+
+    <!-- Notification List -->
+    <div *ngFor="let notification of notifications | slice:0:5" class="notification-item p-2"
+        [ngClass]="'severity-' + notification.severity.toLowerCase()"
+        routerLink="/app/notifications" (click)="closeNotificationMenu()" style="cursor: pointer;">
+
+        <!-- Audit Type & Date -->
+        <div class="notification-header-info">
+            <span class="audit-type" [ngClass]="'type-' + notification.auditType.toLowerCase()">
+                {{ notification.auditType }}
+            </span><span style="font-weight: 700;padding-left: 5px;padding-right: 5px;">-</span>
+            <span class="notification-date">{{ notification.date }}</span>
+        </div>
+
+        <!-- Single-line Notification Summary -->
+        <div class="notification-details">
+            <p class="detail-line">{{ getNotificationSummary(notification) }}</p>
+        </div>
+
+        <mat-divider></mat-divider>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="notifications.length === 0" class="empty-state">
+        <mat-icon>notifications_none</mat-icon>
+        <p>No notifications</p>
+    </div>
+
+    <!-- View All -->
+    <div class="notifications-footer" *ngIf="notifications.length > 0">
+        <a mat-menu-item routerLink="/app/notifications" (click)="closeNotificationMenu()">
+            <mat-icon>visibility</mat-icon>
+            <span>View All Notifications</span>
+        </a>
+    </div>
+</mat-menu>

@@ -1,0 +1,637 @@
+<div class="active-audits-container">
+  <div class="charts-row">
+    <div class="chart-container">
+      <highcharts-chart
+        [Highcharts]="Highcharts"
+        [options]="auditScoreChartOptions"
+        [oneToOne]="true"
+        [(update)]="updateFlag"
+        style="width: 100%; height: 380px; display: block"
+      >
+      </highcharts-chart>
+    </div>
+  </div>
+
+  <div class="toolbar-row">
+    <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
+      <mat-icon>grid_on</mat-icon> Columns
+    </button>
+    <button mat-raised-button class="btn-dark" (click)="toggleFilters()">
+      <mat-icon>filter_list</mat-icon> Filter
+    </button>
+    <!-- <button mat-raised-button color="primary" class="btn-blue">
+      <mat-icon>person_add</mat-icon> Add Audit
+    </button> -->
+  </div>
+
+  <div class="filter-wrapper" *ngIf="showFilters" style="width: 100%">
+    <form [formGroup]="filterForm">
+      <mat-card class="filter-card">
+        <mat-card-content>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-label mb-0">Keyword :</label>
+              <input
+                type="text"
+                placeholder="Enter Keyword"
+                class="custom-mat-input"
+                formControlName="keyword"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">Commodity :</label>
+              <mat-select
+                class="form-control"
+                placeholder="Select Commodity"
+                formControlName="commodityId"
+              >
+                <mat-option
+                  *ngFor="let item of originalTableData"
+                  [value]="item.commodityId"
+                >
+                  {{ item.name }}
+                </mat-option>
+              </mat-select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">Part Family :</label>
+              <mat-select
+                class="form-control"
+                placeholder="Select Part Family"
+                formControlName="partFamilyId"
+              >
+                <mat-option
+                  *ngFor="let item of partsFamilies"
+                  [value]="item.partFamilyId"
+                >
+                  {{ item.partFamilyName }}
+                </mat-option>
+              </mat-select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">Part :</label>
+              <mat-select
+                class="form-control"
+                placeholder="Select Part"
+                formControlName="partMasterId"
+              >
+                <mat-option
+                  *ngFor="let item of parts"
+                  [value]="item.partMasterId"
+                >
+                  {{ item.partMasterName }}
+                </mat-option>
+              </mat-select>
+            </div>
+            <!-- <div class="filter-group">
+              <label class="filter-label mb-0">Supplier :</label>
+              <mat-select class="form-control" placeholder="Select Supplier" formControlName="supplierId">
+
+                <mat-option *ngFor="let item of Suppliers" [value]="item.supplierId">
+
+                  {{ item.supplierName }}
+
+                </mat-option>
+
+              </mat-select>
+
+            </div> -->
+            <div class="filter-group">
+              <label class="filter-label mb-0">Auditor :</label>
+              <mat-select
+                class="form-control"
+                placeholder="Select Auditor"
+                formControlName="auditorId"
+                style="width: 64%"
+              >
+                <mat-option *ngFor="let item of Auditors" [value]="item.userId">
+                  {{ item.userName }}
+                </mat-option>
+              </mat-select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">State :</label>
+              <mat-select
+                class="form-control"
+                placeholder="Select State"
+                formControlName="stateId"
+              >
+                <mat-option *ngFor="let item of states" [value]="item.stateId">
+                  {{ item.stateName }}
+                </mat-option>
+              </mat-select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">City :</label>
+              <mat-select
+                class="form-control"
+                placeholder="Select City"
+                formControlName="cityId"
+              >
+                <mat-option *ngFor="let item of cities" [value]="item.cityId">
+                  {{ item.cityName }}
+                </mat-option>
+              </mat-select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">Status :</label>
+              <mat-select
+                class="form-control"
+                placeholder="Select Status"
+                formControlName="statusId"
+              >
+                <mat-option
+                  *ngFor="let item of lookups"
+                  [value]="item.lookupId"
+                >
+                  {{ item.lookupName }}
+                </mat-option>
+              </mat-select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">From Date :</label>
+              <input type="date" class="custom-mat-input" />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label mb-0">To Date :</label>
+              <input type="date" class="custom-mat-input" style="width: 74%" />
+            </div>
+
+            <div class="button-group">
+              <button
+                mat-raised-button
+                class="btn-go"
+                (click)="getPartsAuidt()"
+              >
+                <mat-icon>search</mat-icon> Go
+              </button>
+              <button
+                mat-raised-button
+                class="btn-clear"
+                (click)="clearFilters()"
+              >
+                <mat-icon>settings_backup_restore</mat-icon> Clear
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </div>
+
+  <div class="table-responsive" id="table-responsive">
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <ng-container
+            *ngFor="let col of activeColumns; let i = index"
+            [ngSwitch]="col"
+          >
+            <!-- Audit Reference -->
+
+            <th
+              *ngSwitchCase="'Audit Reference'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Audit Reference
+            </th>
+
+            <!-- Commodity -->
+
+            <th
+              *ngSwitchCase="'Commodity'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Commodity
+            </th>
+
+            <!-- Part Family -->
+
+            <th
+              *ngSwitchCase="'Part Family'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Part Family
+            </th>
+
+            <!-- Part -->
+
+            <th
+              *ngSwitchCase="'Part'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Part
+            </th>
+
+            <!-- Supplier -->
+
+            <th
+              *ngSwitchCase="'Supplier'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Supplier
+            </th>
+
+            <!-- Auditor -->
+
+            <th
+              *ngSwitchCase="'Auditor'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Auditor
+            </th>
+
+            <!-- State -->
+
+            <th
+              *ngSwitchCase="'State'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              State
+            </th>
+
+            <!-- City -->
+
+            <th
+              *ngSwitchCase="'City'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              City
+            </th>
+
+            <!-- Audit Date -->
+
+            <th
+              *ngSwitchCase="'Audit Date'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Audit Date
+            </th>
+
+            <!-- CAPA -->
+
+            <th
+              *ngSwitchCase="'CAPA'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              CAPA
+            </th>
+
+            <!-- Report -->
+
+            <th
+              *ngSwitchCase="'Report'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Report
+            </th>
+
+            <!-- Status -->
+
+            <th
+              *ngSwitchCase="'Status'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Status
+            </th>
+
+            <!-- Done -->
+
+            <th
+              *ngSwitchCase="'Done'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Done
+            </th>
+
+            <!-- Actions -->
+
+            <th
+              *ngSwitchCase="'Actions'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              Actions
+            </th>
+          </ng-container>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let audit of tableLists">
+          <ng-container
+            *ngFor="let col of activeColumns; let i = index"
+            [ngSwitch]="col"
+          >
+            <!-- Audit Reference -->
+            <td
+              *ngSwitchCase="'Audit Reference'"
+              class="text-link"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              <a
+                [routerLink]="['/app/supplier-login/inner-screen/parts-ref']"
+                [queryParams]="{
+                  partMasterId: audit.partMasterId,
+                  partFamilyId: audit.partFamilyId,
+                  partAuditId: audit.partAuditId,
+                  done: audit.done
+                }"
+              >
+                {{ "2026/PART/" + padId(audit.partAuditId) }}
+              </a>
+            </td>
+
+            <!-- Commodity -->
+            <td
+              *ngSwitchCase="'Commodity'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.commodityName || "-" }}
+            </td>
+
+            <!-- Part Family -->
+            <td
+              *ngSwitchCase="'Part Family'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.partFamilyName || "-" }}
+            </td>
+
+            <!-- Part -->
+            <td
+              *ngSwitchCase="'Part'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.partMasterName || "-" }}
+            </td>
+
+            <!-- Supplier -->
+            <td
+              *ngSwitchCase="'Supplier'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.supplierName || "-" }}
+            </td>
+
+            <!-- Auditor -->
+            <td
+              *ngSwitchCase="'Auditor'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.auditorName || "-" }}
+            </td>
+
+            <!-- State -->
+            <td
+              *ngSwitchCase="'State'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.stateName || "-" }}
+            </td>
+
+            <!-- City -->
+            <td
+              *ngSwitchCase="'City'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.cityName || "-" }}
+            </td>
+            <!-- Audit Date -->
+            <td
+              *ngSwitchCase="'Audit Date'"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              {{ audit.auditDate | date: "MM/dd/yyyy" }}
+            </td>
+
+            <!-- CAPA -->
+            <td
+              *ngSwitchCase="'CAPA'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              <a
+                style="
+                  cursor: pointer;
+                  text-decoration: underline;
+                  color: black;
+                "
+              >
+                {{ audit.resolvedCapaCount }}/{{ audit.totalCapaCount }}
+              </a>
+            </td>
+
+            <!-- Report -->
+            <td
+              *ngSwitchCase="'Report'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              <!-- <a href="assets/processaudit.pdf" target="_blank" style="text-decoration:underline;color:#1976d2;">
+
+                {{audit.okayPercentage}}%
+
+              </a> -->
+              <a
+                [routerLink]="['/app/sqm/parts-inner-screen/pdfref']"
+                [queryParams]="{ partAuditId: audit.partAuditId }"
+              >
+                {{ audit.okayPercentage }}%
+              </a>
+            </td>
+
+            <!-- Status -->
+            <td
+              *ngSwitchCase="'Status'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              <mat-select
+                class="form-control disable-custom"
+                style="width: 120px"
+                [(ngModel)]="audit.statusId"
+                [disabled]="true"
+              >
+                <mat-option
+                  *ngFor="let item of lookups"
+                  [value]="item.lookupId"
+                >
+                  {{ item.lookupName }}
+                </mat-option>
+              </mat-select>
+            </td>
+
+            <!-- Done -->
+            <td
+              *ngSwitchCase="'Done'"
+              class="text-center"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              <mat-checkbox
+                [checked]="!!audit.done"
+                [disabled]="true"
+                [ngClass]="{ 'disable-custom': true }"
+                color="primary"
+              >
+              </mat-checkbox>
+            </td>
+
+            <!-- Manage -->
+            <td
+              *ngSwitchCase="'Actions'"
+              class="text-center manage-icons"
+              [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)"
+            >
+              <i
+                class="fas fa-edit edit-icon"
+                title="Edit"
+                [ngClass]="{ 'disable-custom': true }"
+              >
+              </i>
+
+              <i
+                class="fas fa-trash delete-icon"
+                title="Delete"
+                [ngClass]="{ 'disable-custom': true }"
+              >
+              </i>
+              <i
+                class="fas"
+                [ngClass]="{
+                  'fa-box-open': audit.archive,
+                  'fa-archive': !audit.archive,
+                  'archive-icon': true,
+                  'disable-custom': true
+                }"
+                [matTooltip]="
+                  audit.done
+                    ? audit.archive
+                      ? 'Unarchive'
+                      : 'Archive'
+                    : 'Mark as Done first'
+                "
+                [class.disabled-icon]="!audit.done"
+              >
+              </i>
+            </td>
+          </ng-container>
+        </tr>
+
+        <tr *ngIf="tableLists.length === 0">
+          <td colspan="7" class="text-center py-4 center">No Data Available</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <mat-paginator
+    [length]="totalSize"
+    [pageIndex]="currentPage"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 25, 50, 100]"
+    (page)="fnHandlePage($event)"
+    showFirstLastButtons
+  >
+  </mat-paginator>
+
+  <button class="mine" mat-fab (click)="scrollGrid('right')">
+    <mat-icon style="color: #37474f">fast_forward</mat-icon>
+  </button>
+  <button
+    class="mine"
+    mat-fab
+    style="margin-right: 78px !important"
+    (click)="scrollGrid('left')"
+  >
+    <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+  </button>
+</div>

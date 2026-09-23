@@ -1,0 +1,167 @@
+// Typography and sizing tweaks
+.font-weight-bold {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-control {
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+// Mat-select override to match standard input borders
+.custom-mat-select {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+// Red Risk Rating Input
+.input-risk {
+  background-color: red !important;
+  color: white !important;
+  font-weight: 600;
+  border: none;
+}
+
+// Image Gallery Styling
+.gallery-container {
+  background-color: #eceaea;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: none;
+  gap: 10px;
+}
+
+.inner-card {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-btn-card {
+  background-color: #141313;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+
+  .add-icon {
+    color: white;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.img-card {
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
+  cursor: pointer;
+
+  .gallery-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Save Button
+.btn-save {
+  background-color: green;
+  color: white;
+  width: 100px;
+  font-weight: 500;
+  
+  &:hover {
+    background-color: darkgreen;
+  }
+}
+
+
+.container-fluid {
+  padding-left: 30px;
+}
+
+.slideshow-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slideshow-image {
+  max-width: 90%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.slideshow-close {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.slideshow-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  &:hover {
+    background: rgba(255,255,255,0.4);
+  }
+
+  &.prev {
+    left: 30px;
+  }
+
+  &.next {
+    right: 30px;
+  }
+}

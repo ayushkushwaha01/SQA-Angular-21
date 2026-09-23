@@ -3,7 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SetupService } from 'src/app/pages/setup/setup.service';
-import { CommodityService } from 'src/app/pages/sqm/process-audits/paudits-setup/commodity-master/commodity.service';
+import { CommodityService } from 'src/app/pages/internal-portal/process-audits/paudits-setup/commodity-master/commodity.service';
 import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({

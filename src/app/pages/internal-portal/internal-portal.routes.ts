@@ -9,6 +9,7 @@ export const INTERNAL_PORTAL_ROUTES: Routes = [
     children: [
       { path: '', component: InternalPortalDashboardComponent, data: { breadcrumb: 'Dashboard', description: 'Internal portal overview and system key metrics.' } },
       { path: 'dashboard', component: InternalPortalDashboardComponent, data: { breadcrumb: 'Dashboard', description: 'Internal portal overview and system key metrics.' } },
+      { path: 'sqmd', component: InternalPortalDashboardComponent, data: { breadcrumb: 'Dashboard', description: 'Internal portal overview and system key metrics.' } },
 
 
 

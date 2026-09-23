@@ -1,0 +1,103 @@
+<div class="inbox-container">
+
+  <!-- TOP HEADER WITH TITLE, SEARCH & ACTIONS -->
+  <div class="inbox-header">
+    <div class="header-left">
+      <div class="section-title">
+        <mat-icon class="notifications-icon">notifications</mat-icon>
+        <span>Notifications</span>
+        <span class="count-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Search notifications..." />
+      <button mat-icon-button *ngIf="searchQuery" (click)="searchQuery=''" class="clear-btn">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+
+    <div class="action-buttons">
+      <button mat-icon-button (click)="fetchData()" matTooltip="Refresh Notifications" class="icon-btn">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-icon-button (click)="goBack()" matTooltip="Back to previous screen" class="icon-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN BODY AREA (LEFT LIST + RIGHT READING PANE) -->
+  <div class="inbox-body">
+
+    <!-- LEFT LIST PANE -->
+    <div class="list-pane">
+      <div class="list-count-header">
+        <span>System Notifications</span>
+        <span class="total-count">({{ filteredItems.length }})</span>
+      </div>
+
+      <div class="items-wrapper">
+        <div *ngFor="let item of filteredItems"
+             class="item-card"
+             [class.selected]="selectedItem?.id === item.id"
+             (click)="selectItem(item)">
+
+          <div class="item-header-row">
+            <span class="item-title">{{ item.issue }}</span>
+            <span class="item-date">{{ item.date }}</span>
+          </div>
+
+          <div class="item-snippet-row">
+            <span class="item-snippet" [innerHTML]="getFormattedDescription(item.description)"></span>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="filteredItems.length === 0">
+          <mat-icon>notifications_off</mat-icon>
+          <p>No notifications available</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT READING PANE -->
+    <div class="reading-pane" *ngIf="selectedItem">
+      <div class="reading-content">
+        
+        <!-- TITLE -->
+        <h2 class="reading-title">{{ selectedItem.issue }}</h2>
+
+        <!-- SENDER METADATA -->
+        <div class="meta-card">
+          <div class="avatar bot-avatar">
+            <mat-icon>smart_toy</mat-icon>
+          </div>
+          <div class="meta-info">
+            <div class="name-line">
+              <strong>SQA System Bot</strong>
+              <span class="email-sub">&lt;alerts@sqa.com&gt;</span>
+              <span class="date-right">{{ selectedItem.date }}</span>
+            </div>
+            <div class="to-line">Target: Quality Manager & Escalation Matrix</div>
+          </div>
+        </div>
+
+        <!-- CONTENT DETAIL CARD -->
+        <div class="body-content">
+          <div class="notification-details">
+            <p class="notification-text" [innerHTML]="getFormattedDescription(selectedItem.description)"></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Empty Reading Pane -->
+    <div class="reading-pane empty" *ngIf="!selectedItem">
+      <mat-icon>notifications_none</mat-icon>
+      <p>Select a notification to read</p>
+    </div>
+
+  </div>
+</div>

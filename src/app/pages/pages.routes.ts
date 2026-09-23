@@ -157,6 +157,13 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./internal-portal/internal-portal.routes')
             .then(m => m.INTERNAL_PORTAL_ROUTES)
+      },
+      {
+        path: 'app/supplier-login',
+        data: { breadcrumb: 'Supplier Portal' },
+        loadChildren: () =>
+          import('./supplier-portal/supplier-portal.routes')
+            .then(m => m.SUPPLIER_PORTAL_ROUTES)
       }
     ]
   }

@@ -1,0 +1,211 @@
+.active-audits-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+/* Charts Grid */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Updated to 1fr for a single chart */
+  gap: 10px;
+  background-color: white;
+  padding: 20px 0;
+  margin-bottom: 20px;
+}
+
+/* Toolbar Buttons */
+.toolbar-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 15px;
+
+  /* Overriding mat-raised-button colors */
+  .btn-dark {
+    background-color: #111 !important;
+    color: #fff !important;
+  }
+
+  .btn-blue {
+    background-color: #0d8add !important;
+    /* Light blue from image */
+    color: #fff !important;
+  }
+
+  /* Centers the icon properly with text inside a mat-button */
+  ::ng-deep .mdc-button__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+/* Data Table Styling */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead {
+    background-color: #2b6ca3;
+    /* The blue header */
+    color: white;
+
+    th {
+      padding: 12px 10px;
+      text-align: left;
+      font-weight: bold;
+      border: 1px solid #e1e1e1;
+      /* Subtle inner border for header */
+      white-space: nowrap;
+
+      &:nth-child(7),
+      &:nth-child(8),
+      &:nth-child(9),
+      &:nth-child(10),
+      &:nth-child(11) {
+        text-align: center;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e0e0e0;
+
+      &:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      &:hover {
+        background-color: #f1f5f9;
+      }
+    }
+
+    td {
+      padding: 10px;
+      border: 1px solid #e0e0e0;
+      /* Vertical column borders */
+      color: #333;
+
+      &.text-link {
+        color: #0000ee;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      &.text-center {
+        text-align: center;
+      }
+    }
+  }
+}
+
+/* Form elements in table */
+.status-dropdown {
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #fff;
+  font-size: 12px;
+}
+
+/* Manage Icons */
+.manage-icons {
+  font-size: 14px;
+
+  .edit-icon {
+    color: #5c7cb1;
+    /* Slate blue */
+    margin-right: 12px;
+    cursor: pointer;
+  }
+
+  .delete-icon {
+    color: #e53935;
+    /* Red */
+    cursor: pointer;
+  }
+}
+
+/* Fix Mat Paginator border so it blends with the table */
+::ng-deep .mat-mdc-paginator {
+  border-top: 1px solid #e0e0e0;
+}
+
+.chart-container {
+  width: 100%;
+  min-width: 0;
+
+  ::ng-deep highcharts-chart {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  ::ng-deep .highcharts-container,
+  ::ng-deep .highcharts-root {
+    width: 100% !important;
+  }
+
+  ::ng-deep svg.highcharts-root {
+    width: 100% !important;
+  }
+}
+
+th {
+  background-color: #3f3f3f;
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #e1e1e1;
+}
+
+td {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+/* =========================================
+   FROZEN COLUMNS
+========================================= */
+
+.frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+
+/* =========================================
+   FROZEN HEADER
+========================================= */
+
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important;
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+
+/* =========================================
+   LAST FROZEN COLUMN DIVIDER
+========================================= */
+
+.last-frozen {
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
+}

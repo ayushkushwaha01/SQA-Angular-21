@@ -1,0 +1,415 @@
+<div class="back-btn ps-1 mb-4 mt-3" style="
+    display: flex;
+    justify-content: flex-end;
+    font-size: 18px;
+    font-weight: 500;
+  ">
+  <div class="col-sm-6">
+    <span style="color: blue; cursor: pointer; margin-left: 5px" (click)="goBack()">
+    </span>
+
+    CAPA Initiation
+  </div>
+
+  <div class="col-sm-6" style="display: flex; justify-content: flex-end">
+    <button mat-raised-button style="background-color: #808080; color: white; margin-right: 10px" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </button>
+  </div>
+</div>
+
+<div class="container-fluid py-4">
+  <form [formGroup]="auditForm">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            CAPA Subject :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="text" class="form-control" placeholder="Enter CAPA Subject" formControlName="capaSubject" />
+          </div>
+        </div>
+
+        <!-- <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Upload PDF :
+          </label>
+
+          <div class="col-sm-7">
+            <input class="form-control" readonly />
+
+           
+            <div class="mt-2" *ngIf="documents.length > 0">
+              <div *ngFor="let doc of documents">
+                <a [href]="doc.docurl" target="_blank">
+                  {{ doc.docTitlte }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Due Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="date" class="form-control" formControlName="dueDate" />
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Completed Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="date" class="form-control" formControlName="completedDate" />
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Logged Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="date" class="form-control" formControlName="loggedDate">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            PDCA Status :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select formControlName="pdcaStatus" placeholder="Select PDCA Status"
+              class="form-control custom-mat-select">
+              <mat-option *ngFor="let status of pdcaOptions" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-4 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Severity :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select class="form-control custom-mat-select" placeholder="Select Severity"
+              formControlName="severityId">
+              <mat-option *ngFor="let s of severities" [value]="s.severityId">
+                {{ s.rating }} - {{ s.severityName }}
+              </mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Occurrence :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select placeholder="Select Occurrence" class="form-control custom-mat-select"
+              formControlName="occurrence">
+              <mat-option *ngFor="let o of occurrenceOptions" [value]="o">
+                {{ o }}
+              </mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Detection :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select placeholder="Select Detection" class="form-control custom-mat-select"
+              formControlName="detection">
+              <mat-option *ngFor="let d of detectionOptions" [value]="d">
+                {{ d }}
+              </mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            SOD Score :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="text" class="form-control bg-light" formControlName="sodScore" readonly />
+          </div>
+        </div>
+
+        <!-- <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Risk Rating :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="text" value="High" class="form-control input-risk">
+          </div>
+        </div> -->
+
+        <!-- <div class="row form-group mt-3 align-items-center">
+
+          <label class="control-label col-sm-4 font-weight-bold">
+            Mark as Resolved:
+          </label>
+
+          <div class="col-sm-7">
+
+            <mat-checkbox formControlName="isResolved" (click)="$event.preventDefault(); changeResolvedStatus()">
+            </mat-checkbox>
+
+          </div>
+
+        </div> -->
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Class :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select class="form-control custom-mat-select" placeholder="Select Class" formControlName="class">
+              <mat-option value="Safety">Safety</mat-option>
+
+              <mat-option value="Critical">Critical</mat-option>
+
+              <mat-option value="Important">Important</mat-option>
+
+              <mat-option value="Fitment">Fitment</mat-option>
+
+              <mat-option value="Regular">Regular</mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Action Type :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select class="form-control custom-mat-select" placeholder="Select Action Type"
+              formControlName="actionType">
+              <mat-option value="Containment"> Containment </mat-option>
+
+              <mat-option value="Corrective"> Corrective </mat-option>
+
+              <mat-option value="Preventive"> Preventive </mat-option>
+            </mat-select>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <div class="col-sm-6">
+        <!-- <div class="form-group mt-3">
+          <label class="control-label font-weight-bold mb-2">
+            CAPA Subject :
+          </label>
+
+          <textarea rows="5" class="form-control" placeholder="Enter CAPA Subject..." formControlName="capaSubject">
+</textarea>
+        </div> -->
+
+        <label class="control-label font-weight-bold mb-2">
+          Demerit :
+        </label>
+        <div class="demerit-container d-flex">
+
+          <div *ngFor="let item of demeritOptions" class="demerit-card" [class.selected-demerit]="
+            auditForm.get('demeritId')?.value === item.demeritId
+        " (click)="selectDemerit(item)" [matTooltip]="item.description" matTooltipPosition="above">
+
+            <div class="demerit-val">
+              {{ item.demerit }}
+            </div>
+
+            <div class="demerit-label" [ngStyle]="{
+                'background-color': item.bgColor,
+                'color': item.color
+            }">
+
+              {{ item.subject }}
+
+            </div>
+
+          </div>
+
+        </div>
+        <div class="form-group mt-3">
+          <label class="control-label font-weight-bold mb-2">
+            Auditor Remarks :
+          </label>
+
+          <textarea rows="5" class="form-control" placeholder="Enter Auditor Remarks..."
+            formControlName="observations"></textarea>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="control-label font-weight-bold mb-2">
+            Corrective Actions :
+          </label>
+
+          <textarea rows="5" class="form-control" placeholder="Enter Corrective Actions..."
+            formControlName="correctiveActions"></textarea>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="control-label font-weight-bold mb-2">
+            Preventive Actions :
+          </label>
+
+          <textarea rows="5" class="form-control" placeholder="Enter Preventive Actions..."
+            formControlName="supplierRemarks"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+
+      <!-- ================= IMAGES ================= -->
+
+      <div class="col-sm-6">
+
+        <label class="control-label font-weight-bold mb-2">
+          Images :
+        </label>
+
+        <mat-card class="gallery-container" style="background-color:#eceaea">
+
+          <!-- Add Image -->
+
+          <mat-card class="inner-card add-btn-card" (click)="fileInput.click()" style="background-color: black;">
+
+            <mat-icon class="add-icon">add</mat-icon>
+
+          </mat-card>
+
+          <input type="file" #fileInput style="display:none" multiple accept="image/*"
+            (change)="onFileSelected($event)">
+
+
+          <!-- Images -->
+
+          <mat-card class="inner-card img-card" *ngFor="let img of images; let i = index" (click)="openSlideshow(i)">
+            <button type="button" class="delete-media-btn"
+              (click)="deleteImageConfirmation(i);$event.stopPropagation()">
+
+              <mat-icon>delete</mat-icon>
+
+            </button>
+
+            <img [src]="img" alt="Image" class="gallery-img">
+
+          </mat-card>
+
+        </mat-card>
+
+      </div>
+
+
+      <!-- ================= DOCUMENTS ================= -->
+
+      <div class="col-sm-6">
+
+        <label class="control-label font-weight-bold mb-2">
+          Documents :
+        </label>
+
+        <mat-card class="gallery-container" style="background-color:#eceaea">
+
+          <!-- Add PDF -->
+
+          <mat-card class="inner-card add-btn-card" (click)="pdfInput.click()" style="background-color: black;">
+
+            <mat-icon class="add-icon">add</mat-icon>
+
+          </mat-card>
+
+          <input type="file" #pdfInput style="display:none" multiple accept=".pdf" (change)="onPdfSelected($event)">
+
+
+          <!-- Documents -->
+
+          <mat-card class="inner-card document-card" *ngFor="let doc of documents" (click)="openDocument(doc)">
+            <button type="button" class="delete-media-btn"
+              (click)="deleteDocConfirmation(doc); $event.stopPropagation()">
+
+              <mat-icon>delete</mat-icon>
+
+            </button>
+
+            <!-- PDF Icon -->
+
+            <mat-icon class="pdf-icon">
+              picture_as_pdf
+            </mat-icon>
+
+
+            <!-- Title shown on hover -->
+
+            <div class="document-title">
+
+              {{ doc.docTitlte }}
+
+            </div>
+
+          </mat-card>
+
+        </mat-card>
+
+      </div>
+
+
+      <!-- ================= SAVE ================= -->
+
+      <div class="col-sm-12 text-end mt-4">
+
+        <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255);">
+
+          <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);" (click)="save()">
+
+            <mat-icon>save</mat-icon>
+            Save
+
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="slideshow-overlay" *ngIf="isSlideshowOpen" tabindex="0" (click)="closeSlideshow()">
+      <button class="slideshow-close" (click)="closeSlideshow(); $event.stopPropagation()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <button class="slideshow-nav prev" (click)="prevSlide($event)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <img [src]="images[currentSlideIndex]" class="slideshow-image" alt="Preview" (click)="$event.stopPropagation()" />
+
+      <button class="slideshow-nav next" (click)="nextSlide($event)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </form>
+</div>
