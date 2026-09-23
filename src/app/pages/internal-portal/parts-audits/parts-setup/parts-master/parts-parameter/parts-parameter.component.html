@@ -1,0 +1,100 @@
+<div class="back-btn ps-1 mb-4" style="display: flex; justify-content: flex-end; font-size: 18px; font-weight:500">
+
+
+    <div class="col-sm-6" style="display: flex; justify-content: flex-end; ">
+        <!-- <button _ngcontent-utt-c603="" mat-raised-button="" class="mat-focus-indicator mat-raised-button mat-button-base" style="background-color: #808080; color: white; ;margin-right: 10px;"><span class="mat-button-wrapper" (click)="goBack()"><mat-icon _ngcontent-utt-c603="" role="img" class="mat-icon notranslate material-icons mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font">arrow_back</mat-icon> Back </span><span matripple="" class="mat-ripple mat-button-ripple" ng-reflect-disabled="false" ng-reflect-centered="false" ng-reflect-trigger="[object HTMLButtonElement]"></span><span class="mat-button-focus-overlay"></span></button> -->
+
+    </div>
+
+</div>
+
+
+<div class="page-container p-3">
+
+    <div class="mb-3" style="width: 100%; display: flex; justify-content: flex-end; gap: 10px;">
+
+        <!-- <button
+    mat-raised-button
+    style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;">
+    <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-bottom: -5px;">download</mat-icon>
+    Download Template
+  </button> -->
+
+        <button mat-raised-button (click)="addparameter()"
+            style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-bottom: -5px;">add</mat-icon>
+            Add Parameter
+        </button>
+
+        <button mat-raised-button
+            style="background-color: #808080; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; margin-right: 10px;"
+            (click)="goBack()">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-bottom: -5px;">arrow_back</mat-icon>
+            Back
+        </button>
+
+    </div>
+
+    <div class="table-responsive bg-white shadow-sm"
+        style="border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; width:100%">
+        <table class="custom-grid-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Parameter</th>
+                    <th>Unit</th>
+                    <th>Spec</th>
+                    <th class="text-center">Min</th>
+                    <th class="text-center">Max</th>
+                    <th>Method</th>
+                    <th class="text-center" style="width: 120px;">Actions</th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let item of tableLists">
+
+                    <td>{{ item.categoryName || '-' }}</td>
+                    <td>{{ item.parmeterName || '-' }}</td>
+                    <td>{{ item.unitName || '-' }}</td>
+
+                    <td>{{ item.spec || '-' }}</td>
+
+                    <td class="text-center">{{ item.min || '-' }}</td>
+
+                    <td class="text-center">{{ item.max || '-' }}</td>
+
+                    <td>{{ item.method || '-' }}</td>
+                    <td class="text-center manage-icons">
+
+                        <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addparameter(item)" style="margin-right: 10px; cursor: pointer;"></i>
+
+                        <!-- <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteConfirmation(item)" style="cursor: pointer;"></i> -->
+                        <i class="fa fa-trash text-danger" [class.text-muted]="item.isCopied"
+                            [matTooltip]="item.isCopied ? '' : 'Delete'" [ngClass]="{ 'disable-custom': item.isCopied }"
+                            (click)="!item.isCopied && deleteConfirmation(item)" style="cursor: pointer;"></i>
+
+
+                    </td>
+
+
+
+
+                </tr>
+
+                <!-- No Records -->
+                <tr *ngIf="tableLists.length === 0">
+                    <td colspan="6" class="text-center">
+                        No Records Found
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+        <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+            [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+        </mat-paginator>
+    </div>
+
+</div>

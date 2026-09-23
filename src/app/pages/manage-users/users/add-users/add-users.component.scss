@@ -1,0 +1,33 @@
+.user-form{
+    .form-field-outer{
+        width: 280px;
+    }
+    .mat-radio-button{
+        margin-right: 12px;
+    }
+    .btn-disabled {
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+    }
+    
+    
+    tbody, td, tfoot, th, thead, tr {
+        border-color: inherit;
+        border-style: solid;
+        
+    }
+    
+    .table>:not(:first-child) {
+        border-top: 1px solid currentColor !important;
+    }
+    
+    .control-label{
+        font-weight: bold;
+        margin-top: 5px;
+    }
+}
+
+.btn-disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}

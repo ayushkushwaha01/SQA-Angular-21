@@ -1,0 +1,50 @@
+@import "../node_modules/roboto-fontface/css/roboto/roboto-fontface.css"; 
+
+// for npm material-icons package (to load local files)
+// $material-icons-font-path: 'material-icons/iconfont/variables.scss'; 
+// @import '../node_modules/material-icons/iconfont/material-icons.scss';
+
+@import url('https://cdn.quilljs.com/1.2.2/quill.snow.css');
+@import url('https://cdn.quilljs.com/1.2.2/quill.bubble.css');
+
+// azure-blue, rose-red, magenta-violet and cyan-orange.
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+
+@import "../node_modules/angular-calendar/css/angular-calendar.css";
+@import "../node_modules/dragula/dist/dragula.min.css";
+@import "../node_modules/@swimlane/ngx-datatable/themes/material.css";
+@import "../node_modules/@swimlane/ngx-datatable/assets/icons.css";
+@import "../node_modules/leaflet/dist/leaflet.css";
+
+@import "app/theme/styles/base";
+@import "app/theme/styles/spaces";
+@import "app/theme/styles/theme";
+@import "app/theme/styles/libs-override";
+@import "app/theme/styles/rtl"; 
+
+.login-bg {
+  min-height: 100vh;
+  width: 100%;
+  background-image: url('/assets/Auditpic.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* --- DYNAMIC BREADCRUMB OFFSET FOR INTERNAL PORTAL SIDEBAR --- */
+body:has(.nav-container.nav-open) app-breadcrumb .breadcrumb-wrapper,
+.nav-open ~ .main-content app-breadcrumb .breadcrumb-wrapper {
+  margin-left: 200px !important;
+  width: calc(100% - 200px) !important;
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+body:has(.nav-container.nav-closed) app-breadcrumb .breadcrumb-wrapper,
+.nav-closed ~ .main-content app-breadcrumb .breadcrumb-wrapper {
+  margin-left: 52px !important;
+  width: calc(100% - 52px) !important;
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+

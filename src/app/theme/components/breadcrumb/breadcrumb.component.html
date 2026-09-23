@@ -1,0 +1,32 @@
+@if (router.url != '/' && breadcrumbs.length > 0) {
+    <div class="breadcrumb-wrapper">
+        <!-- Header Row: Title on Left, Nav Links on Right -->
+        <div class="breadcrumb-header">
+            <h1 class="page-title">{{ pageTitle }}</h1>
+
+            <nav class="breadcrumb-trail">
+                <a routerLink="/" (click)="closeSubMenus()" class="trail-link">Home</a>
+                @for (breadcrumb of breadcrumbs; track breadcrumb.url; let last = $last) {
+                    <span class="trail-separator">&gt;&gt;</span>
+                    @if (!last) {
+                        <a [routerLink]="breadcrumb.url" (click)="closeSubMenus()" class="trail-link">
+                            {{ breadcrumb.name }}
+                        </a>
+                    } @else {
+                        <span class="trail-current">{{ breadcrumb.name }}</span>
+                    }
+                }
+            </nav>
+        </div>
+
+        <!-- Description Banner (Grey Box with Blue Left Border) -->
+        @if (description) {
+            <div class="description-banner">
+                <div class="accent-bar"></div>
+                <div class="description-content">
+                    {{ description }}
+                </div>
+            </div>
+        }
+    </div>
+}

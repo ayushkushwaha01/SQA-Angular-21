@@ -1,0 +1,73 @@
+<div class="dialog-header pt-2" style="height:50px; background-color: #3f51b5;">
+    <h2 mat-dialog-title class="m-0 text-center text-white pb-2 pt-2 mt-2"
+        style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">List Of Documents</h2>
+</div>
+
+<div mat-dialog-content class="pt-4 overflow-hidden">
+    <form *ngIf="!isReadOnly" class="form-horizontal" (submit)="uploadDocument($event)">
+        <div class="row align-items-center mb-3">
+            <div class="col-sm-4">
+                <label class="control-label font-weight-bold mb-0">
+                    Upload Doc/Image:<span class="text-danger">*</span>
+                </label>
+            </div>
+            <div class="col-sm-8">
+                <input id="fileUploadInput" type="file" accept="image/*,.pdf,.doc,.docx,.csv,.xlsx" class="form-control"
+                    style="padding: 3px;" (change)="onFileSelected($event)">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-12 d-flex justify-content-end">
+                <button mat-raised-button color="primary" class="save-btn" type="submit" [disabled]="!selectedFile">
+                    <mat-icon
+                        style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">save</mat-icon>
+                    Upload
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive mt-2">
+        <table class="table table-bordered custom-table mb-0">
+            <thead>
+                <tr>
+                    <th>Document Name</th>
+                    <th class="text-center">View</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let doc of pagedDocs">
+                    <!-- Bind to the backend property 'docName' -->
+                    <td>{{ doc.docName }}</td>
+
+                    <td class="text-center">
+                        <mat-icon class="action-icon text-primary" matTooltip="View File"
+                            (click)="viewDoc(doc)">visibility</mat-icon>
+                    </td>
+                    <td class="text-center manage-icons">
+                        <i *ngIf="!isReadOnly" class="fa fa-trash delete-icon" matTooltip="Delete File"
+                            style="color: red; cursor: pointer; font-size: 16px;" (click)="deleteDoc(doc)"></i>
+                        <span *ngIf="isReadOnly">-</span>
+                    </td>
+                </tr>
+                <tr *ngIf="pagedDocs.length === 0">
+                    <td colspan="3" class="text-center text-muted p-3">No documents uploaded yet.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <mat-paginator *ngIf="documents.length > 0" [length]="documents.length" [pageSize]="pageSize"
+            [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPageChange($event)">
+        </mat-paginator>
+    </div>
+</div>
+
+<mat-dialog-actions align="end" class="pb-2 pe-3">
+    <button mat-raised-button class="close-btn" (click)="closeDialog()">
+        <mat-icon
+            style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">cancel</mat-icon>
+        Close
+    </button>
+</mat-dialog-actions>

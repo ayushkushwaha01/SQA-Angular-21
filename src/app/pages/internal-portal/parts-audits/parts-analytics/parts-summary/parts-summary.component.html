@@ -1,0 +1,105 @@
+<div class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-group right-align-group">
+
+
+
+        <label class="filter-label mb-0">Auditor:</label>
+        <mat-select class="form-control" placeholder="Select Auditor" formControlName="auditorId"
+            style="width: auto; min-width: 120px;">
+
+            <mat-option *ngFor="let item of Auditors" [value]="item.userId">
+
+                {{ item.userName }}
+
+            </mat-option>
+
+        </mat-select>
+
+        <!-- <label class="filter-label mb-0"> Year :</label>
+        <mat-select placeholder="Select Year" class="form-control" formControlName="year"
+            style="width: auto; min-width: 120px;">
+            <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+        </mat-select>
+
+        <label class="filter-label mb-0"> Month :</label>
+        <mat-select placeholder="Select Month" class="form-control" formControlName="month"
+            style="width: auto; min-width: 120px;">
+            <mat-option *ngFor="let m of months" [value]="m.value">{{ m.name }}</mat-option>
+        </mat-select> -->
+        
+ <label class="filter-label mb-0"> Year :</label>
+        <mat-select placeholder="Select Year" class="form-control" formControlName="year"
+            style="width: auto; min-width: 120px;">
+            <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+        </mat-select>
+
+        <label class="filter-label mb-0"> Month :</label>
+        <mat-select placeholder="Select Month" class="form-control" formControlName="month"
+            style="width: auto; min-width: 120px;">
+            <mat-option *ngFor="let m of months" [value]="m.value">{{ m.name }}</mat-option>
+        </mat-select>
+
+    </div>
+
+    <button class="go-btn" mat-raised-button (click)="getSummary()">
+        <mat-icon class="mat-icon mt-1">search</mat-icon> Go
+    </button>
+    <button mat-raised-button class="btn-clear" (click)="onClearFilter()">
+        <mat-icon>settings_backup_restore</mat-icon> Clear
+    </button>
+</div>
+
+<div class="table-responsive my-4">
+    <table class="table table-bordered text-center" style="width: 100%; background: #fff;">
+        <thead style="background-color: #f8f9fa;">
+            <tr>
+                <th rowspan="2" style="vertical-align: middle;">Checked</th>
+                <th rowspan="2" style="vertical-align: middle;">NC</th>
+                <th colspan="5" class="text-center">Non Compliance Distribution</th>
+            </tr>
+            <tr>
+                <th>Safety</th>
+                <th>Critical</th>
+                <th>Important</th>
+                <th>Fitment</th>
+                <th>Regular</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{tableData.totalParameters}}</td>
+                <td>{{tableData.nc}}</td>
+                <td>{{tableData.safety}}</td>
+                <td>{{tableData.critical}}</td>
+                <td>{{tableData.important}}</td>
+                <td>{{tableData.fitment}}</td>
+                <td>{{tableData.regular}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px;">
+
+    <div
+        style="flex: 1 1 300px; min-width: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="distributionByClassOptions"
+            style="width: 100%; height: 300px; display: block;">
+        </highcharts-chart>
+    </div>
+
+    <div
+        style="flex: 1 1 300px; min-width: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="issuesCorrectedOptions"
+            style="width: 100%; height: 300px; display: block;">
+        </highcharts-chart>
+    </div>
+
+    <div
+        style="flex: 1 1 300px; min-width: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="pdcaDistributionOptions"
+            style="width: 100%; height: 300px; display: block;">
+        </highcharts-chart>
+    </div>
+
+</div>

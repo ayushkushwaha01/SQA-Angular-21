@@ -1,0 +1,217 @@
+<div class="custom-layout-wrapper">
+
+  <div class="d-flex justify-content-end mb-3 gap-3">
+
+    <button mat-raised-button style="background-color: #000; color: #fff;" (click)="toggleFilters()">
+
+      <mat-icon class="icon-sm" style="margin-right: 4px;  margin-top:4px">
+        filter_list
+      </mat-icon>
+
+      Filter
+    </button>
+
+    <!-- Add Part -->
+    <button (click)="canCreate && addpart(null)" mat-raised-button color="primary" [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Part'"
+      style="background-color: #1b85ca; color: #fff;">
+
+      <mat-icon class="icon-sm" style="margin-right: 4px; margin-top:4px">
+        add
+      </mat-icon>
+
+      <span class="button-text">
+        Add Part
+      </span>
+
+    </button>
+  </div>
+
+  <div class="filter-wrapper" *ngIf="showFilters">
+
+    <div class="filter-row" [formGroup]="filterForm">
+      <div class="filter-group">
+        <label class="filter-label mb-0">Keyword :</label>
+        <input type="text" placeholder="Enter Keyword" class="custom-mat-input" formControlName="Keyword">
+      </div>
+
+
+      <div class="filter-group">
+        <label class="filter-label">Commodity:</label>
+
+        <mat-select class="custom-mat-select" placeholder="Select Commodity" formControlName="CommodityId">
+
+          <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
+
+            {{ item.name }}
+
+          </mat-option>
+
+        </mat-select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Part Family:</label>
+
+        <mat-select class="custom-mat-select" placeholder="Select Part Family" formControlName="partFamilyId">
+
+          <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
+
+            {{ item.partFamilyName }}
+
+          </mat-option>
+
+        </mat-select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label mb-0">Status :</label>
+        <mat-select placeholder="Select Status" class="custom-mat-select" formControlName="Status">
+          <mat-option [value]="true">Active</mat-option>
+          <mat-option [value]="false">Inactive</mat-option>
+        </mat-select>
+      </div>
+
+
+
+      <div class="button-group">
+
+
+        <button mat-raised-button color="primary" (click)="getPartsMasters()">
+
+          <mat-icon>youtube_searched_for</mat-icon>
+          Go
+        </button>
+        <button mat-raised-button class="btn-clear" (click)="clearFilter()">
+
+          <mat-icon>settings_backup_restore</mat-icon>
+          Clear
+        </button>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="table-responsive bg-white shadow-sm" #tableContainer>
+
+    <table class="custom-grid-table">
+
+      <thead>
+        <tr>
+          <th>Part Name</th>
+          <th>Part Code</th>
+          <th>Part Family </th>
+          <th>Commodity</th>
+          <th class="text-center">Suppliers</th>
+          <!-- <th class="text-center">Priority</th> -->
+
+          <th class="text-center">Parameters</th>
+          <!-- <th class="text-center">   Parameter Template</th> -->
+          <th class="text-center">Status</th>
+          <th class="text-center" style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+
+        <tr *ngFor="let item of tableLists">
+
+          <td>{{ item.partMasterName || '-' }}</td>
+
+          <td>{{ item.partMasterCode || '-' }}</td>
+          <td>{{ item.partFamilyName || '-' }}</td>
+          <td>{{ item.commodityName || '-' }}</td>
+          <!-- Supplier Count -->
+          <td class="text-center text-link" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Suppliers'"
+            style="color: blue; cursor: pointer;" (click)="canUpdate && opensuppliers(item)">
+
+            {{ item.supplierCount || 0 }}
+
+          </td>
+          <!-- Parameters Count -->
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Parameters'">
+
+            <a class="text-blue" style="cursor:pointer;text-decoration:underline;"
+              [routerLink]="canUpdate ? ['../parts-parameter'] : null"
+              [queryParams]="canUpdate ? { partMasterId: item.partMasterId } : null">
+
+              {{ item.parametersCount || 0 }}
+
+            </a>
+
+          </td>
+          <!-- Status -->
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'">
+
+            <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
+              (click)="canUpdate && changeStatus(item)">
+
+              {{ item.isActive ? 'Active' : 'Inactive' }}
+
+            </a>
+
+          </td>
+
+          <!-- Edit / Delete -->
+          <td class="text-center manage-icons">
+
+            <!-- Edit -->
+            <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+              (click)="canUpdate && addpart(item)" style="margin-right: 10px; cursor: pointer;">
+            </i>
+
+            <!-- Delete -->
+            <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && deleteConfirmation(item)" style="cursor: pointer;">
+            </i>
+
+          </td>
+        </tr>
+
+        <tr *ngIf="tableLists.length === 0">
+          <td colspan="8" class="text-center py-4">
+            No Data Available
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+
+  </div>
+  <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+    [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+  </mat-paginator>
+
+
+  <div class="fab-wrapper d-flex justify-content-end gap-3" style="margin-bottom:40px; z-index: 3;">
+
+    <button mat-fab color="accent" class="nav-fab" style="background-color: #fafafa;" (click)="scrollLeft()"
+      matTooltip="Scroll Left">
+
+      <mat-icon style="color: #37474f;">
+        fast_rewind
+      </mat-icon>
+
+    </button>
+
+    <button mat-fab color="accent" class="nav-fab" style="background-color: #fafafa;" (click)="scrollRight()"
+      matTooltip="Scroll Right">
+
+      <mat-icon style="color: #37474f;">
+        fast_forward
+      </mat-icon>
+
+    </button>
+
+  </div>
+
+</div>

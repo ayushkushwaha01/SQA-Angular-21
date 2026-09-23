@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 50">
+  <defs>
+    <linearGradient id="shieldGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00B4D8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0077B6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="checkGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0f7fa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Shield icon -->
+  <path d="M25 4 L44 12 L44 24 C44 35 36 43 25 47 C14 43 6 35 6 24 L6 12 Z" 
+        fill="url(#shieldGradDark)" stroke="none"/>
+  
+  <!-- Checkmark inside shield -->
+  <polyline points="15,25 22,32 36,18" 
+            fill="none" stroke="url(#checkGradDark)" stroke-width="3.5" 
+            stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- SQA text (dark for light backgrounds) -->
+  <text x="56" y="35" font-family="'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif" 
+        font-size="30" font-weight="700" fill="#1a2332" letter-spacing="3">SQA</text>
+
+  <!-- Divider line -->
+  <line x1="138" y1="12" x2="138" y2="40" stroke="#0077B6" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- Tagline (dark for light backgrounds) -->
+  <text x="148" y="26" font-family="'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif" 
+        font-size="10.5" font-weight="400" fill="#546e7a" letter-spacing="2.5">SUPPLIER QUALITY</text>
+  <text x="148" y="40" font-family="'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif" 
+        font-size="10.5" font-weight="400" fill="#546e7a" letter-spacing="2.5">AUDITS</text>
+</svg>

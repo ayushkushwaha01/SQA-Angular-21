@@ -1,0 +1,99 @@
+<div class="custom-layout-wrapper">
+
+  <!-- <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px;">
+    <button mat-raised-button
+      style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      (click)="toggleFilters()">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">filter_list</mat-icon>
+      Filter
+    </button>
+
+     <button mat-raised-button
+      style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">download</mat-icon>
+      Download Template
+    </button>
+
+    <button mat-raised-button
+      style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      (click)="addvender(null)">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">add</mat-icon>
+      Add Rating
+    </button>
+  </div> -->
+
+  <div class="filter-wrapper" *ngIf="showFilters">
+    <mat-card class="filter-card">
+      <mat-card-content>
+        <div class="filter-row">
+          
+          <div class="filter-group">
+            <label class="filter-label mb-0">Keyword :</label>
+            <input type="text" [(ngModel)]="selectedKeyword" placeholder="Enter Keyword" class="custom-mat-input">
+          </div>
+
+          <!-- <div class="filter-group">
+            <label class="filter-label mb-0">Status :</label>
+            <mat-select [(ngModel)]="selectedStatus" placeholder="Select Status" class="custom-mat-select">
+              <mat-option value="Active">Active</mat-option>
+              <mat-option value="Inactive">Inactive</mat-option>
+            </mat-select>
+          </div> -->
+
+          <div class="button-group">
+            <button mat-raised-button class="btn-go" (click)="onGo()">
+              <mat-icon>search</mat-icon> Go
+            </button>
+            <button mat-raised-button class="btn-clear" (click)="onClear()">
+              <mat-icon>settings_backup_restore</mat-icon> Clear
+            </button>
+          </div>
+
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+ <div class="table-responsive bg-white shadow-sm">
+  <table class="custom-grid-table">
+    <thead>
+      <tr>
+        <th style="width:25%">Ratings</th>
+        <th class="text-center" style="width: 270px;">Process Audit Min Score</th>
+        <th class="text-center" style="width: 270px;">Process Audit Max Score</th>
+        <th class="text-center" style="width: 270px;">Parts Audit Min Score</th>
+        <th class="text-center" style="width: 270px;">Parts Audit Max Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of tableData">
+        <td>{{ item.ratings }}</td>
+        
+        <td class="text-center">
+          <span>{{ item.processAuditMinScore }}</span>
+        </td>
+        
+        <td class="text-center">
+          <span>{{ item.processAuditMaxScore }}</span>
+        </td>
+        
+        <td class="text-center">
+          <span>{{ item.partsAuditMinScore }}</span>
+        </td>
+        
+        <td class="text-center">
+          <span>{{ item.partsAuditMaxScore }}</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+<!-- 
+  <mat-paginator 
+    [length]="tableData.length"
+    [pageSize]="4"
+    [pageSizeOptions]="[4, 10, 25, 50]"
+    showFirstLastButtons>
+  </mat-paginator> -->
+</div>
+
+</div>

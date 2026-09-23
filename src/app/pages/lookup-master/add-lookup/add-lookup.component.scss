@@ -1,0 +1,36 @@
+.add-job-code {
+    background: #fff !important;
+    cursor: pointer;
+    font-size: 16px!important;
+    color: rgba(5, 214, 68, 0.82) !important;
+}
+
+.delete-job-code {
+    background: #fff !important;
+    cursor: pointer;
+    font-size: 16px!important;
+    color: red !important;
+}
+
+.no-padding{
+    padding: 0px !important;
+}
+.user-form{
+    .form-field-outer{
+        width: 280px;
+    }
+    .mat-radio-button{
+        margin-right: 12px;
+    }
+}
+
+
+.dot_red { color:#ff0000; }
+.dot_green { color: #0c0; }
+.dot_blue { color: #0eb6fb; }
+.dot_grey { color: #c8c8ce; }
+
+
+.bac{
+  background-color: #fefec4;
+}

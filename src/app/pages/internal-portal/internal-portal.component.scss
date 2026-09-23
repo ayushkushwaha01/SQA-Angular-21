@@ -1,0 +1,221 @@
+/* --- WRAPPER --- */
+.sqm-wrapper {
+  display: flex;
+  height: 100%;
+}
+
+/* --- NAV CONTAINER --- */
+.nav-container {
+  position: fixed;
+  left: 0;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f0f0f0;
+  transition: width 0.3s ease-in-out;
+  z-index: 100;
+  border-right: 1px solid #ddd;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-open {
+  width: 200px;
+}
+
+.nav-closed {
+  width: 52px;
+}
+
+/* --- TOGGLE BUTTON --- */
+.toggle-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  width: 52px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-bottom: 8px;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #333;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+/* --- NAV LINKS --- */
+.nav-links ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-links li {
+  margin-bottom: 4px;
+  cursor: pointer;
+  color: #333;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  padding: 8px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+.nav-icon {
+  padding-left: 6px;
+  margin-right: 8px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-links span {
+  white-space: nowrap;
+  padding-left: 14px;
+}
+
+/* --- ACTIVE STATE --- */
+.nav-links li.active,
+.nav-links li:has(a.active),
+.nav-links li:has(a.router-link-active),
+.nav-links a.active,
+.nav-links a.router-link-active {
+  background-color: #dfefff !important;
+  font-weight: bold !important;
+  color: #1976d2 !important;
+
+  a {
+    color: #1976d2 !important;
+    font-weight: bold !important;
+  }
+
+  .nav-icon, span, mat-icon, i {
+    color: #1976d2 !important;
+  }
+}
+
+/* --- MAIN CONTENT OFFSET --- */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease-in-out;
+
+  /* CRITICAL FIXES FOR HORIZONTAL SCROLLING: */
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.content-shrink {
+  margin-left: 200px;
+}
+
+.content-expanded {
+  margin-left: 52px;
+}
+
+.content-full {
+  margin-left: 0;
+}
+
+/* --- TOP PILLS --- */
+.nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 14px;
+  padding: 14px 12px 10px 24px;
+  margin: 0;
+
+  li {
+    list-style: none;
+  }
+}
+
+.navtabWidth {
+  min-width: 95px !important;
+  height: 46px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22px !important;
+  background: #f8f8f8 !important;
+  color: #333 !important;
+  border-radius: 4px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35) !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #ececec !important;
+  }
+
+  &.active {
+    background: #5b6f7b !important;
+    color: #fff !important;
+  }
+}
+
+/* --- PAGE CONTENT --- */
+.page-content {
+  padding: 0 20px;
+
+  /* CRITICAL FIXES FOR HORIZONTAL SCROLLING: */
+  min-width: 0;
+  width: 100%;
+}
+
+/* Styling for the unselected setup tabs */
+.tab-btn {
+  background-color: #ffffff;
+  color: #333333;
+  border: 1px solid #d3d3d3;
+}
+
+/* Styling for the ACTIVE setup tab */
+.active-tab {
+  background-color: #556773 !important;
+  /* The dark slate color from your active pills */
+  color: #ffffff !important;
+  // border: 1px solid #556773 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.disabled-nav {
+  opacity: 0.4;
+  
+  a {
+    cursor: not-allowed !important;
+    /* Ensure the click event still fires for the alert, but visually looks blocked */
+    pointer-events: auto; 
+  }
+}

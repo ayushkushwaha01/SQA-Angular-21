@@ -1,0 +1,121 @@
+<div class="back-btn ps-1 mb-4"
+  style="display: flex; justify-content: space-between; font-size: 18px; font-weight:500; align-items: flex-start;">
+
+  <div class="col-sm-6">
+    <span style="color: rgb(0, 0, 0); cursor: pointer; margin-left:0px " (click)="goBack()">Active Audit
+      Dashboard</span>
+    <p _ngcontent-mvb-c448="" style="margin-top: 5px; ">
+      <span _ngcontent-mvb-c448="" style="font-weight: bolder; font-size: 14px;">Ref No:</span>
+      <span _ngcontent-mvb-c448="" style="margin: 8px; font-size: 14px">2024/Parts/254871</span>
+    </p>
+  </div>
+
+  <div class="col-sm-6" style="display: flex; justify-content: flex-end; align-items: flex-start; padding-top: 10px;">
+    <button _ngcontent-utt-c603="" mat-raised-button="" class="mat-focus-indicator mat-raised-button mat-button-base"
+      style="background-color: #808080; color: white; margin-right: 10px; height: 46px; line-height: 36px; display: flex; align-items: center;">
+      <span class="mat-button-wrapper" (click)="goBack()" style="display: flex; align-items: center;">
+        <mat-icon _ngcontent-utt-c603="" role="img" class="mat-icon notranslate material-icons mat-icon-no-color"
+          aria-hidden="true" data-mat-icon-type="font" style="margin-right: 4px;">arrow_back</mat-icon>
+        Back
+      </span>
+      <span matripple="" class="mat-ripple mat-button-ripple" ng-reflect-disabled="false" ng-reflect-centered="false"
+        ng-reflect-trigger="[object HTMLButtonElement]"></span>
+      <span class="mat-button-focus-overlay"></span>
+    </button>
+  </div>
+
+</div>
+
+<div class="page-container p-3">
+
+  <div class="d-flex mb-3 gap-4">
+    <button mat-raised-button *ngFor="let cat of categories" (click)="selectCategory(cat)"
+      [ngClass]="selectedCategory === cat ? 'tab-active' : 'tab-inactive'" class="top-tab-btn">
+      {{ cat }}
+    </button>
+  </div>
+
+  <div class="d-flex justify-content-end mb-3 gap-2">
+    <button mat-raised-button class="btn-black" (click)="opendocpop()">
+      <mat-icon class="icon-sm" style="margin-top: 7px;">upload</mat-icon> Upload File
+    </button>
+    <button mat-raised-button color="primary" class="btn-blue" (click)="addchecklistaudit()">
+      <mat-icon class="icon-sm" style="margin-top: 7px;">person_add</mat-icon> Add Parameter
+    </button>
+  </div>
+
+  <div class="table-responsive bg-white shadow-sm"
+    style="border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden;">
+    <table class="custom-grid-table">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Spec</th>
+          <th class="text-center">Min</th>
+          <th class="text-center">Max</th>
+
+          <th>Method</th>
+          <th class="text-center">S1</th>
+          <th class="text-center">S2</th>
+          <th class="text-center">S3</th>
+          <th class="text-center">S4</th>
+          <th class="text-center">S5</th>
+          <th class="text-center">Remarks</th>
+          <th class="text-center">CAPA</th>
+          <th class="text-center">Okay</th>
+          <th class="text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of pagedData">
+          <td>{{ item.parameter }}</td>
+          <td>{{ item.spec }}</td>
+          <td class="text-center">{{ item.min }}</td>
+          <td class="text-center">{{ item.max }}</td>
+
+
+
+          <td>{{ item.method }}</td>
+          <td class="text-center">{{ item.s1 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s2 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s3 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s4 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s5 | number:'1.1-1' }}</td>
+
+          <td class="text-center">
+            <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" matTooltip="View Remarks"
+              (click)="opennotes()">info</mat-icon>
+          </td>
+          <td class="text-center">
+            <a *ngIf="!item.okay" style="color: blue; cursor: pointer; text-decoration: underline;"
+              [routerLink]="['/app','sqm','parts-inner-screen','parts-audit-details']">
+              View
+            </a>
+            <span *ngIf="item.okay" style="color: #9e9e9e; cursor: not-allowed;">
+              NA
+            </span>
+          </td>
+
+          <td class="text-center">
+            <mat-checkbox [checked]="item.okay" (change)="item.okay = $event.checked">
+            </mat-checkbox>
+          </td>
+
+          <td class="text-center manage-icons">
+            <mat-icon class="edit-icon" matTooltip="Edit"
+              style="color: cornflowerblue; font-size: 18px; margin-right: 8px; cursor: pointer;"
+              (click)="editParameter(item)">edit</mat-icon>
+
+            <mat-icon class="delete-icon" matTooltip="Delete" style="color: red; font-size: 18px; cursor: pointer;"
+              (click)="deleteParameter(item)">delete</mat-icon>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <mat-paginator [length]="tableData.length" [pageSize]="4" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+
+</div>

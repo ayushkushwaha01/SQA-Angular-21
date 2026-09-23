@@ -1,0 +1,30 @@
+<div class="row col-12 mt-3" style="margin-left: -3px;">
+    <div class="pills w-100">
+        <ul class="nav nav-pills custom-tabs">
+
+            <li [class.active]="activeTab === 'users'">
+                <a (click)="selectTab('users')" routerLink="users">
+                    <mat-icon>people</mat-icon> Users
+                </a>
+            </li>
+
+            <li [class.active]="activeTab === 'roles'">
+                <a (click)="selectTab('roles')" routerLink="roles">
+                    <mat-icon>verified_user</mat-icon> Roles
+                </a>
+            </li>
+
+            <li [class.active]="activeTab === 'suppliers'">
+                <a (click)="selectTab('suppliers')" routerLink="suppliers">
+                    <mat-icon>business</mat-icon> Suppliers
+                </a>
+            </li>
+
+        </ul>
+    </div>
+</div>
+
+<!-- 🔥 IMPORTANT -->
+<div class="tab-container">
+    <router-outlet></router-outlet>
+</div>

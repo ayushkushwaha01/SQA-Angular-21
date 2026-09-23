@@ -1,0 +1,67 @@
+<div class="custom-layout-wrapper">
+
+    <div class="table-responsive bg-white shadow-sm">
+
+        <table class="custom-grid-table">
+
+            <thead>
+                <tr>
+
+                    <th class="text-center">
+                        Rating
+                    </th>
+
+                    <th>
+                        Subject
+                    </th>
+
+                    <th class="text-center">
+                        Actions
+                    </th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let item of tableData">
+
+                    <!-- Rating -->
+                    <td class="text-center">
+                        {{ item.rating }}
+                    </td>
+
+                    <!-- Subject -->
+                    <td>
+
+                        <input type="text" class="form-control" [(ngModel)]="item.subject" placeholder="Enter Subject">
+
+                    </td>
+
+                    <!-- Action -->
+                    <td class="text-center">
+
+                        <button mat-raised-button color="primary" [ngClass]="{ 'disable-custom': !canUpdate }"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Save'"
+                            (click)="canUpdate && saveDetection(item)">
+
+                            <mat-icon class="mt-1">
+                                save
+                            </mat-icon>
+
+                            <span class="button-text">
+                                Save
+                            </span>
+
+                        </button>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

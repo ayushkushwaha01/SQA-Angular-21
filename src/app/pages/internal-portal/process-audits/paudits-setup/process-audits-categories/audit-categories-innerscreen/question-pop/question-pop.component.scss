@@ -1,0 +1,35 @@
+.quill-container {
+  border-radius: 4px;
+  overflow: hidden;
+
+  ::ng-deep .ql-toolbar.ql-snow {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    padding: 6px 10px;
+
+    .ql-formats {
+      margin-right: 10px;
+    }
+  }
+
+  ::ng-deep .ql-container.ql-snow {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-color: #ced4da;
+    height: 110px !important;
+  }
+
+  ::ng-deep .ql-editor {
+    min-height: 90px;
+    max-height: 110px;
+    font-size: 14px;
+    font-family: inherit;
+
+    &.ql-blank::before {
+      font-style: italic;
+      color: #999;
+    }
+  }
+}

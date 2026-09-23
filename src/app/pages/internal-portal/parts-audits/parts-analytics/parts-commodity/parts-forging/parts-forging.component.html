@@ -1,0 +1,83 @@
+<div class="filter-bar">
+    <div class="filter-group right-align-group">
+        <label class="filter-label mb-0">Select Year :</label>
+        <mat-select placeholder="Select Year" class="form-control" style="width: auto; min-width: 120px;">
+            <mat-option value="2023">2023</mat-option>
+            <mat-option value="2024">2024</mat-option>
+            <mat-option value="2025">2025</mat-option>
+        </mat-select>
+    </div>
+
+    <button class="go-btn" mat-raised-button>
+        <mat-icon class="mat-icon mt-1">search</mat-icon> Go
+    </button>
+</div>
+
+<h2 class="section-title " style="margin-left: 18px;"> Distribution By Part </h2>
+<div class="row">
+  <div class="card table-container">
+  <table>
+  <thead>
+    <tr>
+      <th>Part Name</th>
+      <th>5</th>
+      <th>4</th>
+      <th>3</th>
+      <th>2</th>
+      <th>1</th>
+      <th>NA</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of forgingList">
+      <td>{{ item.name }}</td>
+      <td>{{ item.rating5 }}</td>
+      <td>{{ item.rating4 }}</td>
+      <td>{{ item.rating3 }}</td>
+      <td>{{ item.rating2 }}</td>
+      <td>{{ item.rating1 }}</td>
+      <td>{{ item.ratingNA }}</td>
+    </tr>
+
+    <tr class="total-row" style="font-weight: bold; background-color: #f8f9fa;">
+      <td>Total</td>
+      <td>38</td>
+      <td>25</td>
+      <td>8</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+  </div>
+  <div class="card chart-container">
+    <highcharts-chart [Highcharts]="Highcharts" [options]="forgingPieOptions"
+      style="width: 100%; height: 300px; display: block;"></highcharts-chart>
+  </div>
+</div>
+
+<h2 class="section-title" style="margin-left: 18px;">Distribution by Severity</h2>
+
+<div class="row">
+  <div class="card table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Rating</th>
+          <th>Percentage (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of severityList">
+          <td>{{ item.rating }}</td>
+          <td>{{ item.percent }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card chart-container">
+    <highcharts-chart [Highcharts]="Highcharts" [options]="severityPieOptions"
+      style="width: 100%; height: 300px; display: block;"></highcharts-chart>
+  </div>
+</div>

@@ -1,0 +1,137 @@
+<div class="custom-layout-wrapper">
+    <div class="toolbar-row mb-3 d-flex justify-content-end" style="width: 100%;">
+        <button mat-raised-button
+            style="background-color: #1a1a1a; color: white; padding: 10px 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+            (click)="toggleFilters()">
+            <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">filter_list</mat-icon>
+            Filter
+        </button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <!-- Add City -->
+        <button mat-raised-button color="primary" class="btn-blue" [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add City'"
+            (click)="canCreate && addSupplier(null)">
+
+            <mat-icon>add</mat-icon>
+
+            <span class="button-text">
+                Add City
+            </span>
+
+        </button>
+    </div>
+
+    <div fxLayout="row wrap" *ngIf="showFilters" class="mb-3">
+        <div fxFlex="100" class="flex w-100">
+            <form [formGroup]="filterForm">
+                <mat-card class="filter">
+                    <mat-card-content>
+                        <div class="row col-sm-12">
+
+                            <div class="col-sm-3 row me-2">
+                                <div class="col-sm-4 d-flex align-items-center"><b>City Name:</b></div>
+                                <div class="col-sm-8">
+                                    <input type="text" formControlName="cityName" class="form-control"
+                                        placeholder="Search by City Name...">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3 row me-2">
+                                <div class="col-sm-4 d-flex align-items-center"><b>State Name:</b></div>
+                                <div class="col-sm-8">
+                                    <mat-select formControlName="stateName" placeholder="Select State Name"
+                                        class="form-control">
+                                        <mat-option *ngFor="let state of uniqueStates" [value]="state">
+                                            {{ state }}
+                                        </mat-option>
+                                    </mat-select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3 row me-2">
+                                <div class="col-sm-3 d-flex align-items-center"><b>Status:</b></div>
+                                <div class="col-sm-8">
+                                    <mat-select formControlName="status" placeholder="Select Status"
+                                        class="form-control">
+                                        <mat-option *ngFor="let option of Status" [value]="option.value">
+                                            {{option.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <button mat-raised-button color="primary" class="pull-right" (click)="applyFilter()">
+                                    <mat-icon>search</mat-icon> Search
+                                </button>
+                                <button mat-raised-button class="pull-right btn-default margin-right-10"
+                                    (click)="clearFilter()">
+                                    <mat-icon>settings_backup_restore</mat-icon> Clear
+                                </button>
+                            </div>
+
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" style="width: 100%;">
+            <thead class="tbl-head">
+                <tr>
+                    <th>City Name</th>
+                    <th>State Name</th>
+                    <th class="text-center" style="width: 120px;">Status</th>
+                    <th class="text-center" style="width: 120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of filteredCities">
+                    <td>{{ item.cityName }}</td>
+                    <td>{{ item.stateName }}</td>
+                    <td class="text-center">
+
+                        <span [class.disable-custom]="!canUpdate"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to toggle status'"
+                            [ngStyle]="{
+      'color': item.isActive ? 'green' : 'red',
+      'font-weight': '500',
+      'cursor': 'pointer'
+    }" (click)="canUpdate && toggleStatus(item)">
+
+                            {{ item.isActive ? 'Active' : 'Inactive' }}
+
+                        </span>
+
+                    </td>
+                    <td class="text-center">
+
+                        <!-- Edit -->
+                        <a [class.disable-custom]="!canUpdate"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Record'"
+                            style="margin-right: 12px; cursor: pointer;" (click)="canUpdate && addSupplier(item)">
+
+                            <i class="fa fa-edit text-primary"></i>
+
+                        </a>
+
+                        <!-- Delete -->
+                        <a [class.disable-custom]="!canDelete"
+                            [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Record'"
+                            style="cursor: pointer;" (click)="canDelete && deleteRecord(item)">
+
+                            <i class="fa fa-trash text-danger"></i>
+
+                        </a>
+
+                    </td>
+                </tr>
+                <tr *ngIf="!filteredCities || filteredCities.length === 0">
+                    <td colspan="4" class="text-center">No records found</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

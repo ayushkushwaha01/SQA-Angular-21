@@ -1,0 +1,80 @@
+<div class="page-container p-3">
+
+  <div class="d-flex mb-3 gap-2">
+    <button mat-raised-button *ngFor="let cat of categories" (click)="selectCategory(cat)"
+      [ngClass]="selectedCategory === cat ? 'tab-active' : 'tab-inactive'" class="top-tab-btn">
+      {{ cat }}
+    </button>
+  </div>
+
+  <div class="d-flex justify-content-end mb-3 gap-2">
+    <button mat-raised-button class="btn-black" (click)="opendocpop()">
+      <mat-icon class="icon-sm">upload</mat-icon> Upload File
+    </button>
+    <button mat-raised-button color="primary" class="btn-blue" (click)="addchecklistaudit()">
+      <mat-icon class="icon-sm">person_add</mat-icon> Add Parameter
+    </button>
+  </div>
+
+  <div class="table-responsive bg-white shadow-sm"
+    style="border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden;">
+    <table class="custom-grid-table">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Spec</th>
+          <th class="text-center">Min</th>
+          <th class="text-center">Max</th>
+          <th class="text-center">Action</th>
+          <th>Special</th>
+          <th>Method</th>
+          <th class="text-center">S1</th>
+          <th class="text-center">S2</th>
+          <th class="text-center">S3</th>
+          <th class="text-center">S4</th>
+          <th class="text-center">S5</th>
+          <th class="text-center">Remarks</th>
+          <th class="text-center">Okay</th>
+          <th class="text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of pagedData">
+          <td>{{ item.parameter }}</td>
+          <td>{{ item.spec }}</td>
+          <td class="text-center">{{ item.min }}</td>
+          <td class="text-center">{{ item.max }}</td>
+          <td class="text-center text-link" style="color: blue; cursor: pointer;">{{ item.actionLink }}</td>
+          <td>{{ item.special }}</td>
+          <td>{{ item.method }}</td>
+          <td class="text-center">{{ item.s1 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s2 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s3 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s4 | number:'1.1-1' }}</td>
+          <td class="text-center">{{ item.s5 | number:'1.1-1' }}</td>
+
+          <td class="text-center">
+            <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" matTooltip="View Remarks">info</mat-icon>
+          </td>
+
+          <td class="text-center">
+            <mat-icon *ngIf="item.okay" style="color: green; font-size: 20px;">done</mat-icon>
+            <mat-icon *ngIf="!item.okay" style="color: red; font-size: 20px;">close</mat-icon>
+          </td>
+
+          <td class="text-center manage-icons">
+            <mat-icon class="edit-icon" matTooltip="Edit"
+              style="color: cornflowerblue; font-size: 18px; margin-right: 8px; cursor: pointer;">edit</mat-icon>
+            <mat-icon class="delete-icon" matTooltip="Delete"
+              style="color: red; font-size: 18px; cursor: pointer;">delete</mat-icon>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <mat-paginator [length]="tableData.length" [pageSize]="4" [pageSizeOptions]="[4, 10, 25, 50]" showFirstLastButtons
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+
+</div>

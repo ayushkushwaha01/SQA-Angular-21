@@ -1,0 +1,74 @@
+.breadcrumb-wrapper {
+    width: 100%;
+    padding: 16px 20px 8px 20px;
+    background-color: transparent;
+    box-sizing: border-box;
+
+    .breadcrumb-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 8px;
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .breadcrumb-trail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+
+            .trail-link {
+                color: #059669; // Green accent link matching Image 1
+                text-decoration: none;
+                font-weight: 500;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+
+            .trail-separator {
+                color: #64748b;
+                font-size: 11px;
+                user-select: none;
+            }
+
+            .trail-current {
+                color: #1e293b;
+                font-weight: 600;
+            }
+        }
+    }
+
+    .description-banner {
+        display: flex;
+        align-items: stretch;
+        background-color: #e2e8f0; // Grey banner box matching Image 1
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 6px;
+
+        .accent-bar {
+            width: 4px;
+            background-color: #0284c7; // Blue vertical accent bar on the left edge
+            flex-shrink: 0;
+        }
+
+        .description-content {
+            padding: 10px 16px;
+            color: #334155;
+            font-size: 13.5px;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+    }
+}

@@ -1,0 +1,198 @@
+<div class="report-page" *ngIf="!loading && reportData">
+  
+  <!-- ACTION BAR (Hidden in PDF) -->
+  <div class="action-bar no-print">
+    <h2>Executive Summary Report</h2>
+    <div class="btn-group">
+      <button mat-raised-button color="basic" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back</span>
+      </button>
+      <button mat-raised-button color="primary" [disabled]="generatingPdf" (click)="downloadPdf()">
+        <mat-icon>download</mat-icon>
+        <span>{{ generatingPdf ? 'Generating...' : 'Download PDF' }}</span>
+      </button>
+      <button mat-raised-button color="accent" [disabled]="generatingPdf" (click)="openPdfInNewTab()">
+        <mat-icon>open_in_new</mat-icon>
+        <span>Open in Tab</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PDF PRINTABLE AREA -->
+  <div class="pdf-container">
+    <div id="pdf-report-content">
+
+      <!-- BLOCK 1: TEAL HEADER BANNER -->
+      <div class="teal-banner">
+        <h1>FORGING PROCESS AUDIT SUMMARY REPORT</h1>
+      </div>
+
+      <!-- BLOCK 2: CYAN METADATA BOX -->
+      <div class="metadata-cyan-box">
+        <div class="meta-col">
+          <div class="meta-line">
+            <span class="meta-label">Audit Reference:</span>
+            <span class="meta-value">{{ reportData.header?.auditReference || '-' }}</span>
+          </div>
+          <div class="meta-line">
+            <span class="meta-label">Commodity:</span>
+            <span class="meta-value">{{ reportData.header?.commodityName || '-' }}</span>
+          </div>
+          <div class="meta-line">
+            <span class="meta-label">Location:</span>
+            <span class="meta-value">
+              {{ reportData.header?.cityName ? reportData.header?.cityName + ', ' : '' }}{{ reportData.header?.stateName || '-' }}
+            </span>
+          </div>
+        </div>
+        <div class="meta-col">
+          <div class="meta-line">
+            <span class="meta-label">Supplier:</span>
+            <span class="meta-value">{{ reportData.header?.supplierName || '-' }}</span>
+          </div>
+          <div class="meta-line">
+            <span class="meta-label">Auditor:</span>
+            <span class="meta-value">{{ reportData.header?.auditorName || '-' }}</span>
+          </div>
+          <div class="meta-line">
+            <span class="meta-label">Audit Date:</span>
+            <span class="meta-value">{{ reportData.header?.auditDate | date:'dd-MMM-yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCK 3: AREA-WISE SCORES -->
+      <div class="section-block">
+        <div class="section-heading">AREA-WISE SCORES</div>
+        <div class="donut-rings-row">
+          <div class="donut-card" *ngFor="let ring of (reportData.categoryScores || []); let i = index">
+            <div class="ring-wrap">
+              <svg viewBox="0 0 36 36" class="ring-svg">
+                <!-- Background border track -->
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none" stroke="#e2e8f0" stroke-width="2.8"/>
+                <!-- Foreground value bar -->
+                <path class="ring-fill"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      [attr.stroke]="getRingColor(i)"
+                      stroke-width="2.8"
+                      stroke-dasharray="100, 100"
+                      [attr.stroke-dashoffset]="100 - (ring.percentage || 0)"/>
+              </svg>
+              <span class="ring-pct" [style.color]="getRingColor(i)">{{ ring.percentage || 0 }}%</span>
+            </div>
+            <div class="donut-name">{{ ring.categoryName }}</div>
+            <div class="donut-sub">{{ ring.passedCount }} / {{ ring.totalCount }} Passed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCK 4: FINDING DISTRIBUTION & SOD SCORE -->
+      <div class="two-col-charts section-block">
+        <div class="inner-box">
+          <div class="inner-box-title">FINDING DISTRIBUTION</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="ratingChartOptions"
+                            style="width:100%;height:165px;display:block"></highcharts-chart>
+        </div>
+        <div class="inner-box">
+          <div class="inner-box-title">SOD RISK SCORE: {{ reportData.sodRiskScore || 0 }}</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="sodGaugeOptions"
+                            style="width:100%;height:165px;display:block"></highcharts-chart>
+        </div>
+      </div>
+
+      <!-- BLOCK 5: NC STATUS, RADAR & CONCLUSION -->
+      <div class="three-col-section section-block">
+        
+        <!-- 🔥 FULLY DYNAMIC NC CLOSURE STATUS -->
+        <div class="inner-box">
+          <div class="inner-box-title red-title">NC CLOSURE STATUS</div>
+          
+          <!-- Dynamic Loop: Creates a bar for every status found in the DB -->
+          <div class="nc-bar-item" *ngFor="let stat of reportData.ncStatus?.statusCounts; let i = index">
+            <span class="nc-label" style="text-transform: capitalize;">{{ stat.statusName }}</span>
+            <span class="nc-num">{{ stat.count }}</span>
+            <div class="nc-track">
+              <div class="nc-fill"
+                   [style.width.%]="getNcPercentage(stat.count)"
+                   [style.background]="getNcBarColor(i)"></div>
+            </div>
+          </div>
+          
+          <!-- Dynamic Legend: Matches the bars above -->
+          <div class="nc-legend">
+            <div class="legend-item" *ngFor="let stat of reportData.ncStatus?.statusCounts; let i = index">
+              <i class="legend-dot" [style.background]="getNcBarColor(i)"></i> <span style="text-transform: capitalize;">{{ stat.statusName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spider/Radar Chart -->
+        <div class="inner-box">
+          <div class="inner-box-title blue-title">{{ reportData.header?.commodityName | uppercase }} PROCESS</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="spiderChartOptions"
+                            style="width:100%;height:210px;display:block"></highcharts-chart>
+        </div>
+
+        <!-- Final Conclusion -->
+        <div class="inner-box">
+          <div class="inner-box-title teal-title">FINAL CONCLUSION</div>
+          <div class="conclusion-box">
+            <div class="verdict-badge" [ngClass]="getVerdictClass()">{{ getVerdictTitle() }}</div>
+            <div class="verdict-sub">{{ getVerdictSubtitle() }}</div>
+          </div>
+          <div style="margin-top: 10px;">
+            <div class="score-row">
+              <span class="score-label">OVERALL SCORE</span>
+              <span class="score-val" [class.red-val]="isScoreLow()">{{ reportData.header?.overallScore || '0%' }}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">RISK SCORE</span>
+              <span class="score-val" [class.red-val]="isRiskHigh()">{{ reportData.sodRiskScore || 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+       <!-- BLOCK 6: BOTTOM BOXES (CRITICAL CAPA's & SAFETY CAPA's) -->
+      <div class="bottom-section section-block">
+        
+        <!-- CRITICAL CAPA'S (Top 3 highest SOD scores) -->
+        <div class="bottom-box red-box">
+          <div class="bottom-box-title">CRITICAL CAPA'S</div>
+          <ul class="bottom-list" *ngIf="((reportData.criticalCapas || reportData.majorNCs)?.length || 0) > 0">
+            <li *ngFor="let capa of (reportData.criticalCapas || reportData.majorNCs)">{{ capa }}</li>
+          </ul>
+          <div class="no-data-sm" *ngIf="((reportData.criticalCapas || reportData.majorNCs)?.length || 0) === 0">
+            <i>No critical CAPAs logged</i>
+          </div>
+        </div>
+
+        <!-- SAFETY CAPA'S (Next top 3 highest SOD scores) -->
+        <div class="bottom-box blue-box">
+          <div class="bottom-box-title">SAFETY CAPA'S</div>
+          <ul class="bottom-list" *ngIf="((reportData.safetyCapas || reportData.improvementPoints)?.length || 0) > 0">
+            <li *ngFor="let capa of (reportData.safetyCapas || reportData.improvementPoints)">{{ capa }}</li>
+          </ul>
+          <div class="no-data-sm" *ngIf="((reportData.safetyCapas || reportData.improvementPoints)?.length || 0) === 0">
+            <i>No safety CAPAs logged</i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="pdf-footer">
+        Confidential | For Internal Use Only | {{ reportData.header?.supplierName || 'Supplier' }} Process Audit Report
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+  <div class="spin-icon">⏳</div>
+  <span>Loading Audit Summary Report...</span>
+</div>

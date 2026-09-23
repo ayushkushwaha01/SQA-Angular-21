@@ -1,0 +1,185 @@
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <!-- <mat-icon style="font-size: 60px; height: 60px; width: 60px; color: #e53e3e;" class="mb-3">lock</mat-icon> -->
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view this page.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+
+<div class="dashboard-wrapper" *ngIf="canRead">
+
+  <!-- ==================== TOP METRICS ==================== -->
+  <div class="metrics-row">
+    <div class="metric-card">Process Audits - {{ dashboardData?.metrics?.processAudits || 0 }}</div>
+    <div class="metric-card">Parts Audits - {{ dashboardData?.metrics?.partsAudits || 0 }}</div>
+    <div class="metric-card">Suppliers Covered - {{ dashboardData?.metrics?.suppliersCovered || 0 }}</div>
+    <div class="metric-card">CAPA Logged - {{ dashboardData?.metrics?.capaLogged || 0 }}</div>
+    <div class="metric-card">CAPA Solved - {{ dashboardData?.metrics?.capaSolved || 0 }}</div>
+  </div>
+
+  <div class="dashboard-grid">
+
+    <!-- ==================== COLUMN 1 ==================== -->
+    <div class="grid-column">
+
+      <!-- GLOBAL FILTER PANEL -->
+      <div class="panel filter-panel card-filter" style="height: 260px;">
+        <form [formGroup]="filterForm" (ngSubmit)="onFilterSubmit()">
+
+          <div class="form-group">
+            <label>Commodity:</label>
+            <select formControlName="commodityId" class="form-control">
+              <option [ngValue]="null">All Commodities</option>
+              <option *ngFor="let com of commodities" [value]="com.commodityId">
+                {{ com.name || com.commodityName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Severity:</label>
+            <select formControlName="severityId" class="form-control">
+              <option [ngValue]="null">All Severities</option>
+              <option *ngFor="let sev of severities" [value]="sev.severityId">
+                {{ sev.severityName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Select Year:</label>
+            <select formControlName="finYear" class="form-control">
+              <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+            </select>
+          </div>
+
+          <div class="button-group">
+            <button type="button" class="btn-clear" (click)="onClearFilter()"><span class="reset-icon">&#8634;</span>
+              Clear</button>
+            <button type="submit" class="btn-go"><span class="search-icon">&#9906;</span> Go</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PARTS AUDIT CHART -->
+      <div class="panel chart-panel card-parts" style="height: 270px;">
+        <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top:-10px">
+          <h3 class="panel-title mb-0">Parts Audits</h3>
+          <!-- 🔥 Local Widget Dropdown (Tags Fixed Here) -->
+          <mat-form-field appearance="outline" class="panel-dropdown">
+            <mat-label>Commodity</mat-label>
+            <mat-select [(value)]="localPartsCommodityId" (selectionChange)="onPartsCommodityChange($event.value)">
+              <mat-option [value]="null">All Commodities</mat-option>
+              <mat-option *ngFor="let com of commodities" [value]="com.commodityId">{{ com.name || com.commodityName
+                }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="chart-container" style="margin-top:-15px">
+          <!-- 🔥 Native Highcharts Instance Binding -->
+          <highcharts-chart [Highcharts]="Highcharts" [options]="partsAuditOptions" (chartInstance)="onPartsChartInstance($event)"
+            style="width: 100%; height: 100%; display: block;">
+          </highcharts-chart>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== COLUMN 2 ==================== -->
+    <div class="grid-column">
+
+      <!-- CAPA DISTRIBUTION TABLE -->
+      <div class="panel table-panel card-issue" style="height: 260px;">
+        <h3 class="panel-title mb-2">CAPA Distribution</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Severity</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaDistribution">
+                <td>{{ item.severity }}</td>
+                <td>{{ item.count }}</td>
+              </tr>
+              <!-- Show if no data -->
+              <tr *ngIf="!dashboardData?.capaDistribution?.length">
+                <td colspan="2" class="text-center text-muted">No data available</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MONTHLY TREND CHART -->
+      <div class="panel chart-panel card-trend" style="height: 270px;">
+        <h3 class="panel-title mb-0">Monthly Trend</h3>
+        <div class="chart-container" style="margin-top:-10px">
+          <!-- 🔥 Native Highcharts Instance Binding -->
+          <highcharts-chart [Highcharts]="Highcharts" [options]="monthlyTrendOptions" (chartInstance)="onTrendChartInstance($event)"
+            style="width: 100%; height: 100%; display: block;">
+          </highcharts-chart>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== COLUMN 3 ==================== -->
+    <div class="grid-column">
+
+      <!-- PROCESS AUDIT CHART -->
+      <div class="panel chart-panel card-process" style="height: 260px;">
+        <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top:-10px">
+          <h3 class="panel-title mb-0">Process Audits</h3>
+          <!-- 🔥 Local Widget Dropdown (Tags Fixed Here) -->
+          <mat-form-field appearance="outline" class="panel-dropdown">
+            <mat-label>Commodity</mat-label>
+            <mat-select [(value)]="localProcessCommodityId" (selectionChange)="onProcessCommodityChange($event.value)">
+              <mat-option [value]="null">All Commodities</mat-option>
+              <mat-option *ngFor="let com of commodities" [value]="com.commodityId">{{ com.name || com.commodityName
+                }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="chart-container" style="margin-top:-15px">
+          <!-- 🔥 Native Highcharts Instance Binding -->
+          <highcharts-chart [Highcharts]="Highcharts" [options]="processAuditOptions"
+            (chartInstance)="onProcessChartInstance($event)" style="width: 100%; height: 100%; display: block;">
+          </highcharts-chart>
+        </div>
+      </div>
+
+      <!-- CAPA AGEING ANALYSIS TABLE -->
+      <div class="panel table-panel card-ageing" style="height: 270px;">
+        <h3 class="panel-title mb-2">CAPA Ageing Analysis</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Days</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaAgeing">
+                <td>{{ item.days }}</td>
+                <td>{{ item.volume }}</td>
+              </tr>
+              <!-- Show if no data -->
+              <tr *ngIf="!dashboardData?.capaAgeing?.length">
+                <td colspan="2" class="text-center text-muted">No pending CAPAs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

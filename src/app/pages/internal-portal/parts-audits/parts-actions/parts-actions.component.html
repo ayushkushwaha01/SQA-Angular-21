@@ -1,0 +1,550 @@
+<div class="active-audits-container">
+  <div class="toolbar-row">
+    <button mat-raised-button class="btn-dark" [class.disable-custom]="!canUpdate"
+      [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid Columns'"
+      (click)="canUpdate && openColumnSelector()">
+      <mat-icon>grid_on</mat-icon>
+      Grid Columns
+    </button>
+    <button mat-raised-button class="btn-dark" matTooltip="Filter" (click)="filterToggle = !filterToggle">
+      <mat-icon>filter_list</mat-icon> Filter
+    </button>
+  </div>
+
+  <div fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 15px;">
+    <div fxFlex="100" class="flex-p w-100">
+      <form [formGroup]="filterForm">
+        <mat-card class="filter">
+          <mat-card-content>
+            <div class="row col-sm-12 mb-3">
+              <!-- Keyword -->
+              <div class="col-sm-3 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Keyword:</b></div>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" formControlName="keyword" placeholder="Search...">
+                </div>
+              </div>
+
+              <!-- Action Type -->
+              <div class="col-sm-3 row">
+                <div class="col-sm-5 d-flex align-items-center"><b>Action Type:</b></div>
+                <div class="col-sm-7">
+                  <mat-select class="form-control" formControlName="actionType" placeholder="Select Action Type">
+                    <mat-option value="">All</mat-option>
+                    <mat-option value="Containment">Containment</mat-option>
+                    <mat-option value="Corrective">Corrective</mat-option>
+                    <mat-option value="Preventive">Preventive</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <!-- From Date -->
+              <div class="col-sm-3 row">
+                <div class="col-sm-5 d-flex align-items-center"><b>From Date:</b></div>
+                <div class="col-sm-7">
+                  <input type="date" class="form-control" formControlName="fromDate">
+                </div>
+              </div>
+
+              <!-- To Date -->
+              <div class="col-sm-3 row">
+                <div class="col-sm-5 d-flex align-items-center"><b>To Date:</b></div>
+                <div class="col-sm-7">
+                  <input type="date" class="form-control" formControlName="toDate">
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="row col-sm-12">
+              <div class="col-sm-12 d-flex align-items-center justify-content-end">
+                <button mat-raised-button class="btn-dark me-2" (click)="clearFilters()">
+                  <mat-icon>settings_backup_restore</mat-icon> Clear
+                </button>
+                <button mat-raised-button color="primary" class="btn-blue me-3" (click)="getCapas()">
+                  <mat-icon>search</mat-icon> Search
+                </button>
+                <a (click)="filterToggle = !filterToggle" style="font-size: 22px; cursor: pointer; color: #555;">
+                  <i class="fa fa-angle-double-up"></i>
+                </a>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-sm-12" style="margin-top: 10px; width: 100%; padding: 0;">
+    <div class="table-responsive" id="grid-table-container">
+
+      <table mat-table class="table table-bordered table-hover audit-table">
+        <thead>
+          <tr>
+
+            <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+              <!-- Action -->
+              <th *ngSwitchCase="'Action'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Action
+              </th>
+
+              <!-- Status -->
+              <th *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Status
+              </th>
+
+              <!-- Resolved -->
+              <th *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Resolved
+              </th>
+
+              <!-- Docs -->
+              <th *ngSwitchCase="'Docs'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Docs
+              </th>
+
+              <!-- Reference -->
+              <th *ngSwitchCase="'Reference'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Reference
+              </th>
+
+              <!-- CAPA Subject -->
+              <th *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                CAPA Subject
+              </th>
+
+              <!-- Action Type -->
+              <th *ngSwitchCase="'Action Type'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Action Type
+              </th>
+
+              <!-- Description -->
+              <th *ngSwitchCase="'Description'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Description
+              </th>
+
+              <!-- Supplier Remarks -->
+              <th *ngSwitchCase="'Supplier Remarks'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Supplier Remarks
+              </th>
+
+              <!-- Log Date -->
+              <th *ngSwitchCase="'Log Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Log Date
+              </th>
+
+              <!-- Due Date -->
+              <th *ngSwitchCase="'Due Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Due Date
+              </th>
+
+              <!-- Delay In Days -->
+              <th *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Delay In Days
+              </th>
+
+              <!-- Completion Date -->
+              <th *ngSwitchCase="'Completion Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Completion Date
+              </th>
+
+              <!-- Severity -->
+              <th *ngSwitchCase="'Severity'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Severity
+              </th>
+
+              <!-- Occurrence -->
+              <th *ngSwitchCase="'Occurrence'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Occurrence
+              </th>
+
+              <!-- Detection -->
+              <th *ngSwitchCase="'Detection'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Detection
+              </th>
+
+              <!-- SOD Score -->
+              <th *ngSwitchCase="'SOD Score'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                SOD Score
+              </th>
+
+              <!-- Risk Rating -->
+              <!-- <th *ngSwitchCase="'Risk Rating'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Risk Rating
+              </th> -->
+
+              <!-- PDCA Status -->
+              <th *ngSwitchCase="'PDCA Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                PDCA Status
+              </th>
+
+            </ng-container>
+
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngIf="isLoading">
+            <td [attr.colspan]="activeColumns.length || 15" class="text-center p-0">
+              <div class="table-loader-wrapper">
+                <mat-spinner diameter="45" strokeWidth="4"></mat-spinner>
+                <div class="loader-text">Loading data, please wait...</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let applicant of tableLists" [hidden]="isLoading">
+
+            <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+              <!-- Action -->
+              <td *ngSwitchCase="'Action'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- <a matTooltip="Edit" [routerLink]="['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']"
+                  [queryParams]="{
+     partAuditId: applicant.partAuditId,
+     auditParameterId: applicant.auditParameterId
+   }">
+                  <i class="fa fa-edit"></i>
+                </a> -->
+                <div class="manage-icons">
+                  <a [class.disable-custom]="!canDelete"
+                    [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+                    (click)="canDelete && deleteConfirmation(applicant)">
+                    <i class="fa fa-trash delete-icon"></i>
+                  </a>
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <!-- 
+                <mat-select [(ngModel)]="applicant.status" class="form-control">
+                  <mat-option value="WIP">WIP</mat-option>
+                  <mat-option value="Open">Open</mat-option>
+                  <mat-option value="Closed">Closed</mat-option>
+                  <mat-option value="Pending">Pending</mat-option>
+                  <mat-option value="In Progress">In Progress</mat-option>
+                  <mat-option value="Completed">Completed</mat-option>
+                </mat-select> -->
+                <mat-select class="form-control" style="width:120px" [(ngModel)]="applicant.statusId"
+                  (selectionChange)="changeStatus(applicant)">
+
+                  <mat-option *ngFor="let item of lookups" [value]="item.lookupId">
+
+                    {{ item.lookupName }}
+
+                  </mat-option>
+
+                </mat-select>
+
+              </td>
+
+              <!-- Resolved -->
+              <!-- <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-checkbox [checked]="applicant.isResolved" color="primary"
+                  (click)="$event.preventDefault(); changeResolvedStatus(applicant)">
+                </mat-checkbox>
+
+              </td> -->
+              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <mat-checkbox [checked]="applicant.isResolved" color="primary" [disabled]="true">
+                </mat-checkbox>
+              </td>
+
+
+              <!-- Docs -->
+              <td *ngSwitchCase="'Docs'" class="text-center text-primary" [class.disable-custom]="!canUpdate"
+                [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+                [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Documents'"
+                (click)="canUpdate && docsPhoto(applicant)">
+
+                {{ applicant.docCount }}
+
+              </td>
+
+              <!-- Reference -->
+              <!-- Reference -->
+              <td *ngSwitchCase="'Reference'" class="text-center" [class.disable-custom]="!canreadCAPAScreen"
+                [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+                [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+                [matTooltip]="!canreadCAPAScreen ? 'You don’t have permission to view' : 'View Reference'">
+
+                <a [routerLink]="canreadCAPAScreen
+      ? ['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']
+      : null" [queryParams]="canreadCAPAScreen ? {
+      partAuditId: applicant.partAuditId,
+      auditParameterId: applicant.auditParameterId
+    } : null" style="cursor: pointer; text-decoration: underline;">
+
+                  {{ '2026/PART/' + padId(applicant.partAuditId) }}
+
+                </a>
+
+              </td>
+
+              <!-- CAPA Subject -->
+              <!-- <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.capaSubject || '-' }}
+
+              </td> -->
+
+              <!-- 🔥 CAPA Subject (WITH RED FLAG ESCALATION UI) -->
+              <!-- <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                 <div *ngIf="applicant.calculatedDelayInDays > 0; else normalSubject" style="line-height: 1.4;">
+                  <span style="color: red; font-weight: 600;">
+                    <i class="fa fa-flag" style="margin-right: 4px;"></i>
+                    {{ applicant.capaSubject || '-' }}
+                  </span>
+                  <br>
+                  <span style="font-size: 12px; color: blue;">(Delay: {{ applicant.calculatedDelayInDays }} Days)</span>
+                </div>
+
+                 <ng-template #normalSubject>
+                  {{ applicant.capaSubject || '-' }}
+                </ng-template>
+
+              </td> -->
+
+              <!-- 🔥 CAPA Subject (WITH RED FLAG ESCALATION UI) -->
+              <!-- 🔥 CAPA Subject (WITH RED FLAG ESCALATION UI) -->
+              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <div style="line-height: 1.4;">
+                  <!-- 🔥 Color and weight rely ONLY on the OVERDUE threshold -->
+                  <span
+                    [ngStyle]="{
+                      'color': applicant.calculatedDelayInDays >= overdueThreshold ? 'red' : 'inherit',
+                      'font-weight': applicant.calculatedDelayInDays >= overdueThreshold ? '600' : 'normal'
+                    }"
+                    style="display: inline-flex; align-items: center; justify-content: center;">
+                    
+                    <!-- 🔥 The Flag Icon relies ONLY on the ESCALATE threshold -->
+                    <mat-icon *ngIf="applicant.calculatedDelayInDays >= escalateThreshold" 
+                      style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">
+                      flag
+                    </mat-icon>
+                    
+                    <!-- <span>{{ applicant.subject || applicant.capaSubject || '-' }}</span> -->
+                     <span>{{ applicant.capaSubject || '-' }}</span>
+                  </span>
+                </div>
+
+              </td>
+
+              <!-- Action Type -->
+              <td *ngSwitchCase="'Action Type'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.actionType || '-' }}
+
+              </td>
+
+              <!-- Description -->
+              <td *ngSwitchCase="'Description'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-icon style="color:blue;cursor:pointer">
+                  info
+                </mat-icon>
+
+              </td>
+
+              <!-- Supplier Remarks -->
+              <td *ngSwitchCase="'Supplier Remarks'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-icon style="color:blue;cursor:pointer" [matTooltip]="applicant.supplierRemarks || 'No Remarks'"
+                  matTooltipPosition="above">
+                  info
+                </mat-icon>
+
+              </td>
+
+              <!-- Log Date -->
+              <td *ngSwitchCase="'Log Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.createdDate | date:'MM/dd/yyyy' }}
+
+              </td>
+
+              <!-- Due Date -->
+              <td *ngSwitchCase="'Due Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.dueDate | date:'MM/dd/yyyy' }}
+
+              </td>
+
+              <!-- Delay In Days -->
+              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <span
+                  [ngStyle]="{'color': applicant.calculatedDelayInDays > 0 ? 'red' : 'inherit', 'font-weight': applicant.calculatedDelayInDays > 0 ? 'bold' : 'normal'}">
+                  {{ applicant.calculatedDelayInDays > 0 ? applicant.calculatedDelayInDays : '-' }}
+                </span>
+
+              </td>
+
+              <!-- Completion Date -->
+              <td *ngSwitchCase="'Completion Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.completedDate | date:'MM/dd/yyyy' }}
+
+              </td>
+
+              <!-- Severity -->
+              <td *ngSwitchCase="'Severity'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.severityRating }}
+
+              </td>
+
+              <!-- Occurrence -->
+              <td *ngSwitchCase="'Occurrence'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.occurrenceRating ?? '-' }}
+
+              </td>
+
+              <!-- Detection -->
+              <td *ngSwitchCase="'Detection'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.detectionRating ?? '-' }}
+
+              </td>
+
+              <!-- SOD Score -->
+              <td *ngSwitchCase="'SOD Score'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.sodScore ?? '-' }}
+
+              </td>
+
+              <!-- Risk Rating -->
+              <!-- <td *ngSwitchCase="'Risk Rating'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-select [(ngModel)]="applicant.riskRating" class="form-control">
+
+                  <mat-option value="High">High</mat-option>
+                  <mat-option value="Medium">Medium</mat-option>
+                  <mat-option value="Low">Low</mat-option>
+
+                </mat-select>
+
+              </td> --> 
+
+              <!-- PDCA Status -->
+              <td *ngSwitchCase="'PDCA Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.pdcaStatus || '-' }}
+
+              </td>
+
+            </ng-container>
+
+          </tr>
+
+          <tr *ngIf="!isLoading && tableLists.length === 0">
+            <td colspan="7" class="text-center py-4 center">
+              No Data Available
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+      [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+    </mat-paginator>
+
+    <!-- Horizontal scroll buttons -->
+    <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+      <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+    </button>
+    <button class="mine mine-right" mat-fab (click)="scrollRight()">
+      <mat-icon style="color: #37474f">fast_forward</mat-icon>
+    </button>
+  </div>
+</div>

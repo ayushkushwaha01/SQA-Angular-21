@@ -1,0 +1,105 @@
+<!-- Top Action Bar -->
+<div class="row mb-3 align-items-center px-3">
+  <div class="col-md-2">
+  </div>
+  <div class="col-md-10 d-flex justify-content-between align-items-center ps-2">
+    <h4 class="m-0 font-weight-bold" style="font-size: 18px; color: #2c3e50;">
+      Role: <span style="color: #1e73be; font-weight: 700;">{{ roleName || 'Admin' }}</span>
+    </h4>
+    <div class="d-flex justify-content-end align-items-center gap-2">
+      <button mat-raised-button color="primary" class="me-2" (click)="toggleAll()">
+        <mat-icon>select_all</mat-icon> Toggle All
+      </button>
+
+      <button mat-raised-button color="primary" class="me-2" (click)="saveUserPermissions()">
+        <mat-icon>save</mat-icon> Save
+      </button>
+
+      <button mat-raised-button class="btn-default me-2" (click)="next()">
+        <mat-icon>arrow_forward</mat-icon> Next
+      </button>
+
+      <button mat-raised-button class="btn-default me-2" (click)="previous()">
+        <mat-icon>arrow_back</mat-icon> Previous
+      </button>
+
+      <button mat-raised-button class="btn-default" (click)="goback()">
+        <mat-icon>arrow_back</mat-icon> Back
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="container-fluid px-3">
+  <div class="row">
+    <!-- Left Column: Compact Module Navigation (~200px) -->
+    <div class="col-md-2 pe-2">
+      <div class="module-sidebar">
+        <ul class="nav nav-pills flex-column m-0">
+          <li *ngFor="let item of modules" class="nav-item mb-2" [ngClass]="{'active': selectedModule === item || selectedModule?.name === item?.name}">
+            <a mat-raised-button class="module-btn btn" 
+               [ngClass]="(selectedModule === item || selectedModule?.name === item?.name) ? 'btn-primary' : 'btn-light'"
+               (click)="selectedModule = item">
+              {{ item.name || item.moduleName || item.userModuleName }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+   <!-- Right Column: Screen Permissions Table -->
+<div class="col-md-10 ps-2">
+  <div class="table-responsive">
+    <table id="example2" class="table table-bordered table-hover m-0">
+      <thead class="table-dark">
+        <tr class="tr-grid-header">
+          <th>Screen Permissions</th>
+          <th class="text-center">Create</th>
+          <th class="text-center">Read</th>
+          <th class="text-center">Update</th>
+          <th class="text-center">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of selectedModule?.screens">
+          <td>{{ item.screenName }}</td>
+
+          <!-- Create Column -->
+          <td class="text-center">
+            <ng-container *ngIf="item.hasCreate; else noCreate">
+              <mat-checkbox [(ngModel)]="item.canCreate" color="primary"></mat-checkbox>
+            </ng-container>
+            <ng-template #noCreate>-</ng-template>
+          </td>
+
+          <!-- Read Column -->
+          <td class="text-center">
+            <ng-container *ngIf="item.hasRead; else noRead">
+              <mat-checkbox [(ngModel)]="item.canRead" color="primary"></mat-checkbox>
+            </ng-container>
+            <ng-template #noRead>-</ng-template>
+          </td>
+
+          <!-- Update Column -->
+          <td class="text-center">
+            <ng-container *ngIf="item.hasUpdate; else noUpdate">
+              <mat-checkbox [(ngModel)]="item.canUpdate" color="primary"></mat-checkbox>
+            </ng-container>
+            <ng-template #noUpdate>-</ng-template>
+          </td>
+
+          <!-- Delete Column -->
+          <td class="text-center">
+            <ng-container *ngIf="item.hasDelete; else noDelete">
+              <mat-checkbox [(ngModel)]="item.canDelete" color="primary"></mat-checkbox>
+            </ng-container>
+            <ng-template #noDelete>-</ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+  </div>
+</div>

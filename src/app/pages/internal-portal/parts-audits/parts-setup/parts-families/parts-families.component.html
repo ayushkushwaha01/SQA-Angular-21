@@ -1,0 +1,138 @@
+<div class="custom-layout-wrapper">
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px;">
+    <button mat-raised-button
+      style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      (click)="toggleFilters()">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">filter_list</mat-icon>
+      Filter
+    </button>
+    <button mat-raised-button
+      style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Parts Family'"
+      (click)="canCreate && addPartFamily(null)">
+
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">
+        add
+      </mat-icon>
+
+      <span class="button-text">
+        Add Parts Family
+      </span>
+
+    </button>
+  </div>
+
+  <div class="filter-wrapper" *ngIf="showFilters">
+    <mat-card class="filter-card">
+      <mat-card-content>
+        <div class="filter-row" [formGroup]="filterForm">
+          <div class="filter-group">
+            <label class="filter-label mb-0">Keyword :</label>
+            <input type="text" placeholder="Enter Keyword" class="custom-mat-input" formControlName="Keyword">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label mb-0">Status :</label>
+            <mat-select placeholder="Select Status" class="custom-mat-select" formControlName="Status">
+              <mat-option [value]="true">Active</mat-option>
+              <mat-option [value]="false">Inactive</mat-option>
+            </mat-select>
+          </div>
+          <div class="button-group">
+            <button mat-raised-button color="primary" (click)="getPartsFamilies()">
+              <mat-icon>search</mat-icon> Go
+            </button>
+            <button mat-raised-button class="btn-clear" (click)="clearFilter()">
+              <mat-icon>settings_backup_restore</mat-icon> Clear
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="table-responsive bg-white shadow-sm">
+    <table class="custom-grid-table">
+      <thead>
+        <tr>
+          <th style="width:30%">Part Family Name</th>
+          <th class="text-center" style="width: 200px;">Part Family Code</th>
+          <th class="text-center" style="width: 200px;">Defects</th>
+          <th class="text-center" style="width: 150px;">Status</th>
+          <th class="text-center" style="width: 150px;">Parameters</th>
+          <th class="text-center" style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of tableLists">
+          <td>{{ item.partFamilyName }}</td>
+          <td class="text-center">{{ item.partFamilyCode }}</td>
+
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to assign defects'">
+
+            <a class="text-blue" style="cursor: pointer; text-decoration: underline; font-weight: bold;"
+              (click)="canUpdate && openDefectsPopup(item)">
+
+              {{ getDefectsCount(item) }} / {{ totalDefectsCount }}
+
+            </a>
+          </td>
+
+
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'">
+
+            <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
+              (click)="canUpdate && changeStatus(item)">
+
+              {{ item.isActive ? 'Active' : 'Inactive' }}
+
+            </a>
+          </td>
+
+
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Parameter Details'">
+
+            <a class="text-blue" style="cursor: pointer; text-decoration: underline;"
+              [routerLink]="canUpdate ? ['../families-inner-grid'] : null"
+              [queryParams]="canUpdate ? { partFamilyId: item.partFamilyId } : null">
+
+              {{ item.parametersCount || 0 }}
+
+            </a>
+          </td>
+
+          <td class="text-center manage-icons">
+
+            <!-- Edit -->
+            <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+              (click)="canUpdate && addPartFamily(item)" style="margin-right: 10px; cursor: pointer;">
+            </i>
+
+            <!-- Delete -->
+            <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && deleteConfirmation(item)" style="cursor: pointer;">
+            </i>
+
+          </td>
+        </tr>
+
+        <tr *ngIf="tableLists.length === 0">
+          <td colspan="4" class="text-center py-4">
+            No Data Available
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+
+  </div>
+  <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+    [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+  </mat-paginator>
+</div>

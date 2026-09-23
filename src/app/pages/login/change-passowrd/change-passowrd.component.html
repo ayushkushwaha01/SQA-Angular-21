@@ -1,0 +1,51 @@
+<mat-sidenav-container class="login-bg">
+  <div fxLayout="row" fxLayoutAlign="center center" class="h-100 login-bg">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" fxFlex="80" fxFlex.gt-sm="30" fxFlex.sm="60"
+      class="mat-elevation-z24">
+      <mat-card class="p-0 box">
+        <div fxLayout="column" fxLayoutAlign="center center" class=" box-header" style="background-color: black;">
+
+
+          <div style="margin-top: auto;margin-bottom: auto;">
+            <img alt="logo" class="logo-default logo-img box-content-center"
+              style="height: 60px;  margin-bottom: 20px; margin-right:0px;" src="../../assets/om_white.png">
+          </div>
+        </div>
+        <mat-card-content fxLayout="column" fxLayoutAlign="end center" class="box-content">
+          <mat-card fxLayout="column" fxLayoutAlign="center center" class="mat-elevation-z12 box-content-inner">
+            <!-- <span class="box-content-header">member login</span>   -->
+            <mat-form-field class="w-100">
+              <input matInput placeholder="Email" formControlName="email">
+              <mat-error>
+                @if (form.controls.email.errors?.required) {
+                Email is required
+                }
+                @if (form.controls.email.hasError('invalidEmail')) {
+                Invalid email address
+                }
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field class="w-100">
+              <input matInput [type]="passwordType" placeholder="Password" formControlName="password">
+
+              <button mat-icon-button matSuffix type="button" (click)="togglePassword()">
+
+                <mat-icon>
+                  {{ passwordType === 'password' ? 'visibility' : 'visibility_off' }}
+                </mat-icon>
+
+              </button>
+
+              <mat-error *ngIf="form.controls.password.invalid">
+                Password must be at least 6 characters
+              </mat-error>
+            </mat-form-field>
+
+          </mat-card>
+          <button mat-raised-button class="mat-elevation-z12 box-button" style="background-color: black; color: white;"
+            type="submit">SIGN IN</button>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </div>
+</mat-sidenav-container>

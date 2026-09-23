@@ -1,0 +1,54 @@
+.style {
+  text-align: center !important;
+}
+
+.module-sidebar {
+  max-width: 200px;
+  width: 100%;
+
+  .nav-pills {
+    padding-left: 0;
+
+    .nav-item {
+      width: 100%;
+    }
+
+    .module-btn {
+      width: 100%;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: all 0.2s ease-in-out;
+
+      &.btn-primary {
+        background-color: #4b5e65 !important;
+        color: #ffffff !important;
+        border: 1px solid #4b5e65 !important;
+      }
+
+      &.btn-light {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+        border: 1px solid #dcdcdc !important;
+
+        &:hover {
+          background-color: #f8f9fa !important;
+        }
+      }
+    }
+  }
+}
+
+#example2 {
+  th.text-center, td.text-center {
+    width: 90px !important;
+    max-width: 90px !important;
+    min-width: 90px !important;
+    white-space: nowrap;
+  }
+}

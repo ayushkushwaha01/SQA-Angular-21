@@ -1,0 +1,178 @@
+/* Main Container Styling - FIXED FOR POPUP */
+.audit-modal-container {
+    width: 100%;
+    /* We remove margin, box-shadow, and border so it blends into the dialog */
+    background: #ffffff;
+    font-family: Arial, sans-serif;
+    
+    display: flex;
+    flex-direction: column;
+    
+    /* Optional: You can remove max-height here if you set height when opening the dialog */
+    max-height: 85vh; 
+}
+
+/* Header Styling */
+.modal-header {
+    background-color: #2b6ca3; 
+    padding: 16px;
+    text-align: center;
+    color: white;
+    flex-shrink: 0; 
+    
+    /* If your mat-dialog has default padding (white gap around the edges), 
+       this negative margin pulls the header out to touch the edges. 
+       Usually mat-dialog padding is 24px */
+    margin: -24px -24px 0 -24px;
+
+    h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+    }
+}
+
+/* Body Styling - SCROLLABLE AREA */
+.modal-body {
+    // padding: 30px 40px;
+    flex: 1; 
+    overflow-y: auto; 
+    
+    /* Compensate for the negative margins on header/footer if applied */
+    margin: 0 -24px;
+    // padding: 30px 24px; 
+}
+
+/* Form Row Grid */
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+
+    &.upload-row {
+        align-items: flex-start;
+    }
+}
+
+.form-label {
+    width: 35%;
+    font-size: 15px;
+    font-weight: bold;
+    color: #111;
+
+    .required {
+        color: red;
+        margin-left: 2px;
+    }
+}
+
+.form-input {
+    width: 65%;
+}
+
+/* Override Material Form Field Padding */
+::ng-deep .mat-mdc-form-field-flex {
+    padding: 0 12px !important;
+    height: 42px !important;
+    align-items: center !important;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: #ffffff !important;
+}
+
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline {
+    --mdc-outlined-text-field-outline-color: #b0b0b0; 
+}
+
+
+/* Upload Area Styling */
+.upload-wrapper {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.drag-drop-zone {
+    width: 100%;
+    border: 2px dashed #b5b5b5;
+    border-radius: 4px;
+    padding: 25px 20px;
+    text-align: center;
+    color: #666;
+    background-color: #fafafa;
+    cursor: pointer;
+    box-sizing: border-box;
+
+    span {
+        font-size: 15px;
+    }
+}
+
+.browse-btn-container {
+    margin-top: -16px;
+}
+
+.browse-btn {
+    background-color: #1485cc !important; 
+    color: white !important;
+    font-weight: 500;
+    text-transform: none;
+    border-radius: 4px;
+    padding: 4px 20px !important;
+}
+
+/* Footer / Actions - FIXED AREA */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    
+    flex-shrink: 0;
+    background-color: #ffffff; 
+    border-top: 1px solid #e0e0e0; 
+    
+    /* Negative margin to push to the bottom edges of the dialog */
+    margin: 0 -24px -24px -24px;
+    padding: 15px 24px;
+}
+
+.action-btn {
+    font-size: 15px !important;
+    font-weight: bold !important;
+    padding: 6px 24px !important;
+    border-radius: 4px !important;
+
+    &.save-btn {
+        background-color: #1485cc !important;
+        color: white !important;
+    }
+
+    &.close-btn {
+        background-color: #e0e0e0 !important;
+        color: #333 !important;
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+    }
+}
+
+.drag-drop-zone {
+  width: 100%;
+  border: 2px dashed #b5b5b5;
+  border-radius: 4px;
+  padding: 25px 20px;
+  text-align: center;
+  color: #666;
+  background-color: #fafafa;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  // Stack icon, text, and button vertically
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+// Remove the separate .browse-btn-container — no longer needed

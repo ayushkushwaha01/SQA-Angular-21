@@ -1,0 +1,148 @@
+<div class="NewHeader"
+    style="background-color: #f5f5f5; padding: 10px 20px; border-bottom: 1px solid #ddd; margin-bottom: 20px;">
+    <h1 *ngIf="!data" style="margin: 0; font-weight: 400;font-weight: 18px;">Add Batch Record</h1>
+    <h3 *ngIf="data" style="margin: 0; font-weight: 400;font-weight: 18px;">Edit Batch Record</h3>
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <div class="col-sm-12" style="padding: 0 20px 0 10px;">
+
+            <form [formGroup]="myGroup">
+
+                <!-- Part Family -->
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="fw-bold">Part Family <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <mat-select class="form-control" placeholder="Select Part Family"
+                            formControlName="PartFamilyId" style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
+
+                                {{ item.partFamilyName }}
+
+                            </mat-option>
+
+                        </mat-select>
+
+                        <small class="text-danger"
+                            *ngIf="f['PartFamilyId'].touched && f['PartFamilyId'].errors?.['required']">
+
+                            Part Family is required.
+
+                        </small>
+
+                    </div>
+                </div>
+
+                <!-- Part Master -->
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="fw-bold">Select Part <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <mat-select class="form-control" placeholder="Select Part" formControlName="PartMasterId"
+                            style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of partsMasters" [value]="item.partMasterId">
+
+                                {{ item.partMasterName }}
+
+                            </mat-option>
+
+                        </mat-select>
+
+                        <small class="text-danger"
+                            *ngIf="f['PartMasterId'].touched && f['PartMasterId'].errors?.['required']">
+
+                            Part is required.
+
+                        </small>
+
+                    </div>
+                </div>
+
+                <!-- Batch Number -->
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="fw-bold">Batch Number <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" placeholder="Enter Batch Number"
+                            formControlName="BatchNumber" style="background-color: #fefec4 !important;">
+
+                        <small class="text-danger"
+                            *ngIf="f['BatchNumber'].touched && f['BatchNumber'].errors?.['required']">
+
+                            Batch Number is required.
+
+                        </small>
+
+                    </div>
+                </div>
+
+                <!-- Batch Date -->
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="fw-bold">Batch Date</label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input type="date" class="form-control" formControlName="BatchDate">
+
+
+                    </div>
+                </div>
+
+                <!-- Remarks -->
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="fw-bold">Remarks</label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <textarea rows="3" class="form-control" placeholder="Enter Remarks" formControlName="Remakrs">
+            </textarea>
+
+                    </div>
+                </div>
+
+            </form>
+
+            <mat-dialog-actions align="end">
+
+                <button mat-raised-button type="button" (click)="close()" style="background:lightgray;color:red;">
+
+                    <mat-icon>cancel</mat-icon>
+                    Cancel
+
+                </button>
+
+                <button mat-raised-button color="primary" type="button" (click)="UpsertBatchMaster()"
+                    [disabled]="myGroup.invalid">
+
+                    <mat-icon>save</mat-icon>
+
+                    {{ myGroup.value.BatchId == 0 ? 'Save' : 'Update' }}
+
+                </button>
+
+            </mat-dialog-actions>
+        </div>
+    </div>
+</div>

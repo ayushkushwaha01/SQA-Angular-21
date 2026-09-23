@@ -1,0 +1,93 @@
+
+
+
+<!-- PERFECTLY ALIGNED HEADER -->
+<div style="display: flex; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb; margin-bottom: 20px;">
+    <mat-icon style="color: #6b7280; margin-right: 8px; font-size: 22px; height: 22px; width: 22px; display: flex; align-items: center; justify-content: center;">fingerprint</mat-icon>
+    <h2 style="margin: 0; font-size: 18px; font-weight: 500; color: #1f2937; line-height: 1;">Passkey Setup</h2>
+</div>
+
+<mat-dialog-content style="padding: 0; margin: 0; max-height: 60vh;">
+    <div *ngIf="isLoading" style="text-align: center; padding: 40px 20px; color: #6b7280;">
+        <mat-icon style="animation: spin 1s linear infinite;">refresh</mat-icon>
+        <p style="margin-top: 10px;">Loading devices...</p>
+    </div>
+
+    <!-- VIEW 1: LIST EXISTING DEVICES -->
+    <div *ngIf="!isLoading && !isAddingNew">
+        <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 600; color: #111827;">Your Passkeys</h3>
+        <p style="color: #6b7280; font-size: 13px; margin: 0 0 20px 0;">
+            You have {{ passkeysList.length }} passkey(s) registered on different devices.
+        </p>
+
+        <!-- Loop through all registered devices -->
+        <div *ngFor="let pk of passkeysList" 
+             style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="background: #f3f4f6; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <mat-icon style="color: #9ca3af;">devices</mat-icon>
+                </div>
+                <div>
+                    <h4 style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #111827;">{{ pk.deviceName }}</h4>
+                    <span style="color: #6b7280; font-size: 12px;">Created: {{ pk.createdDate | date:'mediumDate' }}</span>
+                </div>
+            </div>
+            <button mat-icon-button color="warn" matTooltip="Remove Device" (click)="deletePasskey(pk.id)">
+                <mat-icon style="color: #ef4444;">delete</mat-icon>
+            </button>
+        </div>
+
+        <div *ngIf="passkeysList.length === 0" 
+             style="text-align: center; border: 2px dashed #d1d5db; padding: 24px; border-radius: 8px; color: #6b7280; margin-top: 15px; font-size: 13px;">
+            No passkeys registered yet. Set one up to log in securely without a password!
+        </div>
+    </div>
+
+    <!-- VIEW 2: NAME A NEW DEVICE (Matches your reference image exactly) -->
+    <div *ngIf="!isLoading && isAddingNew">
+        <p style="color: #374151; font-size: 14px; margin: 0 0 16px 0;">Give this device a name so you can identify it later:</p>
+        
+        <!-- Input Field -->
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: -5px;">
+            <mat-label>Device Name*</mat-label>
+            <mat-icon matPrefix style="margin-right: 8px; color: #9ca3af;">laptop_mac</mat-icon>
+            <input matInput [(ngModel)]="newDeviceName" placeholder="e.g. Windows Device - 9/2/2026" required autofocus>
+        </mat-form-field>
+
+        <!-- Information Blue Box -->
+        <div style="background-color: #eff6ff; border-radius: 6px; padding: 16px; margin-top: 16px;">
+            <p style="color: #1e40af; font-size: 13px; font-weight: 500; margin: 0 0 12px 0;">What happens next:</p>
+            <ol style="margin: 0; padding-left: 20px; color: #1e40af; font-size: 12px; line-height: 1.8;">
+                <li>Click the "Create Passkey" button below</li>
+                <li>Your device will prompt you to verify your identity</li>
+                <li>Use your fingerprint, face, or PIN to complete setup</li>
+            </ol>
+        </div>
+    </div>
+</mat-dialog-content>
+
+<!-- PERFECTLY STYLED BUTTONS -->
+<mat-dialog-actions style="display: flex; justify-content: flex-end; padding: 24px 0 0 0; margin: 0; gap: 8px;">
+    
+    <!-- Buttons for List View -->
+    <ng-container *ngIf="!isAddingNew">
+        <button mat-button mat-dialog-close style="font-weight: 500; color: #111827;">Close</button>
+        <button mat-raised-button color="primary" (click)="startAddNewDevice()" style="font-weight: 500; box-shadow: none;">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">add</mat-icon> 
+            {{ passkeysList.length > 0 ? 'Add Another Device' : 'Setup Passkey' }}
+        </button>
+    </ng-container>
+
+    <!-- Buttons for Add New View -->
+    <ng-container *ngIf="isAddingNew">
+        <button mat-button (click)="isAddingNew = false" style="font-weight: 500; color: #111827;">Cancel</button>
+        
+        <!-- Primary Blue Action Button -->
+        <button mat-raised-button color="primary" (click)="executePasskeyRegistration()" [disabled]="!newDeviceName"
+            style="background-color: #0284c7 !important; color: white !important; font-weight: 600; padding: 0 20px; height: 40px; border-radius: 6px;">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">add</mat-icon> 
+            Create Passkey
+        </button>
+    </ng-container>
+
+</mat-dialog-actions>

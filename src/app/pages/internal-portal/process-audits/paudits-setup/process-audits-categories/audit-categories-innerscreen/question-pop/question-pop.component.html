@@ -1,0 +1,45 @@
+<div class="NewHeader">
+    <h3 style="margin: 0; padding: 0px 20px; font-weight: 400; font-size: 18px;">
+       {{ isEditMode ? 'Update Question' : 'Add Question' }}
+    </h3>
+ </div>
+ 
+ <div mat-dialog-content style="padding: 20px 25px 10px 25px;">
+    <!-- Wrap inputs in the form group -->
+    <form [formGroup]="questionForm">
+        <div class="row mb-3 mx-0">
+            <div class="col-sm-3 fw-bold mt-2 p-0">Question: <span class="text-danger">*</span></div>
+            <div class="col-sm-9 p-0">
+                <!-- 3-Line Multiline Input for Question -->
+                <textarea class="form-control" formControlName="questionText" rows="3" placeholder="Enter Question..." style="background-color: #fefec4 !important;"></textarea>
+            </div>
+        </div>
+        
+        <div class="row mb-3 mx-0">
+            <div class="col-sm-3 fw-bold mt-2 p-0">Guideline:</div>
+            <div class="col-sm-9 p-0">
+                <!-- Clean Compact Rich Text Editor (Quill Editor) for Guideline -->
+                <div class="quill-container">
+                    <quill-editor formControlName="guidelineText" [modules]="quillModules" placeholder="Enter Guideline details..."></quill-editor>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row mb-3 align-items-center mx-0">
+            <div class="col-sm-3 fw-bold p-0">Settings:</div>
+            <div class="col-sm-9 d-flex align-items-center gap-4 p-0">
+                <mat-checkbox formControlName="isMandatory" color="primary">Mandatory</mat-checkbox>
+                <mat-checkbox formControlName="isPriority" color="primary">High Priority</mat-checkbox>
+            </div>
+        </div>
+    </form>
+ </div>
+ 
+ <mat-dialog-actions align="end" style="padding: 15px 25px 20px 25px !important; margin: 0 -25px -20px -25px !important; display: flex !important; justify-content: flex-end !important; gap: 12px;">
+     <button mat-raised-button class="btn-default" (click)="onCancel()" style="background-color: #e0e0e0; color: #333;">
+         <mat-icon>cancel</mat-icon> Close
+     </button>
+     <button mat-raised-button color="primary" class="save" [disabled]="!questionForm.valid" (click)="onSave()">
+         <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
+     </button>
+ </mat-dialog-actions>

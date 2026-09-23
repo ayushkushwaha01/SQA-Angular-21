@@ -1,0 +1,97 @@
+<div class="container-fluid dashboard-container">
+    <h2 class="title"style="font-size: 24px; font-weight: bold; text-decoration: underline;margin-top: -17px;margin-left: 4px;">Dashboard</h2>
+
+  <div class="top-controls">
+
+    <div class="d-flex align-items-center">
+      <span class="filter-label">Select Project:</span>
+      <select class="custom-select" [(ngModel)]="selectedProject">
+        <option *ngFor="let p of projectList" [value]="p">{{ p }}</option>
+      </select>
+    </div>
+
+    <div class="d-flex align-items-center">
+      <span class="filter-label">Select Year:</span>
+      <select class="custom-select" [(ngModel)]="selectedYear">
+        <option *ngFor="let y of yearsList" [value]="y">{{ y }}</option>
+      </select>
+    </div>
+
+    <button mat-raised-button color="primary" (click)="filterData()" style="height: 36px; margin-left: 5px;">
+     Go <mat-icon>arrow_forward</mat-icon>
+    </button>
+
+    <div class="d-flex align-items-center ml-3">
+        <button mat-icon-button class="circle-btn" (click)="goToFirstPage()" matTooltip="First Page">
+        <mat-icon>fast_rewind</mat-icon>
+        </button>
+
+        <button mat-icon-button class="circle-btn" (click)="prevPage()" matTooltip="Previous">
+        <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <button mat-icon-button class="circle-btn" (click)="nextPage()" matTooltip="Next">
+        <mat-icon>chevron_right</mat-icon>
+        </button>
+
+        <button mat-icon-button class="circle-btn" (click)="goToLastPage()" matTooltip="Last Page">
+        <mat-icon>fast_forward</mat-icon>
+        </button>
+
+
+        <button 
+    mat-raised-button 
+    
+    style="height: 36px; margin-left: 10px;"   routerLink="/project-leaderboard">
+    
+     
+    
+    <mat-icon style="margin-left: 5px;">
+      {{ isLeaderboardView ? 'dashboard' : 'leaderboard' }}
+    </mat-icon>
+  </button>
+    </div>
+  </div>
+
+  <div class="card chart-card">
+    <div class="card-header">
+      <h4>Weekly Performance (52 Weeks)</h4>
+    </div>
+    <div style="padding: 0 15px 15px 15px;">
+        <apx-chart
+        [series]="barChartOptions.series"
+        [chart]="barChartOptions.chart"
+        [colors]="barChartOptions.colors"
+        [plotOptions]="barChartOptions.plotOptions"
+        [dataLabels]="barChartOptions.dataLabels"
+        [legend]="barChartOptions.legend"
+        [grid]="barChartOptions.grid"
+        [xaxis]="barChartOptions.xaxis">
+        </apx-chart>
+    </div>
+  </div>
+
+  <div class="week-select">
+    <span class="filter-label">Select Week:</span>
+    <select class="custom-select" [(ngModel)]="selectedWeek">
+      <option *ngFor="let w of weekList" [value]="w">{{ w }}</option>
+    </select>
+  </div>
+
+  <div class="card chart-card mt-3">
+    <div class="card-header">
+        <h4>Process Audit Compliance Heatmap</h4>
+    </div>
+    <div style="padding: 0 15px 15px 15px;">
+        <apx-chart
+        [series]="chartOptions.series"
+        [chart]="chartOptions.chart"
+        [dataLabels]="chartOptions.dataLabels"
+        [plotOptions]="chartOptions.plotOptions"
+        [stroke]="chartOptions.stroke"
+        [tooltip]="chartOptions.tooltip">
+        </apx-chart>
+    </div>
+  </div>
+
+</div>

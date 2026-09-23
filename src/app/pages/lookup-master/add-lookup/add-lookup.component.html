@@ -1,0 +1,37 @@
+<div class="NewHeader">
+  <h3>
+    {{ isEditMode ? 'Update' : 'Add' }} Lookup
+  </h3>
+</div>
+
+<div mat-dialog-content style="padding: 20px;">
+  <form [formGroup]="form">
+    <div class="row mb-3 align-items-center">
+      <div class="col-sm-4 fw-bold text-end">Code Master: <span class="text-danger">*</span></div>
+      <div class="col-sm-8">
+        <mat-select class="form-control" formControlName="codeId" placeholder="Select Code Master" style="background-color: #fefec4 !important;">
+          <mat-option *ngFor="let code of codeMasters" [value]="code.codeId">
+            {{ code.codeName }}
+          </mat-option>
+        </mat-select>
+      </div>
+    </div>
+
+    <div class="row mb-3 align-items-center">
+      <div class="col-sm-4 fw-bold text-end">Lookup Name: <span class="text-danger">*</span></div>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" formControlName="lookupName"
+          placeholder="Enter Lookup Value (e.g. Day Shift)" style="background-color: #fefec4 !important;">
+      </div>
+    </div>
+  </form>
+</div>
+
+<mat-dialog-actions align="end" style="padding: 15px;">
+  <button mat-raised-button (click)="close()" style="background-color: lightgray; color: red; margin-right: 5px;">
+    <mat-icon>cancel</mat-icon> Close
+  </button>
+  <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="saveLookup()">
+    <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,118 @@
+<div>
+
+  <div class="NewHeader">
+    <h1 mat-dialog-title>
+      <span *ngIf="!data">Add</span><span *ngIf="data">Edit</span> Supplier
+    </h1>
+  </div>
+
+  <div mat-dialog-content style="padding: 20px;">
+    <form class="form-horizontal" [formGroup]="myGroup" autocomplete="off">
+
+      <div class="row align-items-center mb-3">
+        <label class="col-sm-4 control-label text-end fw-bold">User Name: <span class="text-danger">*</span></label>
+        <div class="col-sm-8">
+          <input type="text" formControlName="userName" class="form-control" placeholder="Enter User Name" style="background-color: #fefec4 !important;">
+          <small class="text-danger"
+            *ngIf="myGroup.get('userName')?.hasError('required') && myGroup.get('userName')?.touched">
+            User Name is required
+          </small>
+        </div>
+      </div>
+
+      <div class="row align-items-center mb-3">
+        <label class="col-sm-4 control-label text-end fw-bold">Supplier Name: <span class="text-danger">*</span></label>
+        <div class="col-sm-8">
+          <input type="text" formControlName="supplierName" class="form-control" placeholder="Enter Supplier Name" style="background-color: #fefec4 !important;">
+          <small class="text-danger"
+            *ngIf="myGroup.get('supplierName')?.hasError('required') && myGroup.get('supplierName')?.touched">
+            Supplier Name is required
+          </small>
+        </div>
+      </div>
+
+      <div class="row align-items-center mb-3">
+        <label class="col-sm-4 control-label text-end fw-bold">Contact Person: <span class="text-danger">*</span></label>
+        <div class="col-sm-8">
+          <input type="text" formControlName="contactPerson" class="form-control" placeholder="Enter Contact Person" style="background-color: #fefec4 !important;">
+          <small class="text-danger"
+            *ngIf="myGroup.get('contactPerson')?.hasError('required') && myGroup.get('contactPerson')?.touched">
+            Contact Person is required
+          </small>
+        </div>
+      </div>
+
+      <div class="row align-items-center mb-3">
+        <label class="col-sm-4 control-label text-end fw-bold">Email: <span class="text-danger">*</span></label>
+        <div class="col-sm-8">
+          <input type="email" formControlName="email" class="form-control" placeholder="Enter Email" style="background-color: #fefec4 !important;">
+          <small class="text-danger"
+            *ngIf="myGroup.get('email')?.hasError('required') && myGroup.get('email')?.touched">
+            Email is required
+          </small>
+          <small class="text-danger"
+            *ngIf="myGroup.get('email')?.hasError('email') && myGroup.get('email')?.touched">
+            Please enter a valid email
+          </small>
+        </div>
+      </div>
+
+      <div class="row align-items-center mb-3">
+        <label class="col-sm-4 control-label text-end fw-bold">Phone: <span class="text-danger">*</span></label>
+        <div class="col-sm-8">
+          <input type="text" formControlName="phone" class="form-control" placeholder="Enter Phone No"
+            (keypress)="onlyNumbers($event)" maxlength="10" style="background-color: #fefec4 !important;">
+          <small class="text-danger"
+            *ngIf="myGroup.get('phone')?.hasError('required') && myGroup.get('phone')?.touched">
+            Phone is required
+          </small>
+        </div>
+      </div>
+
+     <!-- State Dropdown -->
+<div class="row align-items-center mb-3">
+    <label class="col-sm-4 control-label text-end fw-bold">State: <span class="text-danger">*</span></label>
+    <div class="col-sm-8">
+        <mat-select formControlName="stateId" class="form-control" placeholder="Select State" (selectionChange)="onStateChange($event.value)" style="background-color: #fefec4 !important;">
+            <!-- Bind [value] to stateId, display stateName -->
+            <mat-option *ngFor="let s of states" [value]="s.stateId">{{s.stateName}}</mat-option>
+        </mat-select>
+    </div>
+</div>
+
+<!-- City Dropdown -->
+<div class="row align-items-center mb-3">
+    <label class="col-sm-4 control-label text-end fw-bold">City: <span class="text-danger">*</span></label>
+    <div class="col-sm-8">
+        <mat-select formControlName="cityId" class="form-control" placeholder="Select City" style="background-color: #fefec4 !important;">
+            <!-- Bind [value] to cityId, display cityName -->
+            <mat-option *ngFor="let c of filteredCities" [value]="c.cityId">{{c.cityName}}</mat-option>
+        </mat-select>
+    </div>
+</div>
+
+      <div class="row align-items-start mb-3">
+        <label class="col-sm-4 control-label text-end fw-bold" style="margin-top: 7px;">Address: <span class="text-danger">*</span></label>
+        <div class="col-sm-8">
+          <textarea formControlName="address" class="form-control" placeholder="Enter Address"
+            rows="3" style="background-color: #fefec4 !important;"></textarea>
+          <small class="text-danger"
+            *ngIf="myGroup.get('address')?.hasError('required') && myGroup.get('address')?.touched">
+            Address is required
+          </small>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <mat-dialog-actions align="end" style="padding: 15px;">
+    <button mat-raised-button style="background-color: lightgray; color: red;" (click)="close()">
+      <mat-icon>cancel</mat-icon> Close
+    </button>
+    <button mat-raised-button color="primary" class="ms-2" [disabled]="!myGroup.valid" (click)="saveSupplier()">
+      <mat-icon>save</mat-icon> Save
+    </button>
+  </mat-dialog-actions>
+
+</div>

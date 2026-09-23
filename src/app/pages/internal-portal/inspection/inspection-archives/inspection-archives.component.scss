@@ -1,0 +1,214 @@
+  .toolbar-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+
+    .btn-dark {
+      background-color: #111 !important;
+      color: #fff !important;
+    }
+
+    .btn-blue {
+      background-color: #0d8add !important;
+      color: #fff !important;
+    }
+
+    ::ng-deep .mdc-button__label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  }
+
+  .btn-dark {
+    background-color: #111 !important;
+    color: #fff !important;
+  }
+
+  .btn-blue {
+    background-color: #0d8add !important;
+    color: #fff !important;
+  }
+
+  /* ================= TABLE ================= */
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+    border: 1px solid #dee2e6;
+    margin-bottom: 10px;
+  }
+
+  .audit-table {
+    width: max-content !important;
+    min-width: 100%;
+    border-collapse: collapse;
+  }
+
+  /* Table cells */
+  .audit-table th,
+  .audit-table td {
+    white-space: nowrap !important;
+    padding: 10px 16px;
+    vertical-align: middle;
+    min-width: 150px;
+    font-size: 14px;
+  }
+
+  /* Header */
+  .tbl-head,
+  .audit-table thead {
+    background-color: #3f3f3f !important;
+    color: #ffffff !important;
+  }
+
+  .tbl-head th,
+  .audit-table thead th {
+    background-color: #3f3f3f !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #555 !important;
+    font-size: 14px;
+  }
+
+  /* ================= FROZEN COLUMNS ================= */
+
+  .frozen-col {
+    position: sticky !important;
+    background-color: #fff !important;
+    z-index: 50 !important;
+  }
+
+  /* Header frozen columns should stay above body */
+  thead .frozen-col,
+  .tbl-head th.frozen-col,
+  .audit-table thead th.frozen-col {
+    z-index: 150 !important;
+    background-color: #3f3f3f !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+  }
+
+  /* Last frozen column border/shadow */
+  .last-frozen {
+    box-shadow: 3px 0 5px rgba(0, 0, 0, 0.15);
+  }
+
+  /* ================= ACTION COLUMN ================= */
+
+  .audit-table th:first-child,
+  .audit-table td:first-child {
+    min-width: 100px !important;
+    width: 100px;
+    text-align: center;
+  }
+
+  /* ================= LINKS ================= */
+
+  .text-link a {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .text-link a:hover {
+    color: #0056b3;
+  }
+
+  /* ================= DISABLED PERMISSION ================= */
+
+  .disable-custom {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: auto;
+  }
+
+  /* ================= ACTION ICONS ================= */
+  .manage-icons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    white-space: nowrap;
+
+    i, mat-icon {
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      vertical-align: middle;
+      transition: transform 0.15s ease, color 0.15s ease;
+
+      &.edit-icon, &.fa-edit {
+        color: #0d8add;
+        &:hover {
+          color: #0056b3;
+          transform: scale(1.2);
+        }
+      }
+
+      &.delete-icon, &.fa-trash {
+        color: #dc3545;
+        &:hover {
+          color: #a71d2a;
+          transform: scale(1.2);
+        }
+      }
+
+      &.undo-icon, &.fa-undo {
+        color: #28a745;
+        &:hover {
+          color: #1e7e34;
+          transform: scale(1.2);
+        }
+      }
+    }
+  }
+
+  /* ================= SCROLL BUTTONS ================= */
+  .mine {
+    position: fixed;
+    bottom: 80px;
+    background-color: #e6e6e6 !important;
+    z-index: 100;
+    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #d6d6d6 !important;
+      transform: scale(1.05);
+    }
+
+    mat-icon {
+      color: #37474f !important;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+    }
+  }
+
+  .mine-right {
+    right: 40px;
+  }
+
+  .mine-left {
+    right: 110px;
+  }
+
+  /* ================= MAT SELECT ================= */
+
+  .audit-table .form-control {
+    min-width: 120px;
+    height: 36px;
+  }

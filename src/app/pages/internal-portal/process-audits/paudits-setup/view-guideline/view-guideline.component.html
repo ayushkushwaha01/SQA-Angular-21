@@ -1,0 +1,19 @@
+<div class="NewHeader">
+  <h3 style="margin: 0; padding: 12px 20px; font-weight: 400; font-size: 18px; text-align: center;">
+    Guideline Details
+  </h3>
+</div>
+
+<div mat-dialog-content style="padding: 20px 25px;">
+  <div
+    style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; min-height: 120px; font-size: 14px; color: #333;"
+    [innerHTML]="data">
+  </div>
+</div>
+
+<mat-dialog-actions align="end" style="padding: 15px 5px; margin: 0; display: flex; justify-content: flex-end;">
+  <button mat-raised-button class="btn-default" (click)="dialogRef.close()"
+    style="background-color: #e0e0e0; color: #333;">
+    <mat-icon>cancel</mat-icon> Close
+  </button>
+</mat-dialog-actions>

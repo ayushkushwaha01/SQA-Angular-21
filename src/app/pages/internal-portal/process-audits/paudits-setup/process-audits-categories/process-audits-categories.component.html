@@ -1,0 +1,256 @@
+<!-- <div class="custom-layout-wrapper">
+
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px;">
+    <button mat-raised-button
+      style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      (click)="showFilters = !showFilters">
+      <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">filter_list</mat-icon>
+      Filter
+    </button>
+
+    <button mat-raised-button
+      style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Process Category'"
+      (click)="canCreate && addCategory(null)">
+
+      <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">
+        add
+      </mat-icon>
+
+      <span class="button-text">
+        Add Process Category
+      </span>
+
+    </button>
+  </div>
+
+  <div class="row" *ngIf="showFilters" style="margin-left: 5px; margin-bottom: 15px;">
+    <div class="col-sm-12 w-100 p-0">
+      <mat-card class="filter"
+        style="box-shadow: none !important; border: 1px solid #e0e0e0; background-color: #f8f9fa; border-radius: 6px;">
+        <mat-card-content style="padding: 12px 16px;">
+          <div class="row align-items-center">
+            <div class="col-md-4 d-flex align-items-center">
+              <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Keyword:</label>
+              <input type="text" [(ngModel)]="selectedCategory" class="form-control"
+                placeholder="Search by Name, Code..." style="flex: 1;">
+            </div>
+            <div class="col-md-4 d-flex align-items-center">
+              <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Status:</label>
+              <mat-select placeholder="Select Status" class="form-control" [(ngModel)]="selectedStatus"
+                style="flex: 1;">
+                <mat-option value="Active">Active</mat-option>
+                <mat-option value="Inactive">Inactive</mat-option>
+              </mat-select>
+            </div>
+            <div class="col-md-4 d-flex justify-content-end align-items-center gap-2">
+              <button mat-raised-button color="primary" (click)="onSearch()">
+                <mat-icon>search</mat-icon> Search
+              </button>
+              <button mat-raised-button class="btn-default" (click)="onClear()"
+                style="background-color: #e0e0e0; color: #333;">
+                <mat-icon>settings_backup_restore</mat-icon> Clear
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="table-responsive bg-white shadow-sm">
+    <table class="custom-grid-table">
+      <thead>
+        <tr>
+          <th>Process Category Name</th>
+          <th style="width: 130px;">Category Code</th>
+          <th class="text-center">Checklist </th>
+          <th class="text-center" style="width: 150px;">Status</th>
+          <th class="text-center" style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of tableData">
+          <td>{{ item.name }}</td>
+          <td class="text-center">{{ item.code }}</td>
+          <td class="text-center" [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'View Details'">
+
+            <a [routerLink]="canCreate ? ['inner'] : null"
+              [queryParams]="canCreate ? { id: item.processCategoryId } : null" class="text-blue"
+              style="cursor: pointer;">
+
+              {{ item.checklistCount }}
+
+            </a>
+
+          </td>
+          <td class="text-center">
+
+            <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
+              [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'"
+              style="cursor: pointer;" (click)="canUpdate && toggleStatus(item)">
+
+              {{ item.isActive ? 'Active' : 'Inactive' }}
+
+            </a>
+
+          </td>
+
+          <td class="text-center manage-icons">
+
+             
+            <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+              (click)="canUpdate && addCategory(item)" style="cursor: pointer; margin-right: 10px;">
+            </i>
+
+           
+            <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'" style="cursor: pointer;"
+              (click)="canDelete && deleteCategory(item)">
+            </i>
+
+          </td>
+        </tr>
+        <tr *ngIf="tableData.length === 0">
+          <td colspan="5" class="text-center text-muted" style="padding: 15px;">No Categories Found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+    [pageSizeOptions]="[2, 5, 10, 20, 25, 50]" (page)="fnHandlePage($event)" showFirstLastButtons>
+  </mat-paginator>
+</div> -->
+
+
+<!-- 🔥 ACCESS DENIED MESSAGE (If canRead is false) 🔥 -->
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view this page.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+<!-- 🔥 MAIN SCREEN (Only renders if canRead is true) 🔥 -->
+<div *ngIf="canRead" class="custom-layout-wrapper">
+
+  <!-- TOP BUTTONS -->
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px;">
+    <button mat-raised-button
+      style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      (click)="showFilters = !showFilters">
+      <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">filter_list</mat-icon>
+      Filter
+    </button>
+
+    <button mat-raised-button
+      style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Process Category'"
+      (click)="canCreate && addCategory(null)">
+      <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">
+        add
+      </mat-icon>
+      <span class="button-text">
+        Add Process Category
+      </span>
+    </button>
+  </div>
+
+  <!-- FILTER CARD -->
+  <div class="row" *ngIf="showFilters" style="margin-left: 5px; margin-bottom: 15px;">
+    <div class="col-sm-12 w-100 p-0">
+      <mat-card class="filter"
+        style="box-shadow: none !important; border: 1px solid #e0e0e0; background-color: #f8f9fa; border-radius: 6px;">
+        <mat-card-content style="padding: 12px 16px;">
+          <div class="row align-items-center">
+            <div class="col-md-4 d-flex align-items-center">
+              <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Keyword:</label>
+              <input type="text" [(ngModel)]="selectedCategory" class="form-control"
+                placeholder="Search by Name, Code..." style="flex: 1;">
+            </div>
+            <div class="col-md-4 d-flex align-items-center">
+              <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Status:</label>
+              <mat-select placeholder="Select Status" class="form-control" [(ngModel)]="selectedStatus"
+                style="flex: 1;">
+                <mat-option value="Active">Active</mat-option>
+                <mat-option value="Inactive">Inactive</mat-option>
+              </mat-select>
+            </div>
+            <div class="col-md-4 d-flex justify-content-end align-items-center gap-2">
+              <button mat-raised-button color="primary" (click)="onSearch()">
+                <mat-icon>search</mat-icon> Search
+              </button>
+              <button mat-raised-button class="btn-default" (click)="onClear()"
+                style="background-color: #e0e0e0; color: #333;">
+                <mat-icon>settings_backup_restore</mat-icon> Clear
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- DATA GRID -->
+  <div class="table-responsive bg-white shadow-sm">
+    <table class="custom-grid-table">
+      <thead>
+        <tr>
+          <th>Process Category Name</th>
+          <th style="width: 130px;">Category Code</th>
+          <th class="text-center">Checklist </th>
+          <th class="text-center" style="width: 150px;">Status</th>
+          <th class="text-center" style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of tableData">
+          <td>{{ item.name }}</td>
+          <td class="text-center">{{ item.code }}</td>
+          <td class="text-center" [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'View Details'">
+            <a [routerLink]="canCreate ? ['inner'] : null"
+              [queryParams]="canCreate ? { id: item.processCategoryId } : null" class="text-blue"
+              style="cursor: pointer;">
+              {{ item.checklistCount }}
+            </a>
+          </td>
+          <td class="text-center">
+            <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
+              [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'"
+              style="cursor: pointer;" (click)="canUpdate && toggleStatus(item)">
+              {{ item.isActive ? 'Active' : 'Inactive' }}
+            </a>
+          </td>
+          <td class="text-center manage-icons">
+            <!-- Edit -->
+            <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+              (click)="canUpdate && addCategory(item)" style="cursor: pointer; margin-right: 10px;">
+            </i>
+            <!-- Delete -->
+            <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'" style="cursor: pointer;"
+              (click)="canDelete && deleteCategory(item)">
+            </i>
+          </td>
+        </tr>
+        <tr *ngIf="tableData.length === 0">
+          <td colspan="5" class="text-center text-muted" style="padding: 15px;">No Categories Found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+    [pageSizeOptions]="[2, 5, 10, 20, 25, 50]" (page)="fnHandlePage($event)" showFirstLastButtons>
+  </mat-paginator>
+</div>

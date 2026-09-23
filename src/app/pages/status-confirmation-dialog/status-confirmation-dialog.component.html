@@ -1,0 +1,21 @@
+<div class="NewHeader">
+    <h3  mat-dialog-title style="color:white;">
+      Confirm Save Change</h3>
+    </div>
+
+    <div mat-dialog-content style="overflow: hidden;height: 120px;">
+        <div class="form-group">
+            <p>Are you sure you want to Change the Status ?</p>
+        </div>
+        <mat-dialog-actions align="center" style="padding-top: 17px !important;">
+            <button mat-raised-button  color="primary" (click)="saveInfo()">
+               <span >&nbsp;Yes</span>
+                </button>
+                <button type="button" mat-raised-button class="add-dark-hover btn-default" (click)="close()" style="cursor: pointer;">
+                    <span>&nbsp;No</span>
+                </button>
+
+            </mat-dialog-actions>
+
+    </div>
+

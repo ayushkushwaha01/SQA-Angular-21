@@ -1,0 +1,257 @@
+<div class="back-btn ps-4 mb-4"
+  style="display: flex; justify-content: flex-end; font-size: 18px; font-weight:500; margin-left:0px ; margin-top: 10px">
+  <div class="col-sm-6">
+    <span style="color: rgb(0, 0, 0); cursor: pointer; margin-left:0px " (click)="goBack()">Inspection Dashboard</span>
+    <p _ngcontent-mvb-c448="" style="margin-top: 5px; ">
+      <span _ngcontent-mvb-c448="" style="font-weight: bolder; font-size: 14px;">Ref No:</span>
+      <span _ngcontent-mvb-c448="" style="margin: 8px; font-size: 14px">{{ currentReference || '2026/ENG/098121'
+        }}</span>
+    </p>
+  </div>
+  <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
+  </div>
+</div>
+
+<div class="container-fluid p-3 audit-container ps-3">
+  <div class="row mb-3 pb-4">
+    <div class="col-sm-6 d-flex gap-2"></div>
+    <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
+      <button _ngcontent-utt-c603="" mat-raised-button="" class="mat-focus-indicator mat-raised-button mat-button-base"
+        style="background-color: #808080; height : 40px; color: white; margin-right: 10px; margin-top:-70px;">
+        <span class="mat-button-wrapper" (click)="goBack()">
+          <mat-icon _ngcontent-utt-c603="" role="img" class="mat-icon notranslate material-icons mat-icon-no-color"
+            aria-hidden="true" data-mat-icon-type="font">arrow_back</mat-icon> Back
+        </span>
+        <span matripple="" class="mat-ripple mat-button-ripple" ng-reflect-disabled="false" ng-reflect-centered="false"
+          ng-reflect-trigger="[object HTMLButtonElement]"> </span>
+        <span class="mat-button-focus-overlay"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="page-container p-3" style="margin-top: -50px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+      <!-- UPDATED: Category Filtering Buttons using category object and Tooltip -->
+      <div class="d-flex gap-2" style="overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
+        <button mat-raised-button *ngFor="let cat of categories"
+          [color]="selectedCategory === cat.name ? 'primary' : ''" (click)="selectCategory(cat.name)"
+          [matTooltip]="cat.name" matTooltipPosition="above" style="margin-right: 8px;">
+          {{ cat.code }} ({{ cat.count }})
+        </button>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button mat-raised-button class="btn-black" [disabled]="isReadOnly" (click)="opendocpop()">
+          <mat-icon class="icon-sm" style="margin-top: 7px;">upload</mat-icon> Upload File
+        </button>
+        <!-- <button mat-raised-button color="primary" class="btn-blue" [disabled]="isReadOnly"
+          (click)="addchecklistaudit()">
+          <mat-icon class="icon-sm" style="margin-top: 7px;">person_add</mat-icon> Add Parameter
+        </button> -->
+        <button mat-raised-button color="primary" class="btn-blue"
+          [ngClass]="{ 'disable-custom': !canCreate || isReadOnly }" [matTooltip]="
+    !canCreate
+      ? 'You don’t have permission to create'
+      : (isReadOnly ? 'Add Disabled' : 'Add Parameter')
+  " (click)="canCreate && !isReadOnly && addchecklistaudit()">
+
+          <mat-icon class="icon-sm" style="margin-top: 7px;">
+            person_add
+          </mat-icon>
+
+          Add Parameter
+
+        </button>
+      </div>
+    </div>
+
+    <div #tableContainer class="table-responsive bg-white shadow-sm"
+      style="border: 1px solid #e0e0e0; border-radius: 4px; overflow-x: auto; scroll-behavior: smooth;">
+      <table class="custom-grid-table" style="white-space: nowrap;">
+        <thead>
+          <tr>
+            <th class="text-center">Actions</th>
+            <th>Parameter</th>
+            <th>Spec</th>
+            <th class="text-center">Unit</th>
+            <th class="text-center">Min</th>
+            <th class="text-center">Max</th>
+            <th class="text-center">Upload</th>
+            <th class="text-center">Defects</th>
+            <th class="text-center">Defect Rate</th>
+            <th class="text-center">Okay</th>
+            <th class="text-center">CAPA</th>
+            <th>Method</th>
+            <th class="text-center">S1</th>
+            <th class="text-center">S2</th>
+            <th class="text-center">S3</th>
+            <th class="text-center">S4</th>
+            <th class="text-center">S5</th>
+            <th class="text-center">Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of pagedData">
+            <!-- <td class="text-center manage-icons">
+              <i class="fa fa-edit" [matTooltip]="isReadOnly ? 'Edit Disabled' : 'Edit'"
+                [style.color]="isReadOnly ? '#b0b0b0' : 'cornflowerblue'"
+                [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'" (click)="!isReadOnly && editParameter(item)"
+                style="font-size: 16px; margin-right: 10px;"></i>
+              <i class="fa fa-trash red" [matTooltip]="isReadOnly ? 'Delete Disabled' : 'Delete'"
+                [style.color]="isReadOnly ? '#b0b0b0' : 'red'" [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
+                (click)="!isReadOnly && deleteParameter(item)" style="font-size: 16px;"></i>
+            </td> -->
+            <td class="text-center manage-icons">
+
+              <!-- Edit -->
+              <i class="fa fa-edit" [class.disable-custom]="!canUpdate || isReadOnly" [matTooltip]="
+      !canUpdate
+        ? 'You don’t have permission to update'
+        : (isReadOnly ? 'Edit Disabled' : 'Edit')
+    " [style.color]="isReadOnly ? '#b0b0b0' : 'cornflowerblue'"
+                [style.cursor]="!canUpdate || isReadOnly ? 'not-allowed' : 'pointer'"
+                (click)="canUpdate && !isReadOnly && editParameter(item)" style="font-size: 16px; margin-right: 10px;">
+              </i>
+
+              <!-- Delete -->
+              <i class="fa fa-trash red" [class.disable-custom]="!canDelete || isReadOnly" [matTooltip]="
+      !canDelete
+        ? 'You don’t have permission to delete'
+        : (isReadOnly ? 'Delete Disabled' : 'Delete')
+    " [style.cursor]="!canDelete || isReadOnly ? 'not-allowed' : 'pointer'"
+                (click)="canDelete && !isReadOnly && deleteParameter(item)" style="font-size: 16px;">
+              </i>
+
+            </td>
+
+            <td>{{ item.parameter }}</td>
+            <td>{{ item.spec }}</td>
+            <td class="text-center">{{ item.unit }}</td>
+            <td class="text-center">{{ item.min }}</td>
+            <td class="text-center">{{ item.max }}</td>
+
+            <td class="text-center">
+              <mat-icon [matTooltip]="isReadOnly ? 'Upload Disabled' : 'Upload Defects'"
+                [style.color]="isReadOnly ? '#b0b0b0' : '#6c757d'"
+                [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
+                (click)="!isReadOnly && uploadstages(item)">cloud_upload
+              </mat-icon>
+            </td>
+
+            <td class="text-center" style="color: blue; cursor: pointer;" (click)="openuploadpop(item)">{{ item.defects
+              }}</td>
+            <td class="text-center">{{ item.defectRate }}</td>
+
+            <td class="text-center">
+              <mat-checkbox [disabled]="isReadOnly" [checked]="item.okay"
+                (change)="toggleOkay(item, $event.checked)"></mat-checkbox>
+            </td>
+
+            <!-- <td class="text-center">
+              <a *ngIf="!item.okay" style="color: blue; cursor: pointer; text-decoration: underline;"
+                [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']"
+                [queryParams]="{ inspectionRefId: item.id, isReadOnly: isReadOnly, parameterName: item.parameter }">View</a>
+              <span *ngIf="item.okay" style="color: #9e9e9e; cursor: not-allowed;">NA</span>
+            </td> -->
+            <td class="text-center">
+
+              <a *ngIf="!item.okay" [class.disable-custom]="!canreadCAPAScreen"
+                [matTooltip]="!canreadCAPAScreen ? 'You don’t have permission to view' : 'View'" [routerLink]="canreadCAPAScreen
+      ? ['/app', 'sqm', 'inspect-inner-screen', 'capa-view']
+      : null" [queryParams]="canreadCAPAScreen
+      ? {
+          inspectionRefId: item.id,
+          isReadOnly: isReadOnly,
+          parameterName: item.parameter
+        }
+      : null" style="color: blue; cursor: pointer; text-decoration: underline;">
+
+                View
+
+              </a>
+
+              <span *ngIf="item.okay" style="color: #9e9e9e; cursor: not-allowed;">
+                NA
+              </span>
+
+            </td>
+
+            <td>{{ item.method }}</td>
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+              [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's1', reference: currentReference, category: selectedCategory }">
+              {{ (item.s1 !== null && item.s1 !== undefined && item.s1 !== '') ? (item.s1 | number:'1.1-1') : '-' }}
+            </td>
+            <td *ngIf="isReadOnly" class="text-center">
+              {{ (item.s1 !== null && item.s1 !== undefined && item.s1 !== '') ? (item.s1 | number:'1.1-1') : '-' }}
+            </td>
+
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+              [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's2', reference: currentReference, category: selectedCategory }">
+              {{ (item.s2 !== null && item.s2 !== undefined && item.s2 !== '') ? (item.s2 | number:'1.1-1') : '-' }}
+            </td>
+            <td *ngIf="isReadOnly" class="text-center">
+              {{ (item.s2 !== null && item.s2 !== undefined && item.s2 !== '') ? (item.s2 | number:'1.1-1') : '-' }}
+            </td>
+
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+              [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's3', reference: currentReference, category: selectedCategory }">
+              {{ (item.s3 !== null && item.s3 !== undefined && item.s3 !== '') ? (item.s3 | number:'1.1-1') : '-' }}
+            </td>
+            <td *ngIf="isReadOnly" class="text-center">
+              {{ (item.s3 !== null && item.s3 !== undefined && item.s3 !== '') ? (item.s3 | number:'1.1-1') : '-' }}
+            </td>
+
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+              [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's4', reference: currentReference, category: selectedCategory }">
+              {{ (item.s4 !== null && item.s4 !== undefined && item.s4 !== '') ? (item.s4 | number:'1.1-1') : '-' }}
+            </td>
+            <td *ngIf="isReadOnly" class="text-center">
+              {{ (item.s4 !== null && item.s4 !== undefined && item.s4 !== '') ? (item.s4 | number:'1.1-1') : '-' }}
+            </td>
+
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+              [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's5', reference: currentReference, category: selectedCategory }">
+              {{ (item.s5 !== null && item.s5 !== undefined && item.s5 !== '') ? (item.s5 | number:'1.1-1') : '-' }}
+            </td>
+            <td *ngIf="isReadOnly" class="text-center">
+              {{ (item.s5 !== null && item.s5 !== undefined && item.s5 !== '') ? (item.s5 | number:'1.1-1') : '-' }}
+            </td>
+
+            <td class="text-center">
+              <mat-icon style="color: blue; font-size: 20px;" [matTooltip]="item.remarks || 'No remarks available'">
+                info
+              </mat-icon>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="pagedData.length === 0">
+            <td colspan="18" class="text-center p-3 text-muted">No records match this category.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Bind total length to totalFilteredRecords -->
+      <mat-paginator [length]="totalFilteredRecords" [pageSize]="pageSize" [pageSizeOptions]="[ 10, 25, 50]"
+        showFirstLastButtons (page)="onPageChange($event)">
+      </mat-paginator>
+
+    </div>
+
+  </div>
+
+  <div style="position: fixed; bottom: 30px; right: 30px; z-index: 999; display: flex; gap: 15px;">
+    <button mat-fab color="white" (click)="scrollTable('left')" matTooltip="Scroll Left">
+      <mat-icon>fast_rewind</mat-icon>
+    </button>
+    <button mat-fab color="white" (click)="scrollTable('right')" matTooltip="Scroll Right">
+      <mat-icon>fast_forward</mat-icon>
+    </button>
+  </div>
+</div>

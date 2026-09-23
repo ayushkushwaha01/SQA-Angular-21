@@ -1,0 +1,84 @@
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view this page.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+
+<div fxLayout="row wrap" #resizedDiv *ngIf="canRead">
+
+  <div class="flex-p w-100" style="width: 100% !important; margin-left: -9px;">
+
+    <div class="table-responsive sizeAlign">
+
+      <table id="example2" style="margin-top: 10px; width: 99%; margin-left: 14px;"
+        class="table table-bordered table-hover">
+
+        <thead class="tbl-head">
+          <tr class="tr-grid-header">
+            <th>Subject</th>
+            <th>Description</th>
+            <th>Previous Value</th>
+            <th>New Value</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let item of tableList">
+            <td>{{ item.subject }}</td>
+            <td>{{ item.description }}</td>
+            <!-- <td>{{ item.newValue }}</td> -->
+            <td>{{ item.previousValue }}</td>
+
+            <td>
+              <div *ngIf="item.subject === 'Grid Length'">
+                <mat-select class="form-control" [(ngModel)]="item.newValue" placeholder="Select Grid Length">
+
+                  <mat-option value="10">10</mat-option>
+                  <mat-option value="3">3</mat-option>
+                  <mat-option value="20">20</mat-option>
+                  <mat-option value="30">30</mat-option>
+                  <mat-option value="40">40</mat-option>
+                  <mat-option value="50">50</mat-option>
+
+                </mat-select>
+              </div>
+
+              <div *ngIf="item.subject === 'Notification Email'">
+                <input type="email" class="form-control" [(ngModel)]="item.newValue"
+                  placeholder="Enter Notification Email">
+              </div>
+
+              <div *ngIf="item.subject === 'Email of the Director'">
+                <input type="email" class="form-control" [(ngModel)]="item.newValue" placeholder="Enter Director Email">
+              </div>
+            </td>
+
+            <td class="text-center">
+              <button mat-raised-button color="primary" [ngClass]="{'disable-custom': !canUpdate}"
+                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Save'"
+                (click)="canUpdate && savePreference(item)">
+
+                <mat-icon>save</mat-icon>
+
+                <span class="button-text" style="margin-left: 5px;">
+                  Save
+                </span>
+
+              </button>
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,93 @@
+<div style="width: 100%; box-sizing: border-box; padding: 15px; background-color: #f8f9fa;">
+
+  <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px;">
+    <button mat-raised-button class="mat-focus-indicator mat-raised-button mat-button-base"
+      style="background-color: #808080; color: white; margin-right: 10px;" (click)="goBack()">
+      <span class="mat-button-wrapper">
+        <mat-icon role="img" class="mat-icon notranslate material-icons mat-icon-no-color" aria-hidden="true"
+          data-mat-icon-type="font">arrow_back</mat-icon> Back
+      </span>
+    </button>
+
+    <button mat-raised-button
+      style="background-color: #2196f3; color: white; padding: 0 16px;  border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      (click)="onAddQuestion(null)">
+      <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">add</mat-icon>
+      Add Question
+    </button>
+  </div>
+
+  <div class="table-responsive bg-white shadow-sm"
+    style="width: 100%; border-radius: 4px; overflow-x: auto; border: 1px solid #e5e7eb;">
+    <table
+      style="width: 100%; min-width: 900px; border-collapse: collapse; font-family: Roboto, 'Helvetica Neue', sans-serif;">
+
+      <thead style="background-color: #212529; color: #ffffff;">
+        <tr>
+          <th
+            style="padding: 12px 16px; text-align: left; border-right: 1px solid #495057; font-weight: 500; font-size: 14px;">
+            Question</th>
+          <th
+            style="padding: 12px 16px; text-align: center; border-right: 1px solid #495057; font-weight: 500; width: 100px; font-size: 14px;">
+            Guideline </th>
+          <th
+            style="padding: 12px 16px; text-align: center; border-right: 1px solid #495057; font-weight: 500; width: 100px; font-size: 14px;">
+            Mandatory</th>
+          <th
+            style="padding: 12px 16px; text-align: center; border-right: 1px solid #495057; font-weight: 500; width: 100px; font-size: 14px;">
+            Priority</th>
+          <th style="padding: 12px 16px; text-align: center; font-weight: 500; width: 120px; font-size: 14px;">Actions
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let item of tableData"
+          style="border-bottom: 1px solid #e5e7eb; background-color: #ffffff; transition: background-color 0.2s;">
+
+          <td style="padding: 12px 16px; border-right: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
+            {{ item.question }}
+          </td>
+
+          <td
+            style="padding: 12px 16px; text-align: center; border-right: 1px solid #e5e7eb; font-size: 14px; color: #0052d7; vertical-align: middle;">
+            <div class="d-flex justify-content-center align-items-center w-100">
+              <span *ngIf="item.guideline" style="cursor: pointer; text-decoration: underline; font-weight: 500;"
+                (click)="viewGuideline(item.guideline)">View</span>
+              <span *ngIf="!item.guideline" style="color: gray;">-</span>
+            </div>
+          </td>
+
+          <td
+            style="padding: 12px 16px; text-align: center; border-right: 1px solid #e5e7eb; font-size: 14px; color: #374151; vertical-align: middle;">
+            <div class="d-flex justify-content-center align-items-center">
+              <mat-checkbox [checked]="item.isMandatory" (change)="toggleMandatory(item, $event.checked)"
+                color="primary"></mat-checkbox>
+            </div>
+          </td>
+
+          <td
+            style="padding: 12px 16px; text-align: center; border-right: 1px solid #e5e7eb; font-size: 14px; color: #374151; vertical-align: middle;">
+            <div class="d-flex justify-content-center align-items-center">
+              <mat-checkbox [checked]="item.isPriority" (change)="togglePriority(item, $event.checked)"
+                color="primary"></mat-checkbox>
+            </div>
+          </td>
+
+          <td class="text-center manage-icons" style="vertical-align: middle;">
+            <i class="fas fa-edit edit-icon" matTooltip="Edit"
+              style="color: #5c7cb1; margin-right: 12px; cursor: pointer; font-size: 14px;"
+              (click)="onAddQuestion(item)"></i>
+            <i class="fas fa-trash delete-icon" matTooltip="Delete"
+              style="color: #e53935; cursor: pointer; font-size: 14px;" (click)="onDelete(item)"></i>
+          </td>
+
+        </tr>
+        <tr *ngIf="tableData.length === 0">
+          <td colspan="5" class="text-center text-muted" style="padding: 15px;">No Questions Found for this Category
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

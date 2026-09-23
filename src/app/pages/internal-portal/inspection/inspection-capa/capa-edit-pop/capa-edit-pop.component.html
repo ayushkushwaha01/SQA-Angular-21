@@ -1,0 +1,94 @@
+<div class="NewHeader">
+  <h3 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 24px;">
+    Edit Capa
+  </h3>
+</div>
+
+<div>
+  <div fxLayout="row wrap" class="col-sm-12">
+    <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px">
+      <form [formGroup]="capaForm">
+        <div>
+          <div class="row" style="margin-bottom: 12px">
+            <div class="col-sm-4">
+              <label class="add-member-label mt5" style="margin-top: 5px; font-weight: bold">Due Date :</label>
+            </div>
+            <div class="col-sm-8" style="position: relative">
+              <input matInput [matDatepicker]="picker1" formControlName="dueDate"
+                style="height: 38px; width: 100%; padding-left: 12px; padding-right: 45px; border: 1px solid #161515; border-radius: 4px; box-sizing: border-box; background-color: white;"
+                placeholder="mm/dd/yyyy" />
+              <mat-datepicker-toggle matSuffix [for]="picker1"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom: 12px">
+            <div class="col-sm-4">
+              <label class="add-member-label mt5" style="margin-top: 5px; font-weight: bold">ETA Date :</label>
+            </div>
+            <div class="col-sm-8" style="position: relative">
+              <input matInput [matDatepicker]="picker2" formControlName="etaDate"
+                style="height: 38px; width: 100%; padding-left: 12px; padding-right: 45px; border: 1px solid #161515; border-radius: 4px; box-sizing: border-box; background-color: white;"
+                placeholder="mm/dd/yyyy" />
+              <mat-datepicker-toggle matSuffix [for]="picker2"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></mat-datepicker-toggle>
+              <mat-datepicker #picker2></mat-datepicker>
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom: 12px">
+            <div class="col-sm-4">
+              <label class="add-member-label mt5" style="margin-top: 5px; font-weight: bold">Completion Date :</label>
+            </div>
+            <div class="col-sm-8" style="position: relative">
+              <input matInput [matDatepicker]="picker3" formControlName="completedDate"
+                style="height: 38px; width: 100%; padding-left: 12px; padding-right: 45px; border: 1px solid #161515; border-radius: 4px; box-sizing: border-box; background-color: white;"
+                placeholder="mm/dd/yyyy" />
+              <mat-datepicker-toggle matSuffix [for]="picker3"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></mat-datepicker-toggle>
+              <mat-datepicker #picker3></mat-datepicker>
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom: 12px">
+            <div class="col-sm-4">
+              <label class="add-member-label mt5" style="margin-top: 5px; font-weight: bold">Auditor Remarks :</label>
+            </div>
+            <div class="col-sm-8" style="position: relative">
+              <textarea type="text" formControlName="auditorRemarks" placeholder="Enter Auditor Remarks"
+                class="form-control"></textarea>
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom: 12px">
+            <div class="col-sm-4">
+              <label class="add-member-label mt5" style="margin-top: 5px; font-weight: bold">Auditee Response :</label>
+            </div>
+            <div class="col-sm-8" style="position: relative">
+              <textarea type="text" formControlName="auditeeResponse" placeholder="Enter Auditee Response"
+                class="form-control"></textarea>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <mat-dialog-actions align="end" style="
+          margin-top: 15px;
+          display: flex;
+          justify-content: flex-end;
+          margin-right: -20px;
+        ">
+        <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
+          style="background-color: lightgray; color: red; margin-right: 5px">
+          <mat-icon>cancel</mat-icon> Close
+        </button>
+        <button mat-raised-button type="button" class="save" color="primary" style="margin-right: 17px"
+          (click)="saveCapaDetails()">
+          <mat-icon>save</mat-icon>Save
+        </button>
+      </mat-dialog-actions>
+    </div>
+  </div>
+</div>
+<!-- rajk -->

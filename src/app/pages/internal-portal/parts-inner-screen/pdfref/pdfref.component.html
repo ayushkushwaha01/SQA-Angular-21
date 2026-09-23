@@ -1,0 +1,221 @@
+<div class="report-page" *ngIf="!loading && reportData">
+
+    <!-- ACTION BAR (Hidden in PDF) -->
+    <div class="action-bar no-print">
+        <h2>Executive Summary Report</h2>
+        <div class="btn-group">
+            <button mat-raised-button color="primary" [disabled]="generatingPdf" (click)="downloadPdf()">
+                <mat-icon>download</mat-icon>
+                <span>{{ generatingPdf ? 'Generating...' : 'Download PDF' }}</span>
+            </button>
+            <button mat-raised-button color="accent" [disabled]="generatingPdf" (click)="openPdfInNewTab()">
+                <mat-icon>open_in_new</mat-icon>
+                <span>Open in Tab</span>
+            </button>
+            <button mat-raised-button color="basic" (click)="goBack()">
+                <mat-icon>arrow_back</mat-icon>
+                <span>Back</span>
+            </button>
+
+        </div>
+    </div>
+
+    <!-- PDF PRINTABLE AREA -->
+    <div class="pdf-container">
+        <div id="pdf-report-content">
+
+            <!-- BLOCK 1: TEAL HEADER BANNER -->
+            <div class="teal-banner">
+                <!-- <h1>{{ reportData.header?.commodityName | uppercase }} PROCESS AUDIT SUMMARY REPORT</h1> -->
+                <h1>PART AUDIT SUMMARY REPORT</h1>
+            </div>
+
+            <!-- BLOCK 2: CYAN METADATA BOX -->
+            <div class="metadata-cyan-box">
+                <div class="meta-col">
+                    <div class="meta-line">
+                        <span class="meta-label">Audit Reference:</span>
+                        <span class="meta-value">{{ reportData.header?.auditReference || '-' }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="meta-label">Commodity:</span>
+                        <span class="meta-value">{{ reportData.header?.commodityName || '-' }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="meta-label">Location:</span>
+                        <span class="meta-value">
+                            {{ reportData.header?.cityName ? reportData.header?.cityName + ', ' : '' }}{{
+                            reportData.header?.stateName || '-' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="meta-col">
+                    <div class="meta-line">
+                        <span class="meta-label">Supplier:</span>
+                        <span class="meta-value">{{ reportData.header?.supplierName || '-' }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="meta-label">Auditor:</span>
+                        <span class="meta-value">{{ reportData.header?.auditorName || '-' }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="meta-label">Audit Date:</span>
+                        <span class="meta-value">{{ reportData.header?.auditDate | date:'dd-MMM-yyyy' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOCK 3: AREA-WISE SCORES -->
+            <div class="section-block">
+                <div class="section-heading">AREA-WISE SCORES</div>
+                <div class="donut-rings-row">
+                    <div class="donut-card" *ngFor="let ring of (reportData.categoryScores || []); let i = index">
+                        <div class="ring-wrap">
+                            <svg viewBox="0 0 36 36" class="ring-svg">
+                                <!-- Background border track -->
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none" stroke="#e2e8f0" stroke-width="2.8" />
+                                <!-- Foreground value bar -->
+                                <path class="ring-fill"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none" [attr.stroke]="getRingColor(i)" stroke-width="2.8"
+                                    stroke-dasharray="100, 100"
+                                    [attr.stroke-dashoffset]="100 - (ring.percentage || 0)" />
+                            </svg>
+                            <span class="ring-pct" [style.color]="getRingColor(i)">{{ ring.percentage || 0 }}%</span>
+                        </div>
+                        <div class="donut-name">{{ ring.categoryName }}</div>
+                        <!-- <div class="donut-sub">{{ ring.passedCount }} / {{ ring.totalCount }}</div> -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOCK 4: FINDING DISTRIBUTION & SOD SCORE -->
+            <div class="two-col-charts section-block">
+                <div class="inner-box">
+                    <div class="inner-box-title">FINDING DISTRIBUTION</div>
+                    <highcharts-chart [Highcharts]="Highcharts" [options]="ratingChartOptions"
+                        style="width:100%;height:155px;display:block"></highcharts-chart>
+                </div>
+                <div class="inner-box">
+                    <div class="inner-box-title">SOD RISK SCORE: {{ reportData.sodRiskScore || 0 }}</div>
+                    <highcharts-chart [Highcharts]="Highcharts" [options]="sodGaugeOptions"
+                        style="width:100%;height:155px;display:block"></highcharts-chart>
+                </div>
+            </div>
+
+            <!-- BLOCK 5: NC STATUS, RADAR & CONCLUSION -->
+            <div class="three-col-section section-block">
+
+                <!-- NC Closure Status -->
+                <div class="inner-box">
+                    <div class="inner-box-title red-title">NC CLOSURE STATUS</div>
+                    <div class="nc-bar-item">
+                        <span class="nc-label">Closed</span>
+                        <span class="nc-num">{{ reportData.ncStatus?.closed || 0 }}</span>
+                        <div class="nc-track">
+                            <div class="nc-fill" [style.width.%]="getNcPercentage(reportData.ncStatus?.closed)"
+                                style="background: #10b981;"></div>
+                        </div>
+                    </div>
+                    <div class="nc-bar-item">
+                        <span class="nc-label">RCA in Progress</span>
+                        <span class="nc-num">{{ reportData.ncStatus?.rcaInProgress || 0 }}</span>
+                        <div class="nc-track">
+                            <div class="nc-fill" [style.width.%]="getNcPercentage(reportData.ncStatus?.rcaInProgress)"
+                                style="background: #ef4444;"></div>
+                        </div>
+                    </div>
+                    <div class="nc-bar-item">
+                        <span class="nc-label">C/M Identified</span>
+                        <span class="nc-num">{{ reportData.ncStatus?.cmIdentified || 0 }}</span>
+                        <div class="nc-track">
+                            <div class="nc-fill" [style.width.%]="getNcPercentage(reportData.ncStatus?.cmIdentified)"
+                                style="background: #f59e0b;"></div>
+                        </div>
+                    </div>
+                    <div class="nc-bar-item">
+                        <span class="nc-label">C/M Implementing</span>
+                        <span class="nc-num">{{ reportData.ncStatus?.cmImplementing || 0 }}</span>
+                        <div class="nc-track">
+                            <div class="nc-fill" [style.width.%]="getNcPercentage(reportData.ncStatus?.cmImplementing)"
+                                style="background: #3b82f6;"></div>
+                        </div>
+                    </div>
+
+                    <!-- <div class="nc-legend">
+                        <div class="legend-item"><i class="legend-dot" style="background:#f59e0b;"></i> C/M Identified
+                        </div>
+                        <div class="legend-item"><i class="legend-dot" style="background:#3b82f6;"></i> Implementing
+                        </div>
+                        <div class="legend-item"><i class="legend-dot" style="background:#10b981;"></i> Closed</div>
+                        <div class="legend-item"><i class="legend-dot" style="background:#ef4444;"></i> RCA Progress
+                        </div>
+                    </div> -->
+                </div>
+
+                <!-- Spider/Radar Chart -->
+                <div class="inner-box">
+                    <highcharts-chart [Highcharts]="Highcharts" [options]="spiderChartOptions"
+                        style="width:100%;height:220px;display:block"></highcharts-chart>
+                </div>
+
+                <!-- Final Conclusion -->
+                <div class="inner-box">
+                    <div class="inner-box-title teal-title">FINAL CONCLUSION</div>
+                    <div class="conclusion-box">
+                        <div class="verdict-badge" [ngClass]="getVerdictClass()">{{ getVerdictTitle() }}</div>
+                        <div class="verdict-sub">{{ getVerdictSubtitle() }}</div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <div class="score-row">
+                            <span class="score-label">OVERALL SCORE</span>
+                            <span class="score-val" [class.red-val]="isScoreLow()">{{ reportData.header?.overallScore ||
+                                '0%' }}</span>
+                        </div>
+                        <!-- <div class="score-row">
+                            <span class="score-label">RISK SCORE</span>
+                            <span class="score-val" [class.red-val]="isRiskHigh()">{{ reportData.sodRiskScore || 0
+                                }}</span>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOCK 6: BOTTOM BOXES (MAJOR NCS & IMPROVEMENT POINTS) -->
+            <div class="bottom-section section-block">
+                <div class="bottom-box red-box">
+                    <div class="bottom-box-title">Critical CAPA</div>
+                    <ul class="bottom-list" *ngIf="(reportData.majorNCs?.length || 0) > 0">
+                        <li *ngFor="let nc of reportData.majorNCs"> {{nc.subject}}</li>
+                    </ul>
+                    <div class="no-data-sm" *ngIf="(reportData.majorNCs?.length || 0) === 0">
+                        <i>No major NCs identified</i>
+                    </div>
+                </div>
+
+                <div class="bottom-box blue-box">
+                    <div class="bottom-box-title">Safety CAPA</div>
+                    <ul class="bottom-list" *ngIf="(reportData.improvementPoints?.length || 0) > 0">
+                        <li *ngFor="let point of reportData.improvementPoints">{{point.subject}}</li>
+                    </ul>
+                    <div class="no-data-sm" *ngIf="(reportData.improvementPoints?.length || 0) === 0">
+                        <i>No specific improvement points listed</i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="pdf-footer">
+                Confidential | For Internal Use Only | {{ reportData.header?.supplierName || 'Supplier' }} Process Audit
+                Report
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+    <div class="spin-icon">⏳</div>
+    <span>Loading Audit Summary Report...</span>
+</div>

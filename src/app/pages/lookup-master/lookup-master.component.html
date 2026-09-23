@@ -1,0 +1,129 @@
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+    <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+        <h3 class="text-danger font-weight-bold">Access Denied</h3>
+        <p class="text-muted">You do not have permission to view this page.</p>
+        <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+    </div>
+</div>
+
+<div *ngIf="canRead">
+    <div class="col-sm-12 mt-4 text-right pr-0" style="width:70%">
+        <button mat-raised-button style="background-color: black; color: white;" class="margin-right-10"
+            (click)="filterToggle = !filterToggle">
+            <mat-icon>filter_list</mat-icon> Filter
+        </button>
+        <!-- Add Lookup -->
+        <button [ngClass]="{'disable-custom': !canCreate}" mat-raised-button color="primary"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Lookup'"
+            (click)="canCreate && addlookup(null)">
+            <mat-icon>add</mat-icon>
+            <span class="button-text">Add Lookup</span>
+        </button>
+    </div>
+
+    <div class="col-sm-12 mt-3" *ngIf="filterToggle" style="width:70%">
+        <mat-card class="filter">
+            <mat-card-content>
+                <form>
+                    <div class="row align-items-center mb-3">
+                        <div class="col-md-4 d-flex align-items-center">
+                            <label class="mb-0 mr-2" style="white-space: nowrap; font-weight: bold;">Keyword :&nbsp;</label>
+                            <input type="text" class="form-control" placeholder="Enter Keyword"
+                                [(ngModel)]="filterKeyword" name="keyword">
+                        </div>
+
+                        <div class="col-md-4 d-flex align-items-center">
+                            <label class="mb-0 mr-2" style="white-space: nowrap; font-weight: bold;">Status :&nbsp;</label>
+                            <mat-select class="form-control" placeholder="Select Status" [(ngModel)]="filterStatus"
+                                name="status">
+                                <mat-option [value]="null">All</mat-option>
+                                <mat-option [value]="true">Active</mat-option>
+                                <mat-option [value]="false">Inactive</mat-option>
+                            </mat-select>
+                        </div>
+
+                        <div class="col-md-4 d-flex align-items-center">
+                            <label class="mb-0 mr-2" style="white-space: nowrap; font-weight: bold;">Code Master :&nbsp;</label>
+                            <mat-select class="form-control" placeholder="Select Code Master"
+                                [(ngModel)]="selectedCodeFilter" name="codeMaster">
+                                <mat-option [value]="null">All</mat-option>
+                                <mat-option *ngFor="let code of codeMasters" [value]="code.codeId">{{code.codeName}}</mat-option>
+                            </mat-select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12 text-right">
+                            <button mat-raised-button color="primary" class="margin-right-10" (click)="applyFilters()">
+                                <mat-icon>search</mat-icon> Search
+                            </button>
+                            <button mat-raised-button class="btn-default margin-right-10" (click)="clearFilters()">
+                                <mat-icon>settings_backup_restore</mat-icon> Clear
+                            </button>
+                            <a (click)="filterToggle = !filterToggle"
+                                style="font-size: 25px; cursor: pointer; vertical-align: middle;">
+                                <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="col-sm-12 mt-4" style="width:70%">
+        <div id="grid-table-container" class="table-responsive">
+            <table matSort id="example2" class="table table-bordered table-hover">
+                <thead class="tbl-head">
+                    <tr>
+                        <th>Code Master</th>
+                        <th>Lookup Name</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center" style="width: 112px!important;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of pagedData">
+                        <td>{{ getCodeName(item.codeId) }}</td>
+                        <td>{{ item.lookupName }}</td>
+                        <!-- Status -->
+                        <td class="text-center" style="text-align: center !important;">
+                            <a [ngStyle]="{
+                                'color': item.isActive ? 'blue' : 'red',
+                                'cursor': 'pointer'
+                            }" [ngClass]="{'disable-custom': !canUpdate}"
+                                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to change status'"
+                                (click)="canUpdate && toggleStatus(item)">
+                                <span *ngIf="!item.isActive">Inactive</span>
+                                <span *ngIf="item.isActive">Active</span>
+                            </a>
+                        </td>
+                        <!-- Edit / Delete -->
+                        <td class="text-center editDel">
+                            <!-- Edit -->
+                            <a [ngClass]="{'disable-custom': !canUpdate}" style="cursor: pointer; margin-right: 10px;"
+                                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+                                (click)="canUpdate && addlookup(item)">
+                                <i class="fa fa-edit" style="color: cornflowerblue"></i>
+                            </a>
+
+                            <!-- Delete -->
+                            <a [ngClass]="{'disable-custom': !canDelete}"
+                                [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+                                (click)="canDelete && deleteLookup(item)">
+                                <i class="fa fa-trash red" style="cursor: pointer;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr *ngIf="!pagedData || pagedData.length == 0">
+                        <td colspan="4" class="text-center">No data available</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <mat-paginator class="col-sm-12" [length]="filteredData.length" [pageIndex]="pageIndex" [pageSize]="pageSize"
+                [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPageChange($event)">
+            </mat-paginator>
+        </div>
+    </div>
+</div>

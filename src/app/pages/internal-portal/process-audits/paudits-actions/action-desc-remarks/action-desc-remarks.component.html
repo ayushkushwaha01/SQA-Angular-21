@@ -1,0 +1,22 @@
+<div class="col-sm-12" style="max-width: 100%; padding: 0; margin: 0; box-sizing: border-box;">
+    <div class="NewHeader">
+        <h1 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 24px;" mat-dialog-title style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 24px;">
+            Add Notes
+        </h1>
+    </div>
+
+    <!-- <label style="margin-top: 20px; font-weight: bold;">Description:</label> -->
+    <textarea class="form-control" rows="6" placeholder="Enter Notes"></textarea>
+
+    <mat-dialog-actions align="end" style="margin-top: 15px; display: flex; justify-content: flex-end; margin-right: -20px;">
+        <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
+            style="background-color: lightgray; color: red; margin-right: 5px;">
+            <mat-icon>cancel</mat-icon> Close
+        </button>
+        <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;">
+            <mat-icon>save</mat-icon> Save
+        </button>
+    </mat-dialog-actions>
+
+
+</div>

@@ -1,0 +1,338 @@
+<div class="back-btn ps-4 mb-4 mt-3" style="display: flex; justify-content: flex-end; font-size: 18px; font-weight:500">
+   <div class="col-sm-6 "  >
+     <span style="color: rgb(0, 0, 0); cursor: pointer; margin-left:0px " (click)="goBack()">Active Audit Dashboard</span>  
+     <p _ngcontent-mvb-c448="" style="margin-top: 5px; ">
+      <span _ngcontent-mvb-c448="" style="font-weight: bolder; font-size: 14px;">Ref No:</span>
+      <span _ngcontent-mvb-c448="" style="margin: 8px; font-size: 14px">2024/Process/254871</span>
+      
+    </p>
+  </div>
+  <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
+      <button mat-raised-button class="mat-focus-indicator mat-raised-button mat-button-base" 
+        style="background-color: #808080; color: white; margin-right: 10px; 
+               height: 42px; line-height: 32px; padding: 0 12px; font-size: 13px;">
+        <span class="mat-button-wrapper" (click)="goBack()">
+          <mat-icon role="img" class="mat-icon notranslate material-icons mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font">arrow_back</mat-icon> Back 
+        </span>
+      </button>
+  </div>
+</div>
+
+<div class="container-fluid p-3 audit-container ps-5">
+  
+  <div class="row mb-3 pb-4">
+    <div class="col-sm-6 d-flex gap-2">
+    </div>
+    <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
+   
+    </div>
+  </div>
+
+  <div class="row mb-4 pb-4">
+    <div class="col-12 d-flex gap-4">
+      <button mat-raised-button 
+              *ngFor="let cat of categories"
+              (click)="selectCategory(cat)"
+              [ngClass]="selectedCategory === cat ? 'category-btn-active' : 'category-btn-inactive'"
+              class="category-btn">
+        {{ cat }}
+      </button>
+    </div>
+  </div>
+
+<div class="row mb-5 mt-2">
+    <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
+      <div *ngFor="let step of processSteps"
+           (click)="selectStep(step.id)"
+           class="step-box"
+           [title]="step.tooltip"
+           [ngClass]="{
+             'bg-green text-white': step.status === 'green',
+             'bg-red text-white': step.status === 'red',
+             'bg-grey text-dark': step.status === 'grey' || selectedStep === step.id,
+             'selected-step': selectedStep === step.id
+           }">
+        {{ step.id }}
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    
+    <div class="col-md-6 pe-md-4">
+
+      <div class="row mb-5" style="margin-left: -20px">
+        <div class="col-12">
+          <div class="p-3">
+            <span class="fw-bold" style="color: #099ff0;">Question {{ selectedStep }}: </span>
+            <span class="text-dark">{{ getSelectedQuestion() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div> Process Level Guidelines :</div>
+      <div class="custom-guideline mb-4" style="gap: 5px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #099ff0; border-radius: 4px;"> 
+        <div style="margin-bottom: 6px; font-size: 14px; color: #555;" *ngFor="let guideline of currentGuidelines" [innerHTML]="guideline"></div>
+      </div>
+    <label class="fw-bold mb-2">Rating :</label>
+      <div class="d-flex gap-3 mb-4">
+        <button class="btn rating-btn border-success text-success" 
+                [class.active]="rating === '5'" (click)="setRating('5')">5</button>
+        
+        <button class="btn rating-btn border-primary text-primary" 
+                [class.active]="rating === '4'" (click)="setRating('4')">4</button>
+        
+        <button class="btn rating-btn border-warning text-warning" 
+                [class.active]="rating === '3'" (click)="setRating('3')">3</button>
+        
+        <button class="btn rating-btn" style="border-color: #fd7e14; color: #fd7e14;" 
+                [class.active]="rating === '2'" (click)="setRating('2')">2</button>
+        
+        <button class="btn rating-btn border-danger text-danger" 
+                [class.active]="rating === '1'" (click)="setRating('1')">1</button>
+        
+        <button class="btn rating-btn border-dark text-dark" style="border-color: black !important; color: black !important;" 
+                [class.active]="rating === 'NA'" (click)="setRating('NA')">NA</button>
+      </div>
+
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">Severity :</label>
+        <div class="col-sm-8">
+          <mat-select class="custom-mat-select" [(value)]="selectedSeverity" placeholder="Select Severity">
+            <mat-option *ngFor="let sev of severities" [value]="sev.value">{{ sev.label }}</mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">Occurrence :</label>
+        <div class="col-sm-8">
+          <mat-select class="custom-mat-select" [(value)]="selectedOccurrence" placeholder="Select Occurrence">
+            <mat-option *ngFor="let occ of occurrences" [value]="occ">{{ occ }}</mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">Detection :</label>
+        <div class="col-sm-8">
+          <mat-select class="custom-mat-select" [(value)]="selectedDetection" placeholder="Select Detection">
+            <mat-option *ngFor="let det of detections" [value]="det">{{ det }}</mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">SOD Score :</label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control bg-light" [value]="sodScore" disabled>
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-4">
+        <label class="col-sm-4 col-form-label fw-bold">Risk Rating :</label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control fw-bold" 
+                 [value]="riskRating" disabled 
+                 [ngClass]="{'bg-danger text-white': riskRating === 'High'}">
+        </div>
+      </div>
+       <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">Upload PDF :</label>
+         <div class="col-sm-8" style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" multiple>
+
+            <div class="drag-drop-zone" (click)="fileInput.click()" (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+                <mat-icon style="font-size: 24px; height: 24px; width: 24px;">upload</mat-icon>
+                <span>Drag and drop files here</span>
+                <button mat-raised-button class="browse-btn" type="button" style="background-color: #1485cc; color: white;"
+                    (click)="$event.stopPropagation(); fileInput.click()">
+                    Browse Files
+                </button>
+            </div>
+
+            <div class="file-list" style="width: 100%;">
+                <div *ngFor="let file of selectedFiles; let i = index" style="display: flex; align-items: center; gap: 8px;
+                     padding: 5px 8px; font-size: 13px; border-radius: 4px;
+                     background: #f5f5f5; margin-top: 4px;">
+                    <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
+                    <span>{{ file.name }}</span>
+                    <span style="color: #999; font-size: 12px;">({{ (file.size / 1024).toFixed(1) }} KB)</span>
+                    <button mat-icon-button style="margin-left: auto;" (click)="removeFile(i)">
+                        <mat-icon style="font-size: 16px;">close</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+      </div>
+
+    </div>
+
+ <div class="col-md-6">
+
+
+
+
+
+
+   <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">Compliance :</label>
+        
+        <div class="col-sm-8 d-flex align-items-center gap-5">
+          
+          <div class="d-flex align-items-center gap-2">
+            <label class="fw-bold mb-0" style="margin-top: 2px;">Pass :</label>
+            <mat-checkbox style="margin-top: 2px;"
+              [checked]="complianceStatus === 'Pass'" 
+              (change)="complianceStatus = $event.checked ? 'Pass' : ''">
+            </mat-checkbox>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <label class="fw-bold mb-0" style="margin-top: 2px;">Fail :</label>
+            <mat-checkbox style="margin-top: 2px;"
+              [checked]="complianceStatus === 'Fail'" 
+              (change)="complianceStatus = $event.checked ? 'Fail' : ''">
+            </mat-checkbox>
+          </div>
+
+        </div>
+      </div>
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">Class :</label>
+        <div class="col-sm-8">
+          <mat-select class="custom-mat-select" [(value)]="selectedClass" placeholder="Select Class">
+            <mat-option *ngFor="let cls of classOptions" [value]="cls">{{ cls }}</mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      
+      
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold"> CAPA Due Date :</label>
+        <div class="col-sm-8">
+          <input type="date" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold"> CAPA Completed Date :</label>
+        <div class="col-sm-8">
+          <input type="date" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">PDCA Status :</label>
+        <div class="col-sm-8">
+          <mat-select class="custom-mat-select" [(value)]="pdcaStatus" placeholder="Select PDCA Status">
+            <mat-option *ngFor="let status of pdcaStatuses" [value]="status">{{ status }}</mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-3">
+        <label class="col-sm-4 col-form-label fw-bold">Mark as Resolved:</label>
+        <div class="col-sm-8 d-flex align-items-center">
+          <mat-checkbox  ></mat-checkbox>
+        </div>
+      </div>
+
+      <div class="form-group row align-items-center mb-4">
+        <label class="col-sm-4 col-form-label fw-bold">Action Type :</label>
+        <div class="col-sm-8">
+          <mat-select class="custom-mat-select" [(value)]="actionType" placeholder="Select Action Type">
+            <mat-option *ngFor="let type of actionTypes" [value]="type">{{ type }}</mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="fw-bold mb-2">Observations :</label>
+        <textarea rows="4" class="form-control custom-textarea" placeholder="Enter Observations..."></textarea>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="fw-bold mb-2">Corrective Actions :</label>
+        <textarea rows="4" class="form-control custom-textarea" placeholder="Enter Corrective Actions..."></textarea>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="fw-bold mb-2">Supplier Remarks :</label>
+        <textarea rows="4" class="form-control custom-textarea" placeholder="Enter Remarks..."></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row mt-3 mb-5 align-items-end">
+    
+    <div class="col-md-10">
+      <div class="gallery-container d-flex align-items-center p-2">
+        <div class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2" (click)="addImage()">
+          <mat-icon>add</mat-icon>
+        </div>
+        <div *ngFor="let img of galleryImages; let i = index" class="gallery-item me-2 border cursor-pointer bg-white" (click)="openSlideshow(i)">
+          <img [src]="img" alt="Uploaded Thumbnail" class="img-fluid h-100 w-100 object-fit-cover">
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-2 text-end">
+      <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255);">
+        <span class="mat-button-wrapper" style=" color: rgb(255, 255, 255);">
+          <mat-icon role="img" class="mat-icon notranslate material-icons mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font">save</mat-icon>
+          Save 
+        </span>
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="slideshow-overlay" *ngIf="isSlideshowOpen">
+  <button class="slideshow-close" (click)="closeSlideshow()">
+    <mat-icon>close</mat-icon>
+  </button>
+  
+  <button class="slideshow-nav prev" (click)="prevSlide($event)">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  
+  <img [src]="galleryImages[currentSlideIndex]" class="slideshow-image" alt="Slideshow Preview">
+  
+  <button class="slideshow-nav next" (click)="nextSlide($event)">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+</div>
+ 
+
+  <div class="row mt-3 mb-5 align-items-end">
+    
+    <!-- <div class="col-md-10">
+      <div class="gallery-container d-flex align-items-center p-2">
+        <div class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2" (click)="addImage()">
+          <mat-icon>add</mat-icon>
+        </div>
+        <div *ngFor="let img of galleryImages" class="gallery-item me-2 border cursor-pointer bg-white">
+          <img [src]="img" alt="Uploaded Thumbnail" class="img-fluid h-100 w-100 object-fit-cover">
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-2 text-end">
+      <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255);">
+        <span class="mat-button-wrapper" style=" color: rgb(255, 255, 255);">
+          <mat-icon role="img" class="mat-icon notranslate material-icons mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font">save</mat-icon>
+          Save 
+        </span>
+      </button>
+    </div> -->
+
+  </div>
+
+ 

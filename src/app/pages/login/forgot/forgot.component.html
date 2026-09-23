@@ -1,0 +1,72 @@
+<div class="login-wrapper">
+  <!-- Left Side: Branding / Intro -->
+  <div class="login-left-panel">
+    <div class="login-left-content">
+      <h1 class="project-title">SQA</h1>
+      <h2 class="project-subtitle">Supplier Quality Audit</h2>
+      <p class="project-desc">
+        Streamlining supplier quality audits, checklist configurations, monthly target tracking, and corrective actions
+        in one unified platform.
+      </p>
+
+      <!-- Decorative Glass Card -->
+      <div class="decor-card">
+        <div class="decor-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="decor-body">
+          <div class="bar-chart-preview">
+            <div class="bar" style="height: 40px;"></div>
+            <div class="bar" style="height: 70px;"></div>
+            <div class="bar" style="height: 50px;"></div>
+            <div class="bar" style="height: 90px;"></div>
+            <div class="bar" style="height: 60px;"></div>
+          </div>
+          <div class="line-preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Reset Password Form -->
+  <div class="login-right-panel">
+    <div class="login-form-container">
+      <div class="logo-wrapper-center">
+        <div class="logo-area">
+          <img alt="SQA - Supplier Quality Audits" class="logo-default logo-img box-content-center"
+            src="../../../assets/sqa-logo.svg">
+        </div>
+      </div>
+
+      <div class="welcome-text">
+        <h2>Reset Password</h2>
+        <p>Enter your registered email address to receive password reset instructions.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit(form.value)" class="login-form">
+        <!-- Email Input -->
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="Enter your email" autocomplete="email">
+          <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('invalidEmail')">Invalid email address</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button class="btn-signin" type="submit" [disabled]="!form.valid || isLoading">
+          {{ isLoading ? 'Sending...' : 'Send Reset Link' }}
+        </button>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <a [routerLink]="['/login']"
+            style="cursor: pointer; color: #6b7280; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+            <mat-icon
+              style="font-size: 16px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; color: #6b7280;">arrow_back</mat-icon>
+            <span>Back to Sign In</span>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

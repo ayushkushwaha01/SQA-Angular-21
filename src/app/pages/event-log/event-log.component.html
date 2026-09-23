@@ -1,0 +1,146 @@
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+    <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+        <h3 class="text-danger font-weight-bold">Access Denied</h3>
+        <p class="text-muted">You do not have permission to view this page.</p>
+        <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+    </div>
+</div>
+
+<div fxLayout="row wrap" #resizedDiv *ngIf="canRead">
+    <div class="flex-p w-100">
+
+        <div class="row" style="margin-bottom:14px;">
+            <div class="col-sm-12 text-right">
+                <button mat-raised-button style="background-color: black; color:white;"
+                    class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
+                    <mat-icon>filter_list</mat-icon> Filter
+                </button>
+            </div>
+        </div>
+
+        <div class="container-fluid" style="padding: 0% !important;">
+            <div fxLayout="row wrap" *ngIf="filterToggle">
+                <div fxFlex="100" class="flex-p">
+                    <form [formGroup]="filterForm">
+                        <mat-card class="filter" style="width: 99%; margin-left: 8px;">
+                            <mat-card-content>
+                                <div class="row col-sm-12">
+                                    <div class="col-sm-4">
+                                        <div class="col-sm-3 newMarginClass">
+                                            Keyword:
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <input type="text" formControlName="Keyword" class="form-control"
+                                                placeholder="Search by Keyword">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <div class="col-sm-3 newMarginClass">
+                                            Event Type:
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <mat-select class="form-control" formControlName="EventType"
+                                                placeholder="Search by Event Type">
+                                                <mat-option value="">All</mat-option>
+                                                <mat-option value="READ">READ</mat-option>
+                                                <mat-option value="GET">GET</mat-option>
+                                                <mat-option value="UPDATE">UPDATE</mat-option>
+                                                <mat-option value="DELETE">DELETE</mat-option>
+                                            </mat-select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <div class="col-sm-3 newMarginClass">
+                                            Users:
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <mat-select class="form-control" placeholder="Select User"
+                                                formControlName="userId">
+                                                <mat-option [value]="null">All Users</mat-option>
+                                                <mat-option *ngFor="let item of allusers" [value]="item.userId">
+                                                    {{ item.userName }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4" style="margin-top: 10px;">
+                                        <div class="col-sm-3 newMarginClass">
+                                            From Date:
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <input type="date" formControlName="FromDate" class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4" style="margin-top: 10px;">
+                                        <div class="col-sm-3 newMarginClass">
+                                            To Date:
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <input type="date" formControlName="ToDate" class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4 text-right" style="margin-top: 10px;">
+                                        <button mat-raised-button color="primary" class="margin-right-10"
+                                            (click)="getEventLog()">
+                                            <mat-icon>search</mat-icon> Search
+                                        </button>
+                                        <button mat-raised-button class="btn-default margin-right-10"
+                                            (click)="clearFilter()">
+                                            <mat-icon>settings_backup_restore</mat-icon> Clear
+                                        </button>
+                                        <a (click)="filterToggle = !filterToggle"
+                                            style="font-size: 25px; cursor: pointer; vertical-align: middle;">
+                                            <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12" style="margin-top: 15px;">
+            <div class="table-responsive">
+                <table id="example2" class="table table-bordered table-hover">
+                    <thead class="tbl-head">
+                        <tr class="tr-grid-header">
+                            <th>Event Name</th>
+                            <th>Event Type</th>
+                            <th>Screen Name</th>
+                            <th>Date & Time</th>
+                            <th>User Name</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngIf="tableLists == null || tableLists.length === 0">
+                            <td colspan="5" class="text-center">
+                                No records found
+                            </td>
+                        </tr>
+
+                        <tr *ngFor="let item of tableLists">
+                            <td>{{ item.eventMasterName }}</td>
+                            <td>{{ item.eventMasterType }}</td>
+                            <td>{{ item.userScreenName }}</td>
+                            <td>{{ item.createdDate | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td>{{ item.userName }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+                [pageSizeOptions]="[5,10,20,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+            </mat-paginator>
+        </div>
+    </div>
+</div>

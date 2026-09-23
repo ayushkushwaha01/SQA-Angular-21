@@ -1,0 +1,108 @@
+<!-- Filter Bar wired to Reactive Form -->
+<div class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-group right-align-group">
+        <label class="filter-label mb-0">Commodity:</label>
+        <mat-select placeholder="All Commodities" class="form-control" formControlName="commodityId"
+            style="width: auto; min-width: 150px;">
+            <mat-option [value]="null">All Commodities</mat-option>
+            <mat-option *ngFor="let c of commodities" [value]="c.commodityId">{{ c.name }}</mat-option>
+        </mat-select>
+
+        <label class="filter-label mb-0">Auditor:</label>
+        <mat-select placeholder="All Auditors" class="form-control" formControlName="auditorId"
+            style="width: auto; min-width: 150px;">
+            <mat-option [value]="null">All Auditors</mat-option>
+            <mat-option *ngFor="let a of auditors" [value]="a.userId">{{ a.userName }}</mat-option>
+        </mat-select>
+
+        <label class="filter-label mb-0">Year :</label>
+        <mat-select placeholder="Select Year" class="form-control" formControlName="year"
+            style="width: auto; min-width: 100px;">
+            <mat-option value="2023">2023</mat-option>
+            <mat-option value="2024">2024</mat-option>
+            <mat-option value="2025">2025</mat-option>
+            <mat-option value="2026">2026</mat-option>
+        </mat-select>
+
+        <label class="filter-label mb-0">Month :</label>
+        <mat-select placeholder="All Months" class="form-control" formControlName="month"
+            style="width: auto; min-width: 110px;">
+            <mat-option [value]="null">All Months</mat-option>
+            <mat-option [value]="1">January</mat-option>
+            <mat-option [value]="2">February</mat-option>
+            <mat-option [value]="3">March</mat-option>
+            <mat-option [value]="4">April</mat-option>
+            <mat-option [value]="5">May</mat-option>
+            <mat-option [value]="6">June</mat-option>
+            <mat-option [value]="7">July</mat-option>
+            <mat-option [value]="8">August</mat-option>
+            <mat-option [value]="9">September</mat-option>
+            <mat-option [value]="10">October</mat-option>
+            <mat-option [value]="11">November</mat-option>
+            <mat-option [value]="12">December</mat-option>
+        </mat-select>
+    </div>
+
+    <!-- Go button triggers live backend search -->
+    <button type="button" class="go-btn" mat-raised-button (click)="onSearch()" [disabled]="isLoading">
+        <mat-icon class="mat-icon mt-1" *ngIf="!isLoading">search</mat-icon>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span>
+        {{ isLoading ? 'Loading...' : 'Go' }}
+    </button>
+
+    <button type="button" mat-raised-button class="btn-clear" (click)="clearFilter()" [disabled]="isLoading">
+        <mat-icon>settings_backup_restore</mat-icon> Clear
+    </button>
+</div>
+
+<!-- TOP SUMMARY TABLE -->
+<div class="table-responsive my-4">
+    <table class="table table-bordered text-center" style="width: 100%; background: #fff;">
+        <thead style="background-color: #f8f9fa;">
+            <tr>
+                <th rowspan="2" style="vertical-align: middle;">Checked</th>
+                <th rowspan="2" style="vertical-align: middle;">NC</th>
+                <th colspan="5" class="text-center">Non Compliance Distribution</th>
+            </tr>
+            <tr>
+                <th>Safety</th>
+                <th>Critical</th>
+                <th>Important</th>
+                <th>Fitment</th>
+                <th>Regular</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ tableData.checked }}</td>
+                <td>{{ tableData.nc }}</td>
+                <td>{{ tableData.safety }}</td>
+                <td>{{ tableData.critical }}</td>
+                <td>{{ tableData.important }}</td>
+                <td>{{ tableData.fitment }}</td>
+                <td>{{ tableData.regular }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- THREE HIGHCHARTS PIE CHARTS -->
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px;">
+    <div style="flex: 1 1 300px; min-width: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="distributionByClassOptions"
+            style="width: 100%; height: 300px; display: block;">
+        </highcharts-chart>
+    </div>
+
+    <div style="flex: 1 1 300px; min-width: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="issuesCorrectedOptions"
+            style="width: 100%; height: 300px; display: block;">
+        </highcharts-chart>
+    </div>
+
+    <div style="flex: 1 1 300px; min-width: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="pdcaDistributionOptions"
+            style="width: 100%; height: 300px; display: block;">
+        </highcharts-chart>
+    </div>
+</div>

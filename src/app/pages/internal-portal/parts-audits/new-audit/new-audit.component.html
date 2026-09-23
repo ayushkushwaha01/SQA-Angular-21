@@ -1,0 +1,345 @@
+<div class="NewHeader">
+    <h2 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
+
+        {{ data?.partAuditId ? 'Edit' : 'Add' }} Parts Audit
+    </h2>
+
+    <h2 style="padding-top:0px; padding-left:20px; font-weight:400; font-size:18px;">
+        {{ data?.partMasterId ? 'Edit' : 'Add' }} Parameter
+    </h2>
+
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
+            <form [formGroup]="myGroup">
+
+                <!-- Commodity -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            Commodity :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <!-- <mat-select class="form-control" placeholder="Select Commodity" formControlName="commodityId">
+
+                            <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
+
+                                {{ item.name }}
+
+                            </mat-option>
+
+                        </mat-select> -->
+                        <mat-select class="form-control" formControlName="commodityId" placeholder="Select Commodity"
+                            (selectionChange)="onCommodityChange($event.value)" style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
+
+                                {{item.name}}
+
+                            </mat-option>
+
+                        </mat-select>
+                        <div class="text-danger mt-1"
+                            *ngIf="f['commodityId'].touched && f['commodityId'].hasError('required')">
+
+                            Commodity Required
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part Family -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            Part Family :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <!-- <mat-select class="form-control" placeholder="Select Part Family"
+                            formControlName="partFamilyId">
+
+                            <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
+
+                                {{ item.partFamilyName }}
+
+                            </mat-option>
+
+                        </mat-select> -->
+                        <mat-select class="form-control" formControlName="partFamilyId" placeholder="Select Part Family"
+                            (selectionChange)="onPartFamilyChange($event.value)" style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
+
+                                {{item.partFamilyName}}
+
+                            </mat-option>
+
+                        </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['commodityId'].value && noPartFamiliesFound">
+
+                            No Part Families found for selected Commodity
+
+                        </div>
+
+                        <!-- Required -->
+                        <div class="text-danger mt-1" *ngIf="
+        !noPartFamiliesFound &&
+        f['partFamilyId'].touched &&
+        f['partFamilyId'].hasError('required')
+      ">
+
+                            Part Family Required
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            Part Name :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <mat-select class="form-control" placeholder="Select Part" formControlName="partMasterId"
+                            (selectionChange)="onPartChange($event.value)" style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of parts" [value]="item.partMasterId">
+                                {{ item.partMasterName }}
+                            </mat-option>
+
+                        </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['partFamilyId'].value && noPartsFound">
+
+                            No Parts found for selected Part Family
+
+                        </div>
+
+                        <!-- Required -->
+                        <div class="text-danger mt-1" *ngIf="
+        !noPartsFound &&
+        f['partMasterId'].touched &&
+        f['partMasterId'].hasError('required')
+      ">
+
+                            Part Name Required
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supplier -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            Supplier :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <mat-select class="form-control" placeholder="Select Supplier" formControlName="supplierId"
+                            style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of filteredSuppliers" [value]="item.supplierId">
+
+                                {{ item.supplierName }}
+
+                            </mat-option>
+
+                        </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['partMasterId'].value && noSuppliersFound">
+
+                            No Suppliers found for selected Part
+
+                        </div>
+
+                        <!-- Required -->
+                        <div class="text-danger mt-1" *ngIf="
+        !noSuppliersFound &&
+        f['supplierId'].touched &&
+        f['supplierId'].hasError('required')
+      ">
+
+                            Supplier Required
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            State :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <!-- <mat-select class="form-control" placeholder="Select State" formControlName="stateId">
+
+                            <mat-option *ngFor="let item of states" [value]="item.stateId">
+
+                                {{ item.stateName }}
+
+                            </mat-option>
+
+                        </mat-select> -->
+                        <mat-select class="form-control" placeholder="Select State" formControlName="stateId"
+                            (selectionChange)="onStateChange($event.value)" style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of states" [value]="item.stateId">
+                                {{ item.stateName }}
+                            </mat-option>
+
+                        </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['stateId'].touched && f['stateId'].hasError('required')">
+
+                            State Required
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- City -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            City :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <mat-select class="form-control" placeholder="Select City" formControlName="cityId"
+                            style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of cities" [value]="item.cityId">
+
+                                {{ item.cityName }}
+
+                            </mat-option>
+
+                        </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['cityId'].touched && f['cityId'].hasError('required')">
+
+                            City Required
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auditor -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            Auditor :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <mat-select class="form-control" placeholder="Select Auditor" formControlName="auditorId"
+                            style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of Auditors" [value]="item.userId">
+
+                                {{ item.userName }}
+
+                            </mat-option>
+
+                        </mat-select>
+                        <div class="text-danger mt-1"
+                            *ngIf="f['auditorId'].touched && f['auditorId'].hasError('required')">
+
+                            Auditor Required
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Date -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2 fw-bold">
+                            Audit Date :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8" style="position: relative;">
+
+                        <input matInput [matDatepicker]="picker" formControlName="auditDate" placeholder="MM/DD/YYYY"
+                            style="
+                height: 38px;
+                width: 100%;
+                padding-left: 12px;
+                padding-right: 45px;
+                border: 1px solid #141414;
+                border-radius: 4px;
+                box-sizing: border-box;
+                background-color: #fefec4 !important;
+            ">
+
+                        <mat-datepicker-toggle matSuffix [for]="picker" style="
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+            ">
+                        </mat-datepicker-toggle>
+
+                        <mat-datepicker #picker></mat-datepicker>
+                        <!-- <div class="text-danger mt-1" *ngIf="f['auditDate'].touched && f['auditDate'].hasError('required')">
+
+                        Audit Date Required
+
+                    </div> -->
+
+                    </div>
+
+                </div>
+
+                <!-- Remarks -->
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class=" mt-2 fw-bold">
+                            Remarks :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <textarea rows="4" class="form-control" placeholder="Enter Remarks" formControlName="remakrs">
+            </textarea>
+
+                    </div>
+                </div>
+
+            </form>
+
+
+            <mat-dialog-actions align="end"
+                style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -20px;">
+                <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
+                    style="background-color: lightgray; color: red;margin-right: 5px;">
+                    <mat-icon>cancel</mat-icon> Close
+                </button>
+                <button mat-raised-button type="button" class="save" color="primary" style="margin-right: 17px;"
+                    [disabled]="myGroup.invalid" (click)="UpsertPartAudit()">
+
+                    <mat-icon>save</mat-icon>
+                    {{ myGroup.get('partAuditId')?.value ? 'Update' : 'Save' }}
+
+                </button>
+            </mat-dialog-actions>
+
+
+
+        </div>
+    </div>
+</div>

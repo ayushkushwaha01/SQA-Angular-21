@@ -1,0 +1,81 @@
+<div class="dialog-header">
+    <h2 mat-dialog-title class="m-0 text-center pb-2 pt-2" style="font-size: 18px; color:white; font-weight:400">List Of Documents</h2>
+</div>
+
+<div mat-dialog-content class="pt-4 overflow-hidden">
+    <form class="form-horizontal">
+        
+        <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+                <label class="control-label font-weight-bold mb-0">
+                    Doc Title:<span class="text-danger">*</span>
+                </label>
+            </div>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Enter Document Title">
+            </div>
+        </div>
+
+        <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+                <label class="control-label font-weight-bold mb-0">
+                    Upload Doc:<span class="text-danger">*</span>
+                </label>
+            </div>
+            <div class="col-sm-9">
+                <input type="file" class="form-control" style="padding: 3px;">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-12 d-flex justify-content-end">
+                <button mat-raised-button color="primary" class="save-btn">
+    <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">save</mat-icon>
+    Save
+</button>
+            </div>
+        </div>
+
+    </form>
+
+    <div class="table-responsive mt-2">
+        <table class="table table-bordered custom-table mb-0">
+            <thead>
+                <tr>
+                    <th>Document Title</th>
+                    <th class="text-center">Uploaded Date</th>
+                    <th class="text-center">Download</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let doc of pagedDocs">
+                    <td>{{ doc.title }}</td>
+                    <td class="text-center">{{ doc.date }}</td>
+                    <td class="text-center">
+                        <mat-icon class="action-icon text-primary" matTooltip="Download">cloud_download</mat-icon>
+                    </td>
+                    <td class="text-center manage-icons">
+                        <i class="fa fa-edit edit-icon mr-2 pe-2" matTooltip="Edit" style="color: cornflowerblue; cursor: pointer; font-size: 16px;"></i>
+                        <i class="fa fa-trash delete-icon" matTooltip="Delete" style="color: red; cursor: pointer; font-size: 16px;"></i>
+                    </td>
+                </tr>
+             
+            </tbody>
+        </table>
+
+        <mat-paginator 
+            [length]="documents.length" 
+            [pageSize]="pageSize" 
+            [pageSizeOptions]="[5, 10, 25, 50]" 
+            (page)="onPageChange($event)">
+        </mat-paginator>
+    </div>
+</div>
+
+<mat-dialog-actions align="end" class="pb-2 pe-1">
+    <button mat-raised-button class="close-btn" (click)="closeDialog()">
+        <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin-right: -5px; margin-top: 4px;">cancel</mat-icon> 
+        Close
+    </button>
+</mat-dialog-actions>

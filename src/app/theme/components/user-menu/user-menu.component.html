@@ -1,0 +1,43 @@
+<button mat-icon-button [matMenuTriggerFor]="userMenu" #userMenuTrigger="matMenuTrigger">
+    <mat-icon style="color:white;">account_circle</mat-icon>
+</button>
+
+<mat-menu #userMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu user-menu">
+    <div class="user-menu-header">
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px" class="user-info">
+            <img [src]="userImage" alt="user-profile" class="user-image mat-elevation-z2">
+            <div class="user-details" fxLayout="column" fxLayoutAlign="center start">
+                <span>Welcome, {{ currentUserName }}</span>
+            </div>
+        </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <a mat-menu-item routerLink="/">
+        <mat-icon>lock</mat-icon>
+        <span>Lock screen</span>
+    </a>
+    <button mat-menu-item (click)="openChangePassword()">
+        <mat-icon>password</mat-icon>
+        <span>Change Password</span>
+    </button>
+
+
+
+    <!-- Shows if they DO NOT have a passkey and are not a supplier -->
+    <button *ngIf="!isSupplier" mat-menu-item (click)="openPasskeyManager()">
+        <mat-icon>fingerprint</mat-icon>
+        <span>Manage Passkeys</span>
+    </button>
+
+
+
+    <mat-divider></mat-divider>
+
+    <!-- Uses the click event to wipe memory -->
+    <a mat-menu-item (click)="logout()" style="cursor: pointer;">
+        <mat-icon color="warn">power_settings_new</mat-icon>
+        <span class="text-warn">Log out</span>
+    </a>
+</mat-menu>

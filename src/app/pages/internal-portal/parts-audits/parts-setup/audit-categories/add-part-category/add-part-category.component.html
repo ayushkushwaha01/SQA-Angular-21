@@ -1,0 +1,75 @@
+<div class="NewHeader">
+    <h3 style="padding-top:0; padding-left:20px; font-weight:400; font-size:18px;">
+        {{ data ? 'Edit' : 'Add' }} Parts Audit Category
+    </h3>
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
+            <form [formGroup]="myGroup">
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2" style="font-weight: bold;">
+                            Category Name :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" placeholder="Enter Category Name"
+                            formControlName="CategoryName" style="background-color: #fefec4 !important;">
+
+                        <small class="text-danger"
+                            *ngIf="f['CategoryName'].touched && f['CategoryName'].errors?.['required']">
+                            Category Name is required.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2" style="font-weight: bold;">
+                            Category Code :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <!-- <input type="text" class="form-control" placeholder="Enter Category Code"
+                            formControlName="CategoryCode" maxlength="5"> -->
+                        <input type="text" class="form-control" placeholder="Enter Category Code"
+                            formControlName="CategoryCode" maxlength="5" (input)="onCategoryCodeInput($event)"
+                            style="background-color: #fefec4 !important;">
+
+                        <small class="text-danger"
+                            *ngIf="f['CategoryCode'].touched && f['CategoryCode'].errors?.['required']">
+                            Category Code is required.
+                        </small>
+                    </div>
+                </div>
+
+
+
+            </form>
+
+            <mat-dialog-actions align="end" style="margin-top:15px;display:flex;justify-content:flex-end;">
+
+                <button mat-raised-button type="button" (click)="close()"
+                    style="background-color:lightgray;color:red;margin-right:8px;">
+                    <mat-icon>cancel</mat-icon>
+                    Close
+                </button>
+
+                <button mat-raised-button color="primary" (click)="UpsertPartAuditCategory()"
+                    [disabled]="myGroup.invalid">
+
+                    <mat-icon>save</mat-icon>
+                    {{ data ? 'Update' : 'Save' }}
+
+                </button>
+
+            </mat-dialog-actions>
+
+        </div>
+    </div>
+</div>

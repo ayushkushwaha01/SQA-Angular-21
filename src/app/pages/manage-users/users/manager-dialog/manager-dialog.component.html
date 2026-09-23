@@ -1,0 +1,23 @@
+<div class="NewHeader">
+  <h1  mat-dialog-title>
+    Managers
+  </h1>
+</div>
+
+<div mat-dialog-content style="padding: 0;">
+  <table class="table table-bordered mb-0">
+    <thead class="table-dark">
+      <tr>
+        <th class="text-center">Manager Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let mgr of assignedManagers">
+        <td class="text-center" style="padding: 12px;">{{ mgr.userName }}</td>
+      </tr>
+      <tr *ngIf="assignedManagers.length === 0">
+        <td class="text-center text-muted">No managers assigned</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

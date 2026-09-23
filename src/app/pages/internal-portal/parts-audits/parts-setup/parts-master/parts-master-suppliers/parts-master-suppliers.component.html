@@ -1,0 +1,57 @@
+<div class="dialog-header">
+    <h2 mat-dialog-title style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">Assign Locations
+    </h2>
+</div>
+
+<div mat-dialog-content class="dialog-content">
+    <div class="text-center mb-3 mt-2">
+        <h3 class="assign-title">Assign Suppliers who deliver this specific part.</h3>
+    </div>
+
+    <div class="listbox-container">
+        <div class="list-box">
+            <select multiple class="form-control custom-select" [(ngModel)]="selectedAvailable">
+
+                <option *ngFor="let supplier of availableSuppliers" [ngValue]="supplier">
+
+                    {{ supplier.supplierName }}
+
+                </option>
+
+            </select>
+        </div>
+
+        <div class="action-buttons">
+            <button mat-raised-button class="action-btn add-btn" (click)="addSuppliers()"
+                [disabled]="!selectedAvailable.length">
+                <mat-icon>arrow_right_alt</mat-icon> Add
+            </button>
+            <button mat-raised-button class="action-btn remove-btn" (click)="removeSuppliers()"
+                [disabled]="!selectedAssigned.length">
+                <mat-icon>arrow_left_alt</mat-icon> Remove
+            </button>
+        </div>
+
+        <div class="list-box">
+            <select multiple class="form-control custom-select" [(ngModel)]="selectedAssigned">
+
+                <option *ngFor="let supplier of assignedSuppliers" [ngValue]="supplier">
+
+                    {{ supplier.supplierName }}
+
+                </option>
+
+            </select>
+        </div>
+    </div>
+</div>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-raised-button class="close-btn ms-2" (click)="closeDialog()">
+        <mat-icon>cancel</mat-icon> Close
+    </button>
+    <button mat-raised-button class="save-btn" (click)="save()">
+        <mat-icon>save</mat-icon> Save
+    </button>
+
+</mat-dialog-actions>

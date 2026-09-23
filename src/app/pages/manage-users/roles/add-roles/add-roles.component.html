@@ -1,0 +1,37 @@
+<div class="NewHeader" style="background-color: #283593 !important;">
+  <h1 mat-dialog-title style="color: white; background: transparent;">
+    <span *ngIf="!data">Add</span><span *ngIf="data">Edit</span> Role
+  </h1>
+</div>
+
+<div mat-dialog-content style="overflow: hidden; padding-bottom: 0px;">
+    <form [formGroup]="form" class="form-horizontal">
+      <div class="row align-items-center mb-4 mt-4">
+        
+        <label class="col-sm-4 control-label text-end">
+          <b style="color: black; font-weight: 650; margin-right: 66px;">Role Name : <span class="text-danger">*</span></b>
+        </label>
+
+        <div class="col-sm-8">
+          <input type="text" class="form-control imp" style="border-radius: 4px; background-color: #fefec4 !important;" 
+                 placeholder="Enter Role Name"
+                 formControlName="roleName" autofocus (keypress)="onlyAlphabets($event)" />
+                 
+           <small class="text-danger" *ngIf="form.get('roleName')?.hasError('required') && form.get('roleName')?.touched">
+              Role Name is required
+           </small>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <mat-dialog-actions align="end" style="margin-top: 0; padding-right: 15px; padding-bottom: 15px;">
+    <button mat-raised-button class="btn-default" (click)="close()">
+      <mat-icon>cancel</mat-icon> Cancel
+    </button>
+    
+    <button mat-raised-button color="primary" class="ms-2" (click)="saveRole()" [disabled]="!form.valid">
+      <mat-icon>save</mat-icon> Save
+    </button>
+  </mat-dialog-actions>

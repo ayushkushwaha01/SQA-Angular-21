@@ -1,0 +1,20 @@
+.custom-layout-wrapper {
+    padding: 15px;
+}
+
+.btn-blue {
+    background-color: #2196F3;
+    color: white;
+}
+
+.tbl-head {
+    background-color: #f5f5f5;
+}
+
+button.disable-custom .button-text {
+    color: white !important;
+}
+
+button.disable-custom mat-icon {
+    color: white !important;
+}

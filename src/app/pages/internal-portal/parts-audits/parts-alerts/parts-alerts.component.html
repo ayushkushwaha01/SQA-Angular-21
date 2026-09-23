@@ -1,0 +1,102 @@
+<div class="page-container">
+  
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+    <button mat-raised-button style="background-color: #37474f; color: white;" (click)="toggleFilters()">
+      <mat-icon>filter_list</mat-icon> Filter
+    </button>
+  </div>
+  
+ <div class="filter-wrapper" *ngIf="showFilters">
+  <!-- <mat-card class="filter-card">
+    <mat-card-content> -->
+
+      <div class="filter-row">
+
+        <div class="filter-group">
+          <label class="filter-label">Industry:</label>
+          <mat-select
+            placeholder="Select Industry"
+            class="custom-mat-select"
+            [(ngModel)]="selectedIndustry">
+            <mat-option value="manufacturing">Manufacturing</mat-option>
+            <mat-option value="automotive">Automotive</mat-option>
+            <mat-option value="logistics">Logistics</mat-option>
+          </mat-select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Status:</label>
+          <mat-select
+            placeholder="Select Status"
+            class="custom-mat-select"
+            [(ngModel)]="selectedStatus">
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="resolved">Resolved</mat-option>
+          </mat-select>
+        </div>
+
+        <div class="button-group">
+          <button mat-raised-button class="btn-clear" (click)="onClear()">
+            <mat-icon>settings_backup_restore</mat-icon>
+            Clear
+          </button>
+          <button mat-raised-button color="primary" class="btn-go" (click)="onGo()">
+            <mat-icon>youtube_searched_for</mat-icon>
+            Go
+          </button>
+        </div>
+
+      </div>
+
+    <!-- </mat-card-content>
+  </mat-card> -->
+</div>
+
+  <div class="table-responsive">
+    <table class="custom-grid-table">
+      <thead>
+        <tr>
+          <th>Supplier Name</th>
+          <th>AUDIT Reference</th>
+          <th>Commodity</th>
+          <th>Action Subject</th>
+          <th>Process Area</th>
+          <th>Process Category</th>
+          <th>Due Date</th>
+          <th>Log Date</th>
+          <th>Completion Date</th>
+          <th>Delay in Days</th>
+          <th>Details</th>
+          <th>Resolved</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of tableData">
+          <td>{{ item.supplierName }}</td>
+          <td>{{ item.auditRef }}</td>
+          <td>{{ item.commodity }}</td>
+          <td>{{ item.actionSubject }}</td>
+          <td>{{ item.processArea }}</td>
+          <td>{{ item.processCategory }}</td>
+          <td class="text-red" style="width: 8%;">{{ item.dueDate }}</td>
+          <td style="width: 8%;">{{ item.logDate }}</td>
+          <td style="width: 8%;">{{ item.completionDate }}</td>
+          <td>{{ item.delay }}</td>
+          <td class="text-link">
+    <a [routerLink]="['/app','sqm','parts-inner-screen','parts-audit-details']">View</a>
+</td>
+          <td style="text-align: center;" class="text-center">
+             <mat-checkbox   color="primary">
+            </mat-checkbox>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <mat-paginator [length]="tableData.length"
+                   [pageSize]="5"
+                   [pageSizeOptions]="[5, 10, 25, 50]">
+    </mat-paginator>
+  </div>
+</div>

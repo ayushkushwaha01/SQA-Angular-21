@@ -1,0 +1,75 @@
+<div class="NewHeader">
+    <h3 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
+        {{ data ? 'Edit' : 'Add' }} Parts Family
+    </h3>
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
+            <form [formGroup]="myGroup">
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2" style="font-weight: bold;">
+                            Parts Family Name : :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" placeholder="Enter Parts Family Name"
+                            formControlName="PartFamilyName" style="background-color: #fefec4 !important;">
+
+                        <small class="text-danger"
+                            *ngIf="f['PartFamilyName'].touched && f['PartFamilyName'].errors?.['required']">
+                            Parts Family Name is required.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2" style="font-weight: bold;">
+                            Part Code :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <!-- <input type="text" class="form-control" placeholder="Enter Part Code"
+                            formControlName="PartFamilyCode" maxlength="5" > -->
+                        <input type="text" class="form-control" placeholder="Enter Part Code"
+                            formControlName="PartFamilyCode" maxlength="5"
+                            (input)="onUppercaseInput($event, 'PartFamilyCode')"
+                            style="background-color: #fefec4 !important;">
+
+                        <small class="text-danger"
+                            *ngIf="f['PartFamilyCode'].touched && f['PartFamilyCode'].errors?.['required']">
+                            Part Code is required.
+                        </small>
+                    </div>
+                </div>
+
+
+
+            </form>
+
+            <mat-dialog-actions align="end" style="margin-top:15px;display:flex;justify-content:flex-end;">
+
+                <button mat-raised-button type="button" (click)="close()"
+                    style="background-color:lightgray;color:red;margin-right:8px;">
+                    <mat-icon>cancel</mat-icon>
+                    Close
+                </button>
+
+                <button mat-raised-button color="primary" (click)="UpsertPartFamily()" [disabled]="myGroup.invalid">
+
+                    <mat-icon>save</mat-icon>
+                    {{ data ? 'Update' : 'Save' }}
+
+                </button>
+
+            </mat-dialog-actions>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="col-sm-12" style="max-width: 100%; padding: 0; margin: 0; box-sizing: border-box;">
+    <div class="NewHeader">
+        <h1 style="color: white; margin-top:5px" mat-dialog-title>
+            {{ data ? "Update" : "Add" }} Department
+        </h1>
+    </div>
+    <div mat-dialog-content>
+        <form class="form-horizontal" [formGroup]="departmentForm">
+            
+            <div class="form-group" style="margin-top: 20px">
+                <label class="control-label col-sm-4 "> Department: <span class="text-danger">*</span></label>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                    <input type="text" formControlName="departmentName" class="form-control" placeholder="Enter Department" style="background-color: #fefec4 !important;" />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px">
+                <label class="control-label col-sm-4 ">Department Code: <span class="text-danger">*</span></label>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                    <input type="text" formControlName="departmentCode" class="form-control" placeholder="Enter Department Code" style="background-color: #fefec4 !important;" />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px">
+                <label class="control-label col-sm-4 ">Department Head:</label>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                    <input type="text" formControlName="departmentHead" class="form-control" placeholder="Enter Department Head" />
+                </div>
+            </div>
+
+        </form>
+    </div>
+    
+    <mat-dialog-actions align="end">
+        <div class="margin-bottom-10" style="margin-top: 30px; margin-right: -4px; margin-bottom: 5px;">
+            <button mat-raised-button style="background-color: lightgray; color: red" class="add-dark-hover btn-default"
+                (click)="close()">
+                <mat-icon>cancel</mat-icon>Close
+            </button>
+            <button mat-raised-button color="primary" (click)="saveDepartment()" [disabled]="departmentForm.invalid">
+                <mat-icon style="font-size:20px" class="mt-1">save</mat-icon> 
+                <span style="margin-left: 5px;">{{ data ? "Update" : "Save" }}</span>
+            </button>
+        </div>
+    </mat-dialog-actions>
+</div>

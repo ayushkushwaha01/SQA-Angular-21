@@ -1,0 +1,104 @@
+.dialog-header {
+    background-color: #337ab7;
+    color: white;
+    padding-top: 15px;
+    text-align: center;
+    margin: -24px -24px 20px -24px;
+}
+
+.dialog-header h2 {
+    margin-bottom: 5px;
+}
+
+.assign-title {
+    font-size: 18px;
+    font-weight: 400;
+    color: #333;
+}
+
+.mb-3 { margin-bottom: 15px; }
+.mt-2 { margin-top: 10px; }
+.text-center { text-align: center; }
+
+.listbox-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.list-box {
+    flex: 1;
+}
+
+.custom-select {
+    width: 100%;
+    height: 260px;
+    padding: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    border: 1px solid #757575;
+    border-radius: 4px;
+    outline: none;
+    overflow-y: auto;
+}
+
+.custom-select option {
+    padding: 4px 6px;
+    color: #424242;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    gap: 15px;
+}
+
+.action-btn {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- BUTTON STYLES --- */
+
+/* Add Button: Solid Blue, White Text */
+.add-btn { 
+    background-color: #2196f3 !important; 
+    color: white !important;
+}
+
+/* Remove Button: Grey background, Red Text */
+.remove-btn { 
+    background-color: #e0e0e0 !important; 
+    color: #f44336 !important; /* Red */
+}
+
+/* Disabled State Styling to look natural */
+.action-btn:disabled {
+    background-color: #f5f5f5 !important;
+    color: #bdf !important;
+    opacity: 0.6;
+}
+
+/* Save & Close buttons styling */
+.save-btn {
+    background-color: #2196f3 !important; 
+    color: white !important;
+}
+
+.close-btn {
+    background-color: lightgray !important; 
+    color: red !important; 
+    margin-right: 5px;
+}
+
+.dialog-actions {
+    margin-top: 20px;
+    padding-bottom: 10px;
+    gap: 10px;
+}

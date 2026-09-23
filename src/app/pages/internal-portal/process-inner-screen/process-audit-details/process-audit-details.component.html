@@ -1,0 +1,284 @@
+<div class="back-btn ps-4 mb-4" style="display: flex; justify-content: flex-end; font-size: 18px; font-weight:500">
+
+  <div class="col-sm-6">
+    <span
+      style="color: blue; cursor: pointer; margin-left:5px"
+      (click)="goBack()">
+      Alerts
+    </span>
+    >
+    Details
+  </div>
+
+  <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
+    <button
+      mat-raised-button
+      style="background-color: #808080; color: white; margin-right: 10px;"
+      (click)="goBack()">
+
+      <mat-icon>arrow_back</mat-icon>
+      Back
+
+    </button>
+  </div>
+
+</div>
+
+<div class="container-fluid py-4">
+
+  <form>
+
+    <div class="row">
+
+      <div class="col-sm-6">
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Subject :
+          </label>
+
+          <div class="col-sm-7">
+            <input
+              type="text"
+              placeholder="Enter Subject"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Upload PDF :
+          </label>
+
+          <div class="col-sm-7">
+            <input
+              type="file"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Select Due Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input
+              type="date"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Select Completed Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input
+              type="date"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            PDCA Status :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select
+              placeholder="Select PDCA Status"
+              class="form-control custom-mat-select">
+
+              <mat-option *ngFor="let status of pdcaOptions" [value]="status">
+                {{ status }}
+              </mat-option>
+
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-4 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Severity :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select
+              placeholder="Select Severity"
+              class="form-control custom-mat-select">
+
+              <mat-option *ngFor="let s of severityOptions" [value]="s">
+                {{ s }}
+              </mat-option>
+
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Occurrence :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select
+              placeholder="Select Occurrence"
+              class="form-control custom-mat-select">
+
+              <mat-option *ngFor="let o of occurrenceOptions" [value]="o">
+                {{ o }}
+              </mat-option>
+
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Detection :
+          </label>
+
+          <div class="col-sm-7">
+            <mat-select
+              placeholder="Select Detection"
+              class="form-control custom-mat-select">
+
+              <mat-option *ngFor="let d of detectionOptions" [value]="d">
+                {{ d }}
+              </mat-option>
+
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            SOD Score :
+          </label>
+
+          <div class="col-sm-7">
+            <input
+              type="text"
+              value="842"
+              class="form-control bg-light">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Risk Rating :
+          </label>
+
+          <div class="col-sm-7">
+            <input
+              type="text"
+              value="High"
+              class="form-control input-risk">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Mark as Resolved:
+          </label>
+
+          <div class="col-sm-7">
+            <mat-checkbox class="mt-1"></mat-checkbox>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-sm-6">
+
+        <div class="form-group mt-3">
+          <label class="control-label font-weight-bold mb-2">
+            Observations :
+          </label>
+
+          <textarea
+            rows="5"
+            placeholder="Enter Observations..."
+            class="form-control"></textarea>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="control-label font-weight-bold mb-2">
+            Corrective Actions :
+          </label>
+
+          <textarea
+            rows="5"
+            placeholder="Enter Corrective Actions..."
+            class="form-control"></textarea>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="control-label font-weight-bold mb-2">
+            Supplier Remarks :
+          </label>
+
+          <textarea
+            rows="5"
+            placeholder="Enter Remarks..."
+            class="form-control"></textarea>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="row mt-5">
+
+      <div class="col-sm-10">
+
+        <mat-card class="gallery-container"  style="background-color:#eceaea">
+
+          <mat-card
+            class="inner-card add-btn-card"
+            (click)="fileInput.click()"
+            style="background-color: black;">
+
+            <mat-icon class="add-icon">add</mat-icon>
+
+          </mat-card>
+
+          <input
+            type="file"
+            #fileInput
+            style="display: none;"
+            (change)="onFileSelected($event)"
+            accept="image/*">
+
+          <mat-card
+            class="inner-card img-card"
+            *ngFor="let img of images">
+
+            <img
+              [src]="img"
+              alt="logo"
+              class="gallery-img">
+
+          </mat-card>
+
+        </mat-card>
+
+      </div>
+        <div class="col-md-2 text-end">
+      <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255); margin-top: 60px;">
+  <span class="mat-button-wrapper" style=" color: rgb(255, 255, 255);">
+    <mat-icon role="img" class="mat-icon notranslate material-icons mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font">save</mat-icon>
+    Save 
+  </span>
+</button>
+    </div>
+
+    </div>
+
+  
+
+  </form>
+
+</div>

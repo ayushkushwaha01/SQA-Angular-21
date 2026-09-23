@@ -1,0 +1,35 @@
+<div class="defects-dialog-container" style="padding: 16px;">
+  
+  <div class="header d-flex justify-content-between align-items-center mb-3">
+    <h3 style="margin: 0; font-weight: 500;">Defects Overview</h3>
+    <div>
+      <button *ngIf="!isReadOnly" mat-raised-button color="primary" (click)="saveAndClose()" style="margin-right: 12px;">
+        <mat-icon>save</mat-icon> Save & Close
+      </button>
+      <button mat-icon-button (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid with exactly 5 columns -->
+  <div class="grid-container" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+    
+    <div class="grid-cell p-2 border text-center" 
+         *ngFor="let cell of gridCells" 
+         (click)="(isReadOnly || cell.isBlank) ? null : toggleColor(cell)"
+         [style.backgroundColor]="cell.bgColor"
+         [style.color]="cell.textColor"
+         [style.cursor]="(isReadOnly || cell.isBlank) ? 'default' : 'pointer'"
+         style="min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; border-radius: 4px; user-select: none;">
+      {{ cell.label }}
+    </div>
+
+    <!-- Display message if no defects are mapped -->
+    <div *ngIf="gridCells.length === 0" style="grid-column: 1 / -1; text-align: center; color: #888; padding: 20px;">
+      No defects found for this record.
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,528 @@
+<!-- 🔥 Show Access Denied message if user cannot read 🔥 -->
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view this page.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+    <button mat-raised-button color="primary" class="mt-4" (click)="goBack()">Go Back</button>
+  </div>
+</div>
+
+<!-- 🔥 Normal Page Content (Only renders if canRead is true) 🔥 -->
+<div *ngIf="canRead">
+
+  <div class="back-btn ps-4 mb-4 mt-3"
+    style="display: flex; justify-content: flex-end; font-size: 18px; font-weight:500">
+    <div class="col-sm-6 ">
+      <span style="color: rgb(0, 0, 0); cursor: pointer; margin-left:0px " (click)="goBack()">Active Audit
+        Dashboard</span>
+      <p style="margin-top: 5px; ">
+        <span style="font-weight: bolder; font-size: 14px;">Ref No:</span>
+        <span style="margin: 8px; font-size: 14px">{{ parentAuditRef }}</span>
+      </p>
+    </div>
+    <div class="col-sm-6" style="display: flex; justify-content: flex-end; gap: 10px;">
+      <button mat-raised-button
+        style="background-color: #808080; color: white; height: 42px; line-height: 32px; padding: 0 12px; font-size: 13px;"
+        (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon> Back
+      </button>
+    </div>
+  </div>
+
+  <div class="container-fluid p-3 audit-container ps-5">
+
+    <!-- DYNAMIC CATEGORIES -->
+    <div class="row mb-4 pb-4">
+      <div class="col-12 d-flex gap-4">
+        <button mat-raised-button *ngFor="let cat of categories" (click)="selectCategory(cat)"
+          [ngClass]="getCategoryClass(cat)" class="category-btn" [matTooltip]="cat.name || cat.categoryName">
+          {{ cat.code }}
+          <ng-container *ngIf="categoryStats[cat.processCategoryId]">
+            ({{ categoryStats[cat.processCategoryId].attempted }}/{{ categoryStats[cat.processCategoryId].total }})
+          </ng-container>
+        </button>
+      </div>
+    </div>
+
+    <!-- DYNAMIC CHECKLIST TABS -->
+    <div class="row mb-5 mt-2">
+      <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
+        <div *ngFor="let step of processSteps; let i = index" (click)="selectStep(step)" class="step-box cursor-pointer"
+          [ngClass]="getStepClass(step)">
+          {{ i + 1 }}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- ======================= LEFT COLUMN ======================= -->
+      <div class="col-md-6 pe-md-4">
+
+        <!-- 🔥 INJECTED !hasEditAccess TO LOCK ENTIRE LEFT SIDE IF THEY LACK PERMISSION 🔥 -->
+        <fieldset [disabled]="isSupplier || !hasEditAccess"
+          [ngClass]="{'supplier-locked': isSupplier || !hasEditAccess}">
+
+          <!-- DYNAMIC QUESTION -->
+          <div class="row mb-3" style="margin-left: -20px">
+            <div class="col-12">
+              <div class="p-3">
+                <span class="fw-bold text-dark">Question: </span>
+                <span [style.color]="selectedStep?.isMandatory ? '#dc3545' : '#212529'"
+                  style="font-size: 15px; font-weight: 400;">
+                  {{ selectedStep?.question }}
+                </span>
+
+                <!-- MODERN ELEGANT BADGES -->
+                <div class="d-flex align-items-center gap-2 mt-2 flex-wrap"
+                  *ngIf="selectedStep?.isMandatory || selectedStep?.isPriority">
+
+                  <span *ngIf="selectedStep?.isMandatory"
+                    class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill"
+                    style="background-color: #fef2f2; color: #dc2626; border: 1.5px solid #fca5a5; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; line-height: 1;"
+                    matTooltip="Mandatory question">
+                    <i class="fa fa-exclamation-circle" style="font-size: 13px; color: #dc2626;"></i>
+                    <span>MANDATORY</span>
+                  </span>
+
+                  <span *ngIf="selectedStep?.isPriority"
+                    class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill"
+                    style="background-color: #eff6ff; color: #1d4ed8; border: 1.5px solid #93c5fd; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; line-height: 1;"
+                    matTooltip="High priority question">
+                    <i class="fa fa-flag" style="font-size: 12px; color: #1d4ed8;"></i>
+                    <span>PRIORITY</span>
+                  </span>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DYNAMIC GUIDELINE -->
+          <div>Process Level Guidelines:</div>
+          <div class="custom-guideline mb-4"
+            style="padding: 15px; background-color: #f8f9fa; border-left: 4px solid #099ff0; border-radius: 4px;">
+            <div style="font-size: 14px; color: #555;" [innerHTML]="selectedStep?.guideline || 'NA'"></div>
+          </div>
+
+          <!-- COLORED RATING BUTTONS -->
+          <label class="fw-bold mb-2">Rating :</label>
+          <div class="d-flex gap-3 mb-4" [ngStyle]="{'opacity': (!hasEditAccess || isSupplier) ? '0.6' : '1'}">
+            <button class="btn rating-btn"
+              [ngClass]="rating === '5' ? 'bg-success text-white' : 'border-success text-success'"
+              (click)="setRating('5')">5</button>
+            <button class="btn rating-btn"
+              [ngClass]="rating === '4' ? 'bg-primary text-white' : 'border-primary text-primary'"
+              (click)="setRating('4')">4</button>
+            <button class="btn rating-btn"
+              [ngClass]="rating === '3' ? 'bg-warning text-dark' : 'border-warning text-warning'"
+              (click)="setRating('3')">3</button>
+            <button class="btn rating-btn" [ngClass]="rating === '2' ? 'text-white' : ''"
+              [style.backgroundColor]="rating === '2' ? '#fd7e14' : ''" [style.borderColor]="'#fd7e14'"
+              [style.color]="rating === '2' ? '' : '#fd7e14'" (click)="setRating('2')">2</button>
+            <button class="btn rating-btn"
+              [ngClass]="rating === '1' ? 'bg-danger text-white' : 'border-danger text-danger'"
+              (click)="setRating('1')">1</button>
+            <button class="btn rating-btn" [ngClass]="rating === 'NA' ? 'bg-dark text-white' : 'border-dark text-dark'"
+              (click)="setRating('NA')">NA</button>
+          </div>
+
+          <!-- DROPDOWNS -->
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Severity :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedSeverityId" placeholder="Select Severity">
+                <mat-option *ngFor="let sev of severities" [value]="sev.severityId">{{ sev.rating }} - {{
+                  sev.severityName }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+
+          <!-- <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Occurrence :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedOccurrence" placeholder="Select Occurrence">
+                <mat-option *ngFor="let occ of occurrences" [value]="occ">{{ occ }}</mat-option>
+              </mat-select>
+            </div>
+          </div> -->
+
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Occurrence :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedOccurrence" placeholder="Select Occurrence">
+                <!-- 🔥 UPDATED BINDING -->
+                <mat-option *ngFor="let occ of occurrences" [value]="occ.rating">
+                  {{ occ.rating }} - {{ occ.subject }}
+                </mat-option>
+              </mat-select>
+            </div>
+          </div>
+
+          <!-- <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Detection :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedDetection" placeholder="Select Detection">
+                <mat-option *ngFor="let det of detections" [value]="det">{{ det }}</mat-option>
+              </mat-select>
+            </div>
+          </div> -->
+
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Detection :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedDetection" placeholder="Select Detection">
+                <!-- 🔥 UPDATED BINDING -->
+                <mat-option *ngFor="let det of detections" [value]="det.rating">
+                  {{ det.rating }} - {{ det.subject }}
+                </mat-option>
+              </mat-select>
+            </div>
+          </div>
+
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">SOD Score :</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control bg-light" [value]="sodScore" disabled>
+            </div>
+          </div>
+
+        </fieldset>
+      </div>
+
+      <!-- ======================= RIGHT COLUMN ======================= -->
+      <!-- <div class="col-md-6">
+
+         <fieldset [disabled]="isSupplier || !hasEditAccess"
+          [ngClass]="{'supplier-locked': isSupplier || !hasEditAccess}">
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Compliance : <span class="text-danger">*</span></label>
+            <div class="col-sm-8 d-flex align-items-center gap-5">
+              <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold mb-0" style="margin-top: 2px;">Pass :</label>
+                <mat-checkbox style="margin-bottom:-5px" [checked]="complianceStatus === 'Pass'"
+                  (change)="complianceStatus = $event.checked ? 'Pass' : ''"></mat-checkbox>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold mb-0" style="margin-top: 2px;">Fail :</label>
+                <mat-checkbox style="margin-bottom:-5px" [checked]="complianceStatus === 'Fail'"
+                  (change)="complianceStatus = $event.checked ? 'Fail' : ''"></mat-checkbox>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+         <fieldset [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Class :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedClass" placeholder="Select Class"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+                <mat-option *ngFor="let cls of classOptions" [value]="cls">{{ cls }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">CAPA Subject : <span class="text-danger"
+                *ngIf="complianceStatus === 'Fail'">*</span></label>
+            <div class="col-sm-8">
+              <input type="text" [(ngModel)]="capaSubject" class="form-control" placeholder="Enter CAPA Subject"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+            </div>
+          </div>
+
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Due Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="dueDate" class="form-control"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Completed Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="completedDate" class="form-control"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">PDCA Status :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="pdcaStatus" placeholder="Select PDCA Status"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+                <mat-option *ngFor="let status of pdcaStatuses" [value]="status">{{ status }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-4">
+            <label class="col-sm-4 col-form-label fw-bold">Action Type :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="actionType" placeholder="Select Action Type"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+                <mat-option *ngFor="let type of actionTypes" [value]="type">{{ type }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+
+          <div class="form-group row align-items-center mb-3 mt-3">
+            <label class="col-sm-4 col-form-label fw-bold">Mark as Resolved:</label>
+            <div class="col-sm-8 d-flex align-items-center">
+              <mat-checkbox [(ngModel)]="isResolved"
+                [disabled]="!isSupplier || !hasEditAccess || complianceStatus === 'Pass'"></mat-checkbox>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="fw-bold mb-2">Auditor Remarks :</label>
+            <textarea rows="4" [(ngModel)]="remarks" class="form-control custom-textarea"
+              [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'"></textarea>
+          </div>
+        </fieldset>
+
+         <div class="form-group mb-3">
+          <label class="fw-bold mb-2">Corrective Actions :</label>
+          <textarea rows="4" [(ngModel)]="correctiveActions" class="form-control custom-textarea"
+            [disabled]="!hasEditAccess || complianceStatus === 'Pass'"></textarea>
+        </div>
+
+         <div class="form-group mb-4 mt-3">
+          <label class="fw-bold mb-2">Preventive Actions :</label>
+          <textarea rows="4" [(ngModel)]="supplierRemarks" class="form-control custom-textarea"
+            [disabled]="!hasEditAccess || complianceStatus === 'Pass'"></textarea>
+        </div>
+      </div> -->
+
+      <!-- ======================= RIGHT COLUMN ======================= -->
+      <div class="col-md-6">
+
+        <!-- COMPLIANCE PASS/FAIL (LOCKED FOR EVERYONE EXCEPT AUDITOR) -->
+        <fieldset [disabled]="isSupplier || !hasEditAccess"
+          [ngClass]="{'supplier-locked': isSupplier || !hasEditAccess}">
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Compliance : <span class="text-danger">*</span></label>
+            <div class="col-sm-8 d-flex align-items-center gap-5">
+              <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold mb-0" style="margin-top: 2px;">Pass :</label>
+                <mat-checkbox style="margin-bottom:-5px" [checked]="complianceStatus === 'Pass'"
+                  (change)="complianceStatus = $event.checked ? 'Pass' : ''"></mat-checkbox>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold mb-0" style="margin-top: 2px;">Fail :</label>
+                <mat-checkbox style="margin-bottom:-5px" [checked]="complianceStatus === 'Fail'"
+                  (change)="complianceStatus = $event.checked ? 'Fail' : ''"></mat-checkbox>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- CAPA AUDITOR SECTION (LOCKED FOR SUPPLIER) -->
+        <fieldset [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Class :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedClass" placeholder="Select Class">
+                <mat-option *ngFor="let cls of classOptions" [value]="cls">{{ cls }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">CAPA Subject : <span class="text-danger"
+                *ngIf="complianceStatus === 'Fail'">*</span></label>
+            <div class="col-sm-8">
+              <input type="text" [(ngModel)]="capaSubject" class="form-control" placeholder="Enter CAPA Subject"
+                style="background-color: #fefec4 !important;">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Log Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="logDate" class="form-control"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+            </div>
+          </div>
+
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Due Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="dueDate" class="form-control">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Completed Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="completedDate" class="form-control">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">PDCA Status :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="pdcaStatus" placeholder="Select PDCA Status">
+                <mat-option *ngFor="let status of pdcaStatuses" [value]="status">{{ status }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-4">
+            <label class="col-sm-4 col-form-label fw-bold">Action Type :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="actionType" placeholder="Select Action Type">
+                <mat-option *ngFor="let type of actionTypes" [value]="type">{{ type }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="fw-bold mb-2">Auditor Remarks :</label>
+            <textarea rows="4" [(ngModel)]="remarks" class="form-control custom-textarea"></textarea>
+          </div>
+        </fieldset>
+        <!-- 🔥 END OF LOCKED FIELDSET 🔥 -->
+
+        <!-- 🔥 MARK AS RESOLVED: MOVED OUTSIDE THE FIELDSET! -->
+        <div class="form-group row align-items-center mb-3 mt-3">
+          <label class="col-sm-4 col-form-label fw-bold">Mark as Resolved:</label>
+          <div class="col-sm-8 d-flex align-items-center">
+
+            <!-- 🔥 [disabled]="!isSupplier" means ONLY the Supplier can click this! -->
+            <mat-checkbox [(ngModel)]="isResolved"
+              [disabled]="!isSupplier || !hasEditAccess || complianceStatus === 'Pass'" color="primary">
+            </mat-checkbox>
+
+          </div>
+        </div>
+
+        <!-- CORRECTIVE ACTIONS: EDITABLE BY SUPPLIER & AUDITOR -->
+        <div class="form-group mb-3">
+          <label class="fw-bold mb-2">Corrective Actions :</label>
+          <textarea rows="4" [(ngModel)]="correctiveActions" class="form-control custom-textarea"
+            [disabled]="!hasEditAccess || complianceStatus === 'Pass'"></textarea>
+        </div>
+
+        <!-- PREVENTIVE ACTIONS -->
+        <div class="form-group mb-4 mt-3">
+          <label class="fw-bold mb-2">Preventive Actions :</label>
+          <textarea rows="4" [(ngModel)]="supplierRemarks" class="form-control custom-textarea"
+            [disabled]="!hasEditAccess || complianceStatus === 'Pass'"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ATTACHMENTS ================= -->
+    <div class="row mt-4 mb-3">
+
+      <!-- 1. ADD DOCUMENT BAND -->
+      <div class="col-md-6 mb-3">
+        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Document</label>
+
+        <input type="file" #docFileInput style="display: none;" [disabled]="!hasEditAccess"
+          (change)="onFileSelected($event)" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
+
+        <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto"
+          style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
+
+          <div *ngIf="hasEditAccess"
+            class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer"
+            style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
+            (click)="docFileInput.click()" matTooltip="Add PDF / Document">
+            <mat-icon style="font-size: 28px; width: 28px; height: 28px;">add</mat-icon>
+          </div>
+
+          <!-- Existing API Docs -->
+          <div *ngFor="let doc of uploadedDocs; let i = index"
+            class="gallery-item border cursor-pointer bg-white d-flex flex-column justify-content-center align-items-center p-1 text-center position-relative"
+            style="width: 85px; height: 85px; border-radius: 4px; flex-shrink: 0;" (click)="openDocUrl(doc.url)"
+            [matTooltip]="doc.title">
+            <mat-icon style="color: #dc3545; font-size: 32px; width: 32px; height: 32px;">picture_as_pdf</mat-icon>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{
+              doc.title }}</span>
+
+            <i *ngIf="hasEditAccess" class="fa fa-trash" matTooltip="Delete Document"
+              style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+              (click)="$event.stopPropagation(); deleteDocument(i, doc)">
+            </i>
+          </div>
+
+          <!-- Newly Selected Local Files -->
+          <div *ngFor="let file of selectedFiles; let i = index"
+            class="gallery-item border cursor-pointer bg-white d-flex flex-column justify-content-center align-items-center p-1 text-center position-relative"
+            style="width: 85px; height: 85px; border-radius: 4px; flex-shrink: 0;" (click)="viewLocalFile(file)"
+            [matTooltip]="file.name">
+            <mat-icon style="color: #1485cc; font-size: 32px; width: 32px; height: 32px;">insert_drive_file</mat-icon>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{
+              file.name }}</span>
+
+            <i *ngIf="hasEditAccess" class="fa fa-trash" matTooltip="Remove Document"
+              style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+              (click)="$event.stopPropagation(); removeFile(i)">
+            </i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. ADD PICTURES BAND -->
+      <div class="col-md-6 mb-3">
+        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Pictures</label>
+
+        <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto"
+          style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
+
+          <div *ngIf="hasEditAccess"
+            class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer"
+            style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
+            (click)="addImage()" matTooltip="Add Picture">
+            <mat-icon style="font-size: 28px; width: 28px; height: 28px;">add</mat-icon>
+          </div>
+
+          <!-- Picture Tiles -->
+          <div *ngFor="let img of galleryImages; let i = index"
+            class="gallery-item border cursor-pointer bg-white position-relative"
+            style="width: 85px; height: 85px; border-radius: 4px; overflow: hidden; flex-shrink: 0;"
+            (click)="openSlideshow(i)" matTooltip="Click to view full image">
+            <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
+
+            <i *ngIf="hasEditAccess || img.startsWith('data:')" class="fa fa-trash"
+              matTooltip="Delete Image"
+              style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+              (click)="$event.stopPropagation(); deleteImage(i, img)">
+            </i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SAVE BUTTON ROW (🔥 Now properly mapped to hasEditAccess) -->
+    <div class="row mt-4 mb-5" *ngIf="hasEditAccess">
+      <div class="col-12 text-end pe-4">
+        <button mat-raised-button
+          style="background-color: #1485cc; color: white; height: 44px; min-width: 140px; font-weight: 600; font-size: 14px; border-radius: 6px; box-shadow: 0 2px 6px rgba(20, 133, 204, 0.3);"
+          (click)="saveData()" [disabled]="isSaving">
+          <span class="d-flex align-items-center justify-content-center gap-2">
+            <mat-spinner *ngIf="isSaving" diameter="18" style="margin: 0;"></mat-spinner>
+            <mat-icon *ngIf="!isSaving">save</mat-icon>
+            <span>{{ isSaving ? 'Saving...' : 'Save' }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- FULL SCREEN SLIDESHOW OVERLAY -->
+    <div class="slideshow-overlay" *ngIf="isSlideshowOpen" (click)="closeSlideshow()">
+      <button class="slideshow-close" (click)="closeSlideshow()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <button class="slideshow-nav prev" (click)="prevSlide($event)" *ngIf="galleryImages.length > 1">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <div class="slide-content text-center" (click)="$event.stopPropagation()">
+        <img [src]="galleryImages[currentSlideIndex]" class="slideshow-image">
+        <div class="text-white mt-2" style="font-weight: 500; font-size: 16px;">
+          {{ currentSlideIndex + 1 }} / {{ galleryImages.length }}
+        </div>
+      </div>
+      <button class="slideshow-nav next" (click)="nextSlide($event)" *ngIf="galleryImages.length > 1">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+  </div>
+</div>

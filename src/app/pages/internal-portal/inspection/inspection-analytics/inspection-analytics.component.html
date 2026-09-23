@@ -1,0 +1,295 @@
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view this page.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+
+<div class="analytics-container" *ngIf="canRead">
+
+  <div class="top-controls-wrapper">
+    <div class="top-bar">
+
+      <div class="filter-row">
+        <!-- Year Filter -->
+        <select class="form-control bac" [(ngModel)]="selectedYear" (change)="updateDaysInMonth()">
+          <option *ngFor="let yr of availableYears" [value]="yr">{{ yr }}</option>
+        </select>
+
+        <!-- Month Filter -->
+        <select class="form-control bac" [(ngModel)]="selectedMonth" (change)="updateDaysInMonth()">
+          <option *ngFor="let m of availableMonths" [value]="m.value">{{ m.name }}</option>
+        </select>
+
+        <!-- Day Filter (Only shows when in Daily View) -->
+        <select class="form-control bac" [(ngModel)]="selectedDay" *ngIf="isDailyView">
+          <option *ngFor="let d of availableDays" [value]="d">{{ d }}</option>
+        </select>
+
+        <!-- Trigger API Call -->
+        <button mat-raised-button class="go-btn" (click)="fetchAnalyticsData()">Go</button>
+      </div>
+
+      <div class="action-buttons">
+        <button mat-raised-button (click)="openheatmapname()">
+          <mat-icon>map</mat-icon> Heat Map
+        </button>
+
+        <button mat-raised-button [ngClass]="isDailyView ? 'btn-active' : 'btn-inactive'" (click)="switchToDaily()">
+          <mat-icon>today</mat-icon> Daily View
+        </button>
+
+        <button mat-raised-button [ngClass]="!isDailyView ? 'btn-active' : 'btn-inactive'" (click)="switchToMonthly()">
+          <mat-icon>calendar_month</mat-icon> Monthly View
+        </button>
+
+        <!-- <button mat-raised-button class="filter-btn" (click)="toggleFilter()">
+          <mat-icon>filter_list</mat-icon> Filter
+        </button> -->
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showFilter" class="row mb-3">
+    <div class="col-12">
+      <div class="expanded-filter-content">
+        <form>
+          <div class="row">
+
+            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
+              <div class="col-sm-4 newMarginClass"><b>Select Unit:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Unit" class="form-control mat-select-custom">
+                  <mat-option value="Unit A">Unit A</mat-option>
+                  <mat-option value="Unit B">Unit B</mat-option>
+                  <mat-option value="Unit C">Unit C</mat-option>
+                  <mat-option value="Unit D">Unit D</mat-option>
+                  <mat-option value="Unit E">Unit E</mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
+              <div class="col-sm-4 newMarginClass"><b>Select Stage:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Stage" class="form-control mat-select-custom">
+                  <mat-option value="Product">Product</mat-option>
+                  <mat-option value="Customer">Customer</mat-option>
+                  <mat-option value="Part">Part</mat-option>
+                  <mat-option value="Category">Category</mat-option>
+                  <mat-option value="Unit">Unit</mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
+              <div class="col-sm-4 newMarginClass"><b>Select Category:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Category" class="form-control mat-select-custom">
+                  <mat-option value="Power Tools">Power Tools</mat-option>
+                  <mat-option value="Electricals">Electricals</mat-option>
+                  <mat-option value="Electronics">Electronics</mat-option>
+                  <mat-option value="Telecom">Telecom</mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
+              <div class="col-sm-4 newMarginClass"><b>Select Customer:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Customer" class="form-control mat-select-custom">
+                  <mat-option value="TCS">TCS</mat-option>
+                  <mat-option value="Mahindra">Mahindra</mat-option>
+                  <mat-option value="Honda">Honda</mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
+              <div class="col-sm-4 newMarginClass"><b>Select Product:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Product" class="form-control mat-select-custom">
+                  <mat-option value="Nokia">Nokia</mat-option>
+                  <mat-option value="Totoya">Totoya</mat-option>
+                  <mat-option value="Honda">Honda</mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
+              <div class="col-sm-4 newMarginClass"><b>Select Part:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Part" class="form-control mat-select-custom">
+                  <mat-option value="XXX1234">XXX1234</mat-option>
+                  <mat-option value="XXX1233">XXX1233</mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12 d-flex justify-content-end align-items-center mb-3 gap-2"
+              style="margin-left:-30px">
+              <button mat-raised-button class="btn-clear me-2">
+                <mat-icon>settings_backup_restore</mat-icon> Clear
+              </button>
+              <button mat-raised-button color="primary" class="btn-search">
+                <mat-icon>search</mat-icon> Search
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="row card-row mb-3">
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+      <mat-card class="summary-card">
+        <div class="card-content">
+          <h5>Incoming</h5>
+          <h5 class="text-warning">{{ activeIncoming }}</h5>
+        </div>
+      </mat-card>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+      <mat-card class="summary-card">
+        <div class="card-content">
+          <h5>Start Up</h5>
+          <h5 class="text-warning">{{ activeStartUp }}</h5>
+        </div>
+      </mat-card>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+      <mat-card class="summary-card">
+        <div class="card-content">
+          <h5>Process</h5>
+          <h5 class="text-warning">{{ activeProcess }}</h5>
+        </div>
+      </mat-card>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+      <mat-card class="summary-card">
+        <div class="card-content">
+          <h5>Final</h5>
+          <h5 class="text-warning">{{ activeFinal }}</h5>
+        </div>
+      </mat-card>
+    </div>
+  </div> -->
+
+  <!-- Protected Highcharts Row -->
+  <div class="row mt-1" *ngIf="chartsReady">
+    <div class="col-lg-6 col-md-12 mt-3">
+      <div class="chart-wrapper" [class.loading-chart]="isLoading">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeAnnualPpmOptions" [oneToOne]="true" [(update)]="updateFlag"
+          style="width: 100%; height: 350px; display: block;">
+        </highcharts-chart>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-12 mt-3">
+      <div class="chart-wrapper" [class.loading-chart]="isLoading">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeMonthlyPpmOptions" [oneToOne]="true" [(update)]="updateFlag"
+          style="width: 100%; height: 350px; display: block;">
+        </highcharts-chart>
+      </div>
+    </div>
+  </div>
+
+  <!-- Protected Highcharts Row -->
+  <div class="row mt-4" *ngIf="chartsReady">
+    <div class="col-lg-6 col-md-12 mt-3 text-center">
+      <h4 class="section-title">Distribution By Defects</h4>
+      <div class="chart-wrapper" [class.loading-chart]="isLoading">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeDefectsPieOptions" [oneToOne]="true" [(update)]="updateFlag"
+          style="width: 100%; height: 350px; display: block;">
+        </highcharts-chart>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-12 mt-3 text-center">
+      <h4 class="section-title">Distribution By Part Families</h4>
+      <div class="chart-wrapper" [class.loading-chart]="isLoading">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeProductsPieOptions" [oneToOne]="true" [(update)]="updateFlag"
+          style="width: 100%; height: 350px; display: block;">
+        </highcharts-chart>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tables are safely mapped to strict arrays -->
+  <div class="row mt-4">
+    <div class="col-lg-6 col-md-12 pt-3">
+      <h4 class="text-center section-title">Top 10 Defects</h4>
+      <div class="table-responsive grid-table-container">
+        <div class="d-flex" style="gap: 15px;">
+          <table class="table table-bordered table-hover custom-table w-50 mb-0">
+            <thead class="tbl-head">
+              <tr>
+                <th>Defect</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of topDefectsLeft">
+                <td>{{ item.defect }}</td>
+                <td>{{ item.qty }}</td>
+              </tr>
+              <tr *ngIf="topDefectsLeft.length === 0">
+                <td colspan="2" class="text-muted text-center py-2">No defects recorded</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="table table-bordered table-hover custom-table w-50 mb-0">
+            <thead class="tbl-head">
+              <tr>
+                <th>Defect</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of topDefectsRight">
+                <td>{{ item.defect }}</td>
+                <td>{{ item.qty }}</td>
+              </tr>
+              <tr *ngIf="topDefectsRight.length === 0">
+                <td colspan="2" class="text-muted text-center py-2">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 col-md-12 pt-3">
+      <h4 class="text-center section-title">Inspector Activities</h4>
+      <div class="table-responsive grid-table-container" style="padding-bottom: 0;">
+        <table class="table table-bordered table-hover custom-table mb-0">
+          <thead class="tbl-head">
+            <tr>
+              <th>Inspector</th>
+              <th>Records</th>
+              <!-- <th>Records</th>
+              <th>PPM</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of paginatedInspectorActivities">
+              <td>{{ item.inspector }}</td>
+              <td>{{ item.qty }}</td>
+              <!-- <td>{{ item.records }}</td>
+              <td>{{ item.ppm }}</td> -->
+            </tr>
+          </tbody>
+        </table>
+
+        <mat-paginator [length]="activeInspectorActivities.length" [pageSize]="5" [pageSizeOptions]="[5, 10, 25]"
+          (page)="handlePageEvent($event)" style="background-color: transparent;">
+        </mat-paginator>
+
+      </div>
+    </div>
+  </div>
+
+</div>

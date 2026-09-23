@@ -1,0 +1,398 @@
+.custom-layout-wrapper {
+  width: 100%;
+  padding-top: 15px;
+}
+
+/* Top Buttons */
+.btn-black {
+  background-color: #1a202e !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+
+  .icon-sm {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+  }
+}
+
+.gap-2 {
+  gap: 10px;
+}
+
+/* Table Wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border: none;
+}
+
+/* Custom Table Styling */
+.custom-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+
+  th,
+  td {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+  }
+
+
+
+  td {
+    color: #333;
+    text-align: left;
+
+    &.text-center {
+      text-align: center;
+    }
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+
+  tbody tr:hover {
+    background-color: #f1f5f9;
+  }
+
+  /* FIXED: Safely targeting internal Mat-Select elements so text doesn't disappear */
+  .custom-mat-select {
+    background-color: white !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 150px;
+    display: block;
+    /* Ensure it takes up space */
+
+    /* Reach inside to format the trigger box without breaking the text */
+    ::ng-deep .mat-select-trigger {
+      height: 30px !important;
+      padding: 0 8px !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    /* Force the text span to be visible */
+    ::ng-deep .mat-select-value {
+      color: #333 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      display: block !important;
+    }
+  }
+
+  .text-link {
+    color: #0d6efd;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .manage-icons {
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      margin: 0 6px;
+    }
+
+    .edit-icon {
+      color: #5c85d6;
+    }
+
+    .delete-icon {
+      color: #dc3545;
+    }
+  }
+
+  .info-icon {
+    color: #0000ff;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .date-text {
+    font-size: 13px;
+    color: #555;
+  }
+}
+
+/* Remove the ::ng-deep from INSIDE .custom-grid-table */
+/* Add these at the BOTTOM of your SCSS file, at root level */
+
+/* Status cell width */
+.status-cell {
+  min-width: 160px;
+  width: 130px;
+}
+
+/* Style the mat-select wrapper */
+::ng-deep td .mat-mdc-select,
+::ng-deep td .mat-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  background: #fff;
+  display: inline-flex !important;
+  align-items: center;
+}
+
+/* Make the trigger row fully visible */
+::ng-deep td .mat-mdc-select-trigger,
+::ng-deep td .mat-select-trigger {
+  display: flex !important;
+  align-items: center !important;
+  width: 150px !important;
+  height: 32px !important;
+  overflow: visible !important;
+}
+
+/* Force the selected value text to show */
+::ng-deep td .mat-mdc-select-value,
+::ng-deep td .mat-select-value {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #333 !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  max-width: 120px !important;
+  text-overflow: ellipsis;
+}
+
+/* Arrow icon */
+::ng-deep td .mat-mdc-select-arrow-wrapper,
+::ng-deep td .mat-select-arrow-wrapper {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.page-container {
+  padding: 15px;
+  background-color: #ffffff;
+}
+
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+
+  .filter-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  /* Removes standard thick outer boundaries */
+  border: none;
+}
+
+.custom-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  /* Hides the outer border of the table itself while keeping inner cell grids */
+
+
+  th,
+  td {
+    /* Exact styles extracted from your provided images */
+    font: 14px Roboto, "Helvetica Neue", sans-serif;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    /* Light inner grid lines like the reference image */
+    border: 1px solid #dee2e6;
+  }
+
+
+
+  td {
+    /* Styles for cells */
+    color: #212529;
+  }
+
+  /* Striped rows matching the reference */
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+
+  /* Hover effect */
+  tbody tr:hover {
+    background-color: #f1f5f9;
+  }
+
+  /* Specific column styling */
+  .text-red {
+    color: #f44336;
+    /* Red color for due date */
+  }
+
+  .text-link {
+    color: #0d6efd;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.filter-wrapper {
+  width: 100%;
+  min-height: 70px; // was: height: 100px (fixed height forces wrap)
+  margin-bottom: 16px;
+  background: #e6e6e6 !important;
+  padding: 16px 20px; // was: padding-top/bottom split
+  border-radius: 6px;
+}
+
+.filter-card {
+
+  padding: 10px;
+}
+
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap; // was: wrap — this is what's causing the 2nd line
+  overflow-x: auto; // lets it scroll horizontally on small screens instead of wrapping
+  justify-content: flex-start; // was: space-between, which stretches groups apart and pushes items off-row
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: unset; // was: 320px — this alone was enough to force wrapping with 4 groups + buttons
+  flex-shrink: 0;
+}
+
+.filter-label {
+  min-width: unset; // was 70px, let it hug the text
+  white-space: nowrap;
+}
+
+.custom-mat-select {
+  width: 160px;
+  background-color: #ffffff;
+  border: 1px solid #cfd8dc;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-left: auto; // pushes Go/Clear to the right end of the same row
+}
+
+.btn-clear {
+  background-color: #37474f !important;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.btn-go {
+  font-weight: 500;
+}
+
+
+td {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #3f3f3f;
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #e1e1e1;
+  /* already correct */
+
+}
+
+.custom-mat-input {
+  width: 140px !important;
+  /* Slightly wider than select, adjust if needed */
+  height: 36px !important;
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  padding: 0 10px !important;
+  box-sizing: border-box;
+  outline: none;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: #333;
+  transition: border-color 0.2s ease-in-out;
+
+  /* Matches the green focus border from your image */
+  &:focus {
+    border: 1px solid #0c6b4b !important;
+  }
+
+  &::placeholder {
+    color: #999 !important;
+    font-size: 13px !important;
+    opacity: 1 !important;
+  }
+}
+
+button.disable-custom .button-text {
+  color: white !important;
+}
+
+button.disable-custom mat-icon {
+  color: white !important;
+}

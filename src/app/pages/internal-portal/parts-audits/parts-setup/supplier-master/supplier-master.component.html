@@ -1,0 +1,118 @@
+<div class="custom-layout-wrapper">
+    <div class="toolbar-row mb-3 d-flex justify-content-end" style="width: 100%;">
+        <button mat-raised-button
+            style="background-color: #1a1a1a; color: white; padding: 10px 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+            (click)="toggleFilters()">
+            <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">filter_list</mat-icon>
+            Filter
+        </button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button mat-raised-button color="primary" class="btn-blue" (click)="addSupplier()">
+            <mat-icon>add</mat-icon> Add Supplier
+        </button>
+    </div>
+
+    <div fxLayout="row wrap" *ngIf="showFilters" class="mb-3">
+        <div fxFlex="100" class="flex w-100">
+            <form [formGroup]="filterForm">
+                <mat-card class="filter">
+                    <mat-card-content>
+                        <div class="d-flex flex-wrap align-items-center w-100" style="gap: 15px;">
+
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">Supplier:</b>
+                                <input type="text" formControlName="supplierName" class="form-control"
+                                    placeholder="Search Supplier...">
+                            </div>
+
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">Contact:</b>
+                                <input type="text" formControlName="contactPerson" class="form-control"
+                                    placeholder="Search Contact...">
+                            </div>
+
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">State:</b>
+                                <mat-select formControlName="stateName" placeholder="Select State" class="form-control">
+                                    <mat-option *ngFor="let state of uniqueStates" [value]="state">
+                                        {{state}}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
+
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">Status:</b>
+                                <mat-select formControlName="status" placeholder="Select Status" class="form-control">
+                                    <mat-option *ngFor="let option of Status" [value]="option.value">
+                                        {{option.name}}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
+
+                            <div class="d-flex align-items-center" style="margin-left: auto;">
+                                <button mat-raised-button color="primary" class="me-2" (click)="applyFilter()"
+                                    style="margin-right: 8px;">
+                                    <mat-icon>search</mat-icon> Search
+                                </button>
+                                <button mat-raised-button class="btn-default" (click)="clearFilter()">
+                                    <mat-icon>settings_backup_restore</mat-icon> Clear
+                                </button>
+                            </div>
+
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table class="table table-bordered table-hover" style="width: 100%;">
+            <thead class="tbl-head">
+                <tr>
+                    <th>Supplier Name</th>
+                    <th>Contact Person</th>
+                    <th>State</th>
+                    <th>City</th>
+                    <th class="text-center">Address Details</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center" style="width: 120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of filteredData">
+                    <td>{{ item.supplierName }}</td>
+                    <td>{{ item.contactPerson }}</td>
+                    <td>{{ item.stateName }}</td>
+                    <td>{{ item.cityName }}</td>
+
+                    <td class="text-center">
+                        <mat-icon color="primary" [matTooltip]="item.address" matTooltipPosition="above"
+                            style="cursor: pointer; color: blue; font-size: 18px; vertical-align: middle;">
+                            info
+                        </mat-icon>
+                    </td>
+
+                    <td class="text-center" [style.color]="item.isActive ? 'blue' : 'red'"
+                        style="font-weight: 500; cursor: pointer;" (click)="toggleStatus(item)"
+                        matTooltip="Click to Toggle">
+                        {{ item.isActive ? 'Active' : 'Inactive' }}
+                    </td>
+
+                    <td class="text-center">
+                        <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;"
+                            (click)="addSupplier(item)">
+                            <i class="fa fa-edit text-primary"></i>
+                        </a>
+                        <a matTooltip="Delete Record" style="cursor: pointer;" (click)="deleteSupplier(item)">
+                            <i class="fa fa-trash text-danger"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr *ngIf="!filteredData || filteredData.length === 0">
+                    <td colspan="7" class="text-center">No records found</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

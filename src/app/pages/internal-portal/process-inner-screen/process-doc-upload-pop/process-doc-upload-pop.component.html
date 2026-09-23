@@ -1,0 +1,69 @@
+<div class="dialog-header bg-primary d-flex justify-content-center align-items-center" style="height: 50px; background-color: #283593 !important;">
+    <h2 mat-dialog-title class="m-0 text-white" style="font-size: 18px; font-weight: 500;">Add / View Documents</h2>
+</div>
+
+<div mat-dialog-content class="pt-3 pb-0" style="overflow-x: hidden;">
+    <div class="row">
+        <!-- Left Side: Form -->
+        <div class="col-md-5 border-end pe-3">
+            <div class="form-group mb-3">
+                <label class="fw-bold mb-1" style="font-size: 13px; color: #555;">Doc Title</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="docTitle" placeholder="Enter doc title" style="height: 32px;">
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="fw-bold mb-1" style="font-size: 13px; color: #555;">Select File</label>
+                <div class="d-flex align-items-center border rounded p-1" style="height: 32px; background: #fff;">
+                    <button class="btn btn-sm btn-light border me-2" (click)="fileInput.click()" style="height: 24px; padding: 0 8px; font-size: 12px;">Choose File</button>
+                    <span style="font-size: 12px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ fileInputName }}</span>
+                    <input type="file" #fileInput id="docFileInput" style="display: none;" (change)="onFileChange($event)">
+                </div>
+            </div>
+
+            <button mat-raised-button color="primary" class="w-100 mt-2 d-flex justify-content-center align-items-center" style="background-color: #003399; height: 36px;" (click)="uploadDocument()">
+                <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-right: 6px;">upload</mat-icon> 
+                Upload Document
+            </button>
+        </div>
+
+        <!-- Right Side: Table -->
+        <div class="col-md-7 ps-3">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0" style="font-size: 13px;">
+                    <thead class="bg-black text-white">
+                        <tr>
+                            <th class="text-center" style="width: 60px;">Action</th>
+                            <th>Doc Title</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="pagedDocs.length === 0">
+                            <td colspan="2" class="text-center text-muted py-3">No documents found</td>
+                        </tr>
+                        <tr *ngFor="let doc of pagedDocs; let i = index">
+                            <td class="text-center align-middle">
+                                <mat-icon class="text-danger cursor-pointer" style="font-size: 16px; height: 16px; width: 16px;" (click)="removeDoc(doc)">delete_outline</mat-icon>
+                            </td>
+                            <td class="align-middle">
+                                <a href="javascript:void(0)" class="text-primary text-decoration-none" (click)="viewDoc(doc)">{{ doc.title || (doc.file ? doc.file.name : 'Document') }}</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <mat-paginator 
+                [length]="documents.length + newFiles.length" 
+                [pageSize]="pageSize" 
+                [pageSizeOptions]="[5, 10, 25]" 
+                (page)="onPageChange($event)">
+            </mat-paginator>
+        </div>
+    </div>
+</div>
+
+<mat-dialog-actions align="end" class="pt-0 pb-3 pe-3 border-top-0">
+    <button mat-raised-button class="bg-light text-dark fw-bold" style="height: 36px;" (click)="closeDialog()">
+        <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-right: 4px;">cancel</mat-icon> Close
+    </button>
+</mat-dialog-actions>

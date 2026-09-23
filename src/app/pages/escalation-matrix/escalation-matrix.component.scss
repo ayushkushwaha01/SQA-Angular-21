@@ -1,0 +1,30 @@
+.sizeAlign {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.tbl-head,
+.tbl-head th,
+.tbl-head tr th,
+.tr-grid-header th,
+table thead tr th {
+    background-color: #3f3f3f !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+button.disable-custom .button-text {
+    color: white !important;
+}
+
+button.disable-custom mat-icon {
+    color: white !important;
+}
+
+.disable-custom {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}

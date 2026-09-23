@@ -1,0 +1,27 @@
+.margins {
+  margin-bottom: 12px;
+}
+.newMarginClass {
+  margin-top: 7px !important;
+}
+
+.confirm-btn-container .btn {
+  width: 100px !important;
+  margin-left: 10px;
+}
+
+.disabled-action {
+  color: gray !important;
+  opacity: 0.6;
+  cursor: not-allowed !important;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.table-wrapper table {
+  min-width: 1600px;
+}

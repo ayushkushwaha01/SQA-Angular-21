@@ -1,0 +1,195 @@
+<div class="NewHeader">
+    <h2 style="padding-top:0px; padding-left:20px; font-weight:400; font-size:18px;">
+        {{ data?.parameterId ? 'Edit' : 'Add' }} Parameter
+    </h2>
+
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
+            <form [formGroup]="myGroup">
+
+                <!-- Category -->
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Category : <span class="text-danger">*</span>
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <mat-select class="form-control" placeholder="Select Category" formControlName="PartId" style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let category of partAuditCategories" [value]="category.partId">
+
+                                {{ category.categoryName }}
+
+                            </mat-option>
+
+                        </mat-select>
+
+                        <small class="text-danger" *ngIf="f['PartId'].touched && f['PartId'].errors?.['required']">
+
+                            Category is required.
+
+                        </small>
+
+                    </div>
+                </div>
+
+                <!-- Parameter Name -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Parameter Name : <span class="text-danger">*</span>
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" placeholder="Enter Parameter Name"
+                            formControlName="ParmeterName" style="background-color: #fefec4 !important;">
+
+                        <small class="text-danger"
+                            *ngIf="f['ParmeterName'].touched && f['ParmeterName'].errors?.['required']">
+
+                            Parameter Name is required.
+
+                        </small>
+
+                    </div>
+
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Unit : <span class="text-danger">*</span>
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <mat-select class="form-control" placeholder="Select Unit" formControlName="UnitId" style="background-color: #fefec4 !important;">
+
+                            <mat-option *ngFor="let item of lookups" [value]="item.lookupId">
+
+                                {{ item.lookupName }}
+
+                            </mat-option>
+
+                        </mat-select>
+
+                        <small class="text-danger" *ngIf="f['UnitId'].touched && f['UnitId'].errors?.['required']">
+
+                            Unit is required.
+
+                        </small>
+
+                    </div>
+                </div>
+
+                <!-- Spec -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Spec :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" placeholder="Enter Spec" formControlName="Spec">
+
+                    </div>
+
+                </div>
+
+                <!-- Min -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Min :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" placeholder="Enter Min" formControlName="Min"
+                            (keypress)="allowNumericOnly($event)">
+
+                    </div>
+
+                </div>
+
+                <!-- Max -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Max :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" placeholder="Enter Max" formControlName="Max"
+                            (keypress)="allowNumericOnly($event)">
+
+                    </div>
+
+                </div>
+
+                <!-- Method -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Method :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" placeholder="Enter Method" formControlName="Method">
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <mat-dialog-actions align="end">
+
+                <button mat-raised-button type="button" (click)="close()" style="background:lightgray;color:red;">
+
+                    <mat-icon>cancel</mat-icon>
+
+                    Close
+
+                </button>
+
+                <button mat-raised-button color="primary" type="button" (click)="UpsertParameter()"
+                    [disabled]="myGroup.invalid">
+
+                    <mat-icon>save</mat-icon>
+
+                    {{ myGroup.value.ParameterId == 0 ? 'Save' : 'Update' }}
+
+                </button>
+
+            </mat-dialog-actions>
+
+        </div>
+    </div>
+</div>

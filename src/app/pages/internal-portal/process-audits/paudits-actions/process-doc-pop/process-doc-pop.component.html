@@ -1,0 +1,85 @@
+<div class="dialog-header">
+    <h2 mat-dialog-title class="m-0 text-center text-white pb-2 pt-2"
+        style="padding:30px; font-weight: 400;font-size: 18px;">List Of Documents</h2>
+</div>
+
+<div mat-dialog-content class="pt-4 overflow-hidden">
+    <form class="form-horizontal" *ngIf="canCreate || canUpdate">
+        <div class="row align-items-center mb-3">
+            <div class="col-sm-3">
+                <label class="control-label font-weight-bold mb-0">
+                    Upload Doc:<span class="text-danger">*</span>
+                </label>
+            </div>
+            <div class="col-sm-9">
+                <!-- 🔥 Added (change) event and multiple attribute -->
+                <input type="file" class="form-control" style="padding: 3px;" (change)="onFileSelected($event)"
+                    multiple>
+
+                <!-- 🔥 Display selected files before saving -->
+                <div *ngFor="let file of selectedFiles; let i = index"
+                    style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 12px; background: #f5f5f5; margin-top: 4px;">
+                    <mat-icon style="font-size: 16px; height: 16px; width: 16px;">insert_drive_file</mat-icon>
+                    <span>{{ file.name }}</span>
+                    <button mat-icon-button style="margin-left: auto; width: 24px; height: 24px; line-height: 24px;"
+                        (click)="removeSelectedFile(i)">
+                        <mat-icon style="font-size: 16px;">close</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-12 d-flex justify-content-end">
+                <!-- 🔥 Added click event and disabled state if no file is chosen -->
+                <button mat-raised-button color="primary" class="save-btn" (click)="saveDocument()"
+                    [disabled]="selectedFiles.length === 0">
+                    <mat-icon
+                        style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">save</mat-icon>
+                    Save
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive mt-2">
+        <table class="table table-bordered custom-table mb-0">
+            <thead>
+                <tr>
+                    <th>Document Title</th>
+                    <th class="text-center">Uploaded Date</th>
+                    <th class="text-center">View</th>
+                    <th class="text-center" *ngIf="canDelete">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let doc of pagedDocs">
+                    <td>{{ doc.title }}</td>
+                    <td class="text-center">{{ doc.date }}</td>
+                    <td class="text-center">
+                        <a [href]="doc.url" target="_blank" style="text-decoration: none;">
+                            <mat-icon class="action-icon text-primary" matTooltip="View">visibility </mat-icon>
+                        </a>
+                    </td>
+                    <!-- Update this specific <td> inside your <tbody> -->
+                    <td class="text-center manage-icons" *ngIf="canDelete">
+                        <i class="fa fa-trash delete-icon" matTooltip="Delete"
+                            style="color: red; cursor: pointer; font-size: 16px;" (click)="deleteDocument(doc)"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <mat-paginator [length]="documents.length" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)">
+        </mat-paginator>
+    </div>
+</div>
+
+<mat-dialog-actions align="end" class="pb-2 pe-0">
+    <button mat-raised-button class="close-btn" (click)="closeDialog()">
+        <mat-icon
+            style="font-size: 20px; height: 20px; width: 20px; margin-right: -5px; margin-top: 4px;">cancel</mat-icon>
+        Close
+    </button>
+</mat-dialog-actions>

@@ -1,0 +1,50 @@
+<div class="NewHeader">
+    <h3 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
+        {{ isEditMode ? 'Edit State' : 'Add State' }}
+    </h3>
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
+            
+            <form [formGroup]="stateForm" (ngSubmit)="save()">
+                <div>
+                    <div class="row" style="margin-bottom: 12px;">
+                        <div class="col-sm-4">
+                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
+                                State Name :
+                            </label>
+                        </div>
+                        
+                        <div class="col-sm-8">
+                            <input type="text" formControlName="stateName" class="form-control" 
+                                   placeholder="Enter State Name" autofocus (keypress)="onlyAlphabets($event)"
+                                   style="background-color: #fefec4 !important;">
+                            
+                            <div *ngIf="stateForm.get('stateName')?.hasError('required') && stateForm.get('stateName')?.touched" 
+                                 style="color: red; font-size: 12px; margin-top: 4px;">
+                                State Name is required
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <mat-dialog-actions align="end" style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -20px;">
+                    
+                    <button mat-raised-button class="ms-2 add-dark-hover btn-default" type="button" (click)="close()"
+                        style="background-color: lightgray; color: red;margin-right: 5px;">
+                        <mat-icon>cancel</mat-icon> Close
+                    </button>
+                    
+                    <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;" [disabled]="stateForm.invalid">
+                        <mat-icon>save</mat-icon>
+                        {{ isEditMode ? 'Update' : 'Save' }}
+                    </button>
+                    
+                </mat-dialog-actions>
+            </form>
+
+        </div>
+    </div>
+</div>

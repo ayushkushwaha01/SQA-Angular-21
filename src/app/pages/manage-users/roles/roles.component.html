@@ -1,0 +1,143 @@
+
+
+<!-- 🔥 ACCESS DENIED MESSAGE (If canRead is false) 🔥 -->
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+    <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+        <h3 class="text-danger font-weight-bold">Access Denied</h3>
+        <p class="text-muted">You do not have permission to view this page.</p>
+        <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+    </div>
+</div>
+
+<!-- 🔥 MAIN SCREEN (Only renders if canRead is true) 🔥 -->
+<div *ngIf="canRead" class="col-sm-8 master-scroll-container" style="margin-top: -18px;">
+    <div id="main-scroll-viewport">
+
+        <div class="px-3 mb-3 text-end">
+            <button mat-raised-button style="background:black;color:white" (click)="filterToggle = !filterToggle">
+                <mat-icon>filter_list</mat-icon> Filter
+            </button>
+
+            <!-- 🔥 Add Role Button (Locked by canCreate) -->
+            <button mat-raised-button class="ms-2" color="primary" 
+                [class.disable-custom]="!canCreate"
+                [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Role'"
+                (click)="canCreate && openRoleDialog(null)">
+                <mat-icon>person_add</mat-icon> Add Role
+            </button>
+        </div>
+
+        <div fxLayout="row wrap" *ngIf="filterToggle" class="px-3 mb-3">
+            <div fxFlex="100" class="flex-p w-100">
+                <form [formGroup]="filterForm">
+                    <mat-card class="filter">
+                        <mat-card-content>
+                            <div class="row col-sm-12">
+
+                                <div class="col-sm-4 row me-2">
+                                    <div class="col-sm-3 d-flex align-items-center"><b>Keyword:</b></div>
+                                    <div class="col-sm-9">
+                                        <input type="text" formControlName="Keyword" class="form-control"
+                                            placeholder="Search by Role Name...">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 row me-2">
+                                    <div class="col-sm-3 d-flex align-items-center"><b>Status:</b></div>
+                                    <div class="col-sm-8">
+                                        <mat-select formControlName="Status" placeholder="Select Status"
+                                            class="form-control">
+                                            <mat-option *ngFor="let option of Status" [value]="option.value">
+                                                {{option.name}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <button mat-raised-button color="primary" class="pull-right" (click)="filter()">
+                                        <mat-icon>search</mat-icon> Search
+                                    </button>
+                                    <button mat-raised-button class="pull-right btn-default margin-right-10"
+                                        (click)="clearFilter()">
+                                        <mat-icon>settings_backup_restore</mat-icon> Clear
+                                    </button>
+                                </div>
+
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-responsive px-3">
+            <table class="table table-bordered tbl-head">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Role Name</th>
+                        <th class="text-center">Screen Permissions</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of dataSource.connect() | async">
+                        <td>{{ item.roleName }}</td>
+
+                        <!-- 🔥 SCREEN PERMISSIONS LINK (Locked by canUpdate) -->
+                        <td class="text-center">
+                            <a [routerLink]="canUpdate ? ['/manage-users/roles/permission'] : null"
+                                [queryParams]="canUpdate ? { roleId: item.roleId || item.id, roleName: item.roleName } : null"
+                                [style.color]="canUpdate ? '#4a90e2' : 'gray'"
+                                [style.cursor]="canUpdate ? 'pointer' : 'not-allowed'"
+                                [matTooltip]="!canUpdate ? 'You don’t have permission to update permissions' : 'Edit Screen Permissions'"
+                                style="text-decoration: none; font-weight: 500;">
+                                {{ item.screenPermissions || item.permissions || '35/35' }}
+                            </a>
+                        </td>
+
+                        <!-- 🔥 STATUS TOGGLE (Locked by Admin Rule OR canUpdate) -->
+                        <td class="text-center">
+                            <span (click)="canUpdate && !isActionDisabled(item.roleName) && toggleStatus(item)" 
+                                [style.color]="item.isActive ? 'green' : 'red'"
+                                [style.pointer-events]="isActionDisabled(item.roleName) || !canUpdate ? 'none' : 'auto'"
+                                [style.opacity]="isActionDisabled(item.roleName) || !canUpdate ? '0.5' : '1'"
+                                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : ''"
+                                style="cursor:pointer; font-weight: bold;">
+                                {{ item.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            <!-- 🔥 EDIT ICON (Locked by Admin Rule OR canUpdate) -->
+                            <i class="fa fa-edit text-primary me-2" 
+                                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Role'"
+                                (click)="canUpdate && !isActionDisabled(item.roleName) && openRoleDialog(item)"
+                                [style.pointer-events]="isActionDisabled(item.roleName) || !canUpdate ? 'none' : 'auto'"
+                                [style.opacity]="isActionDisabled(item.roleName) || !canUpdate ? '0.5' : '1'"
+                                style="cursor:pointer"></i>
+
+                            <!-- 🔥 DELETE ICON (Locked by Admin Rule OR canDelete) -->
+                            <i class="fa fa-trash text-danger" 
+                                [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Role'"
+                                (click)="canDelete && !isActionDisabled(item.roleName) && deleteConfirmation(item)"
+                                [style.pointer-events]="isActionDisabled(item.roleName) || !canDelete ? 'none' : 'auto'"
+                                [style.opacity]="isActionDisabled(item.roleName) || !canDelete ? '0.5' : '1'"
+                                style="cursor:pointer"></i>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="dataSource.data.length === 0">
+                        <td colspan="4" class="text-center">No Records Found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="paginator-fixed">
+            <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons>
+            </mat-paginator>
+        </div>
+    </div>
+</div>

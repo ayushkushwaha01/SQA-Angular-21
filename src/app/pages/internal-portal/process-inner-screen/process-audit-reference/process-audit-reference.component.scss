@@ -1,0 +1,486 @@
+.audit-container {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+
+  // Top Categories & Process Audit Buttons
+  .category-btn {
+    min-width: 130px;
+    border-radius: 4px;
+    font-weight: 500;
+
+    // REMOVED: box-shadow: none !important;
+    // ADDED: Drop shadow for resting and active states
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+    // Optional: Adds a slightly larger shadow when hovered
+    &:hover {
+      box-shadow: 0 0px 10px rgba(0, 0, 0, 0.3) !important;
+
+    }
+
+    &.category-btn-active {
+      background-color: #099ff0 !important;
+      color: white !important;
+      border: 2px solid #099ff0 !important;
+    }
+
+    &.category-btn-inactive {
+      background-color: #d3d3d3 !important;
+      color: black !important;
+      border: 2px solid #d3d3d3 !important;
+    }
+
+    &.category-btn-failed-active {
+      background-color: #dc3545 !important;
+      color: white !important;
+      border: 2px solid #dc3545 !important;
+    }
+
+    &.category-btn-failed-inactive {
+      background-color: #ffffff !important;
+      color: #dc3545 !important;
+      border: 2px solid #dc3545 !important;
+    }
+  }
+
+  // Step Boxes
+  .step-box {
+    width: 45px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &.selected-step {
+      border: 3px solid transparent;
+      outline: 2px solid #000;
+    }
+  }
+
+  .bg-green {
+    background-color: #008000;
+  }
+
+  .bg-red {
+    background-color: #ff0000;
+  }
+
+  .bg-yellow {
+    background-color: #ffff00;
+  }
+
+  // Guidelines Cards
+  .guideline-card {
+    border: none;
+    border-radius: 2px;
+  }
+
+  .bg-gray-light {
+    background-color: #c0bebe;
+  }
+
+  .bg-blue-light {
+    background-color: #e1f0f5;
+  }
+
+  // Rating Buttons
+  .rating-btn {
+    width: 70px;
+    height: 60px;
+    border-width: 4px !important;
+    border-style: solid;
+    font-weight: bold;
+    font-size: 1.2rem;
+    background-color: transparent;
+
+    &.active {
+      background-color: #f8f9fa;
+      box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    }
+  }
+
+  // Form Controls
+  // Form Controls
+  .custom-mat-select {
+    display: flex;
+    /* Added here to vertically center the inner components */
+    align-items: center;
+    width: 100%;
+    height: 38px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 0 0.75rem;
+    background-color: #fff;
+    box-sizing: border-box;
+
+    ::ng-deep {
+
+      /* Let Angular Material handle the display type, just force it full width */
+      .mat-select-trigger {
+        width: 100%;
+      }
+
+      .mat-select-value {
+        color: #495057;
+      }
+
+      /* Removes the default native downward shift of the arrow */
+      .mat-select-arrow-wrapper {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .custom-textarea {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    resize: vertical;
+
+    &:disabled,
+    &[disabled] {
+      background-color: #e9ecef !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .object-fit-cover {
+    object-fit: cover;
+  }
+
+  fieldset[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+
+    .form-control,
+    .custom-textarea,
+    .custom-mat-select {
+      background-color: #e9ecef !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  // Save Button
+  .save-btn {
+    background-color: #008000 !important;
+    color: white !important;
+    font-size: 1.1rem;
+    height: 45px;
+  }
+}
+
+.expanded-filter-content {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  margin-bottom: 8px;
+
+  .filter-field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .form-control, .mat-select-custom {
+    height: 38px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    width: 100%;
+    font-size: 13px !important;
+    color: #1e293b !important;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .btn-clear {
+    height: 38px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: none;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .btn-search {
+    height: 38px;
+    background-color: #0284c7 !important;
+    color: white !important;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.drag-drop-zone {
+  width: 100%;
+  border: 2px dashed #b5b5b5;
+  border-radius: 4px;
+  padding: 25px 20px;
+  text-align: center;
+  color: #666;
+  background-color: #fafafa;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  // Stack icon, text, and button vertically
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+// Step Boxes
+.step-box {
+  width: 45px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+  background-color: #e9ecef;
+  /* Default inactive color */
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  // The active outer border with gap
+  &.selected-step {
+    outline: 2px solid #0f2e4a;
+    /* Dark border from your image */
+    outline-offset: 3px;
+    /* Creates the white margin space */
+    border: none;
+    /* Removes the old transparent border */
+  }
+}
+
+/* Status Colors */
+.bg-green {
+  background-color: #00b050 !important;
+}
+
+.bg-red {
+  background-color: #ff0000 !important;
+}
+
+.bg-grey {
+  background-color: #d9d9d9 !important;
+}
+
+.bg-orange {
+  background-color: #fd7e14 !important;
+  color: #ffffff !important;
+}
+
+
+
+/* --- SLIDESHOW OVERLAY STYLES --- */
+.slideshow-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slideshow-image {
+  max-width: 85vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.slideshow-close {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10000;
+  transition: all 0.2s ease;
+
+  mat-icon {
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
+  }
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.9);
+    border-color: #ef4444;
+    transform: scale(1.1);
+  }
+}
+
+.slideshow-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  cursor: pointer;
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+  mat-icon {
+    font-size: 32px;
+    height: 32px;
+    width: 32px;
+  }
+
+  &:hover {
+    background: rgba(37, 99, 235, 0.9);
+    border-color: #2563eb;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  &.prev {
+    left: 30px;
+  }
+
+  &.next {
+    right: 30px;
+  }
+}
+
+// 2 Separate Light Grey Attachment Bands
+.gallery-container {
+  background-color: #eceaea !important;
+  border-radius: 6px !important;
+  min-height: 100px !important;
+}
+
+.gallery-item {
+  width: 85px !important;
+  height: 85px !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+
+  &.add-btn {
+    background-color: #141313 !important;
+    color: #ffffff !important;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #2b2b2b !important;
+    }
+  }
+
+  img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 5px !important;
+  }
+}
+
+// Industry Standard Status Indicator Pills
+.status-indicator-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &.red-indicator {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #dc3545;
+    }
+  }
+
+  &.blue-indicator {
+    background-color: #dbeafe;
+    border: 1px solid #93c5fd;
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #2563eb;
+    }
+  }
+}

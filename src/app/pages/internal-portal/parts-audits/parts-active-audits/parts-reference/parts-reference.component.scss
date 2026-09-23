@@ -1,0 +1,68 @@
+.page-container {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+/* Tabs */
+.top-tab-btn {
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+.tab-active {
+  background-color: #099ff0 !important; /* Blue from image */
+  color: white !important;
+}
+.tab-inactive {
+  background-color: #d3d3d3 !important; /* Grey from image */
+  color: black !important;
+}
+
+/* Action Buttons */
+.btn-black {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+.btn-blue {
+  background-color: #1b85ca !important;
+  color: #fff !important;
+}
+.icon-sm {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  margin-right: 5px;
+}
+
+/* Table */
+.custom-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+.custom-grid-table th {
+  background-color: #2c5d8f;
+  color: white;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #e0e0e0;
+}
+.custom-grid-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+.custom-grid-table tbody tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+.custom-grid-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Utility */
+.text-center { text-align: center; }
+.manage-icons { white-space: nowrap; }

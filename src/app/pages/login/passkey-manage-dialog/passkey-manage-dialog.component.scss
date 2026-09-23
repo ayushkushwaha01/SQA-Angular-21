@@ -1,0 +1,50 @@
+.dialog-header {
+    display: flex;
+    align-items: center;
+    padding: 24px 24px 0 24px;
+}
+
+.passkey-card {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+
+    .icon-circle {
+        background-color: #f3f4f6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 16px;
+    }
+
+    .passkey-details {
+        flex: 1;
+
+        h4 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        span {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    }
+}
+
+.add-dashed-box {
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 16px;
+    color: #6b7280;
+    font-size: 14px;
+    background-color: #f9fafb;
+}

@@ -1,0 +1,259 @@
+.active-audits-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+/* Charts Grid */
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding: 0;
+  margin-bottom: 22px;
+}
+
+.chart-container {
+  width: 100%;
+  min-width: 0;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  padding: 0;
+  overflow: visible;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  ::ng-deep highcharts-chart {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  ::ng-deep .highcharts-container,
+  ::ng-deep .highcharts-root {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  ::ng-deep svg.highcharts-root {
+    width: 100% !important;
+    overflow: visible !important;
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+/* Toolbar Buttons */
+.toolbar-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+
+  .btn-dark {
+    background-color: #111 !important;
+    color: #fff !important;
+  }
+
+  .btn-blue {
+    background-color: #0d8add !important;
+    color: #fff !important;
+  }
+
+  ::ng-deep .mdc-button__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+/* Data Table Styling */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: auto;
+
+  thead {
+    background-color: #3f3f3f !important;
+    color: #ffffff !important;
+
+    th {
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: bold;
+      border: 1px solid #555 !important;
+      white-space: nowrap !important;
+      font-size: 14px;
+      background-color: #3f3f3f !important;
+      color: #ffffff !important;
+
+      &.text-center {
+        text-align: center;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e0e0e0;
+
+      &:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      &:hover {
+        background-color: #f1f5f9;
+      }
+    }
+
+    td {
+      padding: 10px 14px;
+      border: 1px solid #dee2e6;
+      color: #333;
+      font-size: 14px;
+      vertical-align: middle;
+      white-space: nowrap;
+
+      &.text-link {
+        color: #0000ee;
+        cursor: pointer;
+
+        a {
+          color: #0000ee;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      &.text-center {
+        text-align: center;
+      }
+    }
+  }
+}
+
+/* Form elements in table */
+.status-dropdown {
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #fff;
+  font-size: 12px;
+}
+
+/* Manage Icons */
+.manage-icons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  white-space: nowrap;
+
+  i, mat-icon {
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: transform 0.15s ease, color 0.15s ease;
+
+    &.edit-icon, &.fa-edit {
+      color: #0d8add;
+      &:hover {
+        color: #0056b3;
+        transform: scale(1.2);
+      }
+    }
+
+    &.delete-icon, &.fa-trash {
+      color: #dc3545;
+      &:hover {
+        color: #a71d2a;
+        transform: scale(1.2);
+      }
+    }
+  }
+}
+
+/* Fix Mat Paginator border so it blends with the table */
+::ng-deep .mat-mdc-paginator {
+  border-top: 1px solid #e0e0e0;
+}
+
+/* --- FAB SCROLL BUTTONS (Exact as QA Image) --- */
+.mine {
+  position: fixed;
+  bottom: 80px;
+  background-color: #e6e6e6 !important;
+  z-index: 100;
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #d6d6d6 !important;
+    transform: scale(1.05);
+  }
+
+  mat-icon {
+    color: #37474f !important;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+  }
+}
+
+.mine-right {
+  right: 40px;
+}
+
+.mine-left {
+  right: 110px;
+}
+
+/* Frozen Columns */
+.frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+/* Frozen Header */
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important;
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+/* Divider after last frozen column */
+.last-frozen {
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
+}

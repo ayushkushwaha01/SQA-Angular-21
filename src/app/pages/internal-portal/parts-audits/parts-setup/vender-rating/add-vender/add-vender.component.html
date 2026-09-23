@@ -1,0 +1,144 @@
+<div class="NewHeader">
+    <h3 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
+        Add Vender</h3>
+
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
+            <form>
+                <div>
+
+
+
+
+
+                        <div class="row" style="margin-bottom: 12px;">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt-2" style="font-weight: bold;">
+                            Select Rating
+                        </label>
+                    </div>
+                    <div class="col-sm-8">
+                        <mat-select placeholder="Select Rating" class="form-control mt-2" style="background-color: #fefec4 !important;">
+                            <mat-option value="state1">Excellent</mat-option>
+                            <mat-option value="state2">Good Supplier</mat-option>
+                            <mat-option value="state3">Satisfactory</mat-option>
+                            <mat-option value="state3">Poor Supplier</mat-option>
+                        </mat-select>
+                    </div>
+                </div>
+
+
+
+
+
+                    <div class="row" style="margin-bottom: 12px;">
+                        <div class="col-sm-4">
+                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
+                                 Process Audit Min Score :</label>
+
+                        </div>
+                        <div class="col-sm-8">
+
+                            <input type="text" class="form-control" placeholder="Enter Process Audit Min Score" style="background-color: #fefec4 !important;">
+                        </div>
+
+                    </div>
+                    <div class="row" style="margin-bottom: 12px;">
+                        <div class="col-sm-4">
+                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
+                                Process Audit Max Score :</label>
+
+                        </div>
+                        <div class="col-sm-8">
+
+                            <input type="text" class="form-control" placeholder="Enter Process Audit Max Score" style="background-color: #fefec4 !important;">
+                        </div>
+
+                    </div>
+
+                    <!-- <div class="row" style="margin-bottom: 12px;">
+                        <div class="col-sm-4">
+                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
+                                State :
+                            </label>
+                        </div>
+
+                        <div class="col-sm-8">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-select placeholder="Select State">
+                                    <mat-option *ngFor="let state of states" [value]="state">
+                                        {{ state }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div> -->
+
+
+                     
+
+
+
+
+
+                  
+
+                  
+
+                       <div class="row" style="margin-bottom: 12px;">
+                        <div class="col-sm-4">
+                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
+                                 Parts Audit Min Score :</label>
+
+                        </div>
+                        <div class="col-sm-8">
+
+                            <input type="text" class="form-control" placeholder="Enter Parts Audit Min Score" style="background-color: #fefec4 !important;">
+                        </div>
+
+                    </div>
+                    <div class="row" style="margin-bottom: 12px;">
+                        <div class="col-sm-4">
+                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
+                                Parts Audit Max Score :</label>
+
+                        </div>
+                        <div class="col-sm-8">
+
+                            <input type="text" class="form-control" placeholder="Enter Parts Audit Max Score" style="background-color: #fefec4 !important;">
+                        </div>
+
+                    </div>
+
+
+
+
+
+
+
+
+
+                </div>
+            </form>
+
+
+            <mat-dialog-actions align="end"
+                style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -20px;">
+                <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
+                    style="background-color: lightgray; color: red;margin-right: 5px;">
+                    <mat-icon>cancel</mat-icon> Close
+                </button>
+                <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;">
+                    <mat-icon>save</mat-icon>
+                    {{ isEditMode ? 'Update' : 'Save' }}
+                </button>
+            </mat-dialog-actions>
+
+
+
+        </div>
+    </div>
+</div>

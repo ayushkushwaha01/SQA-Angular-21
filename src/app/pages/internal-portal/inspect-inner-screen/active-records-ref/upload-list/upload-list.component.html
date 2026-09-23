@@ -1,0 +1,22 @@
+<div class="NewHeader" style="background-color: #f5f5f5; padding: 10px 20px; border-bottom: 1px solid #ddd; margin-bottom: 20px;">
+    <h3 style="margin: 0; font-weight: 500;">Defects List</h3>
+</div>  
+
+<div class="row" style="padding: 0 20px;">
+    <div class="col-md-12 mb-3">
+        <div class="form-group">
+            <label style="display: block; margin-bottom: 8px;">Comma Separated List of Defects</label>
+            <!-- Added readonly attribute and bound [value] to defectsString -->
+            <textarea class="form-control" 
+                      style="width: 100%; height: 250px; background-color: #f0f0f0; border: 1px solid #000; resize: none; padding: 10px;"
+                      [value]="defectsString"
+                      readonly>
+            </textarea>
+        </div>
+    </div>
+</div>
+
+<div style="padding: 10px 20px 20px 20px; display: flex; justify-content: flex-end; align-items: center; gap: 12px;">
+    <!-- Added a button to close the popup -->
+    <button mat-raised-button color="warn" (click)="close()">Close</button>
+</div>

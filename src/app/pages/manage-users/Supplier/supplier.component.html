@@ -1,0 +1,158 @@
+
+
+<!-- 🔥 ACCESS DENIED MESSAGE (If canRead is false) 🔥 -->
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+    <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+        <h3 class="text-danger font-weight-bold">Access Denied</h3>
+        <p class="text-muted">You do not have permission to view this page.</p>
+        <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+    </div>
+</div>
+
+<!-- 🔥 MAIN SCREEN (Only renders if canRead is true) 🔥 -->
+<div *ngIf="canRead" fxLayout="row wrap" #resizedDiv>
+    <div class="flex-p w-100">
+
+        <div class="row" style="margin-bottom:14px;">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"></div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                <div class="w-100 flex-p">
+
+                    <!-- 🔥 Add Supplier Button (Locked by canCreate) -->
+                    <button mat-raised-button color="primary" class="pull-right" 
+                        [class.disable-custom]="!canCreate"
+                        [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Supplier'"
+                        (click)="canCreate && openAddSupplier()">
+                        <mat-icon>add_business</mat-icon> Add Supplier
+                    </button>
+
+                    <button mat-raised-button style="background-color: black; color:white;"
+                        class="pull-right filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
+                        <mat-icon>filter_list</mat-icon> Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div fxLayout="row wrap" *ngIf="filterToggle" style="margin-left: 5px;">
+            <div fxFlex="100" class="flex-p w-100">
+                <form [formGroup]="filterForm">
+                    <mat-card class="filter">
+                        <mat-card-content>
+                            <div class="row col-sm-12">
+                                <div class="col-sm-4 row me-2">
+                                    <div class="col-sm-3 newMarginClass"><b>Keyword:</b></div>
+                                    <div class="col-sm-9">
+                                        <input type="text" formControlName="Keyword" class="form-control"
+                                            placeholder="Search by Name, Email...">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="col-sm-3 newMarginClass"><b>Status:</b></div>
+                                    <div class="col-sm-8">
+                                        <mat-select placeholder="Select Status" class="form-control"
+                                            formControlName="Status">
+                                            <mat-option *ngFor="let option of Status"
+                                                [value]="option.value">{{option.name}}</mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 mt-2" style="margin-left: -25px;">
+                                    <button mat-raised-button class="pull-right btn-default margin-right-10"
+                                        (click)="clearFilter()">
+                                        <mat-icon>settings_backup_restore</mat-icon> Clear
+                                    </button>
+                                    <button mat-raised-button color="primary" class="pull-right margin-right-10"
+                                        (click)="filter()">
+                                        <mat-icon>search</mat-icon> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-sm-12" style="margin-left: 13px;">
+            <div id="grid-table-container" class="table-responsive" style="width: 101%; margin-left: -18px;">
+                <table class="table table-bordered table-hover">
+                    <thead class="tbl-head">
+                        <tr class="tr-grid-header">
+                            <th class="text-center">Actions</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Password</th>
+                            <th>User Name</th>
+                            <th>Supplier Name</th>
+                            <th>Contact Person</th>
+                            <th>State</th>
+                            <th>City</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of dataSource.connect() | async">
+                            
+                            <!-- ACTIONS -->
+                            <td style="white-space:nowrap" class="text-center">
+                                <!-- 🔥 Edit Supplier (Locked by canUpdate) -->
+                                <a [class.disable-custom]="!canUpdate"
+                                   [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Supplier'" 
+                                   style="margin-right: 10px; cursor: pointer;"
+                                    (click)="canUpdate && openAddSupplier(item)">
+                                    <i class="fa fa-edit text-primary"></i>
+                                </a>
+
+                                <!-- 🔥 Delete Supplier (Locked by canDelete) -->
+                                <a [class.disable-custom]="!canDelete"
+                                   [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Supplier'" 
+                                   style="cursor:pointer;" 
+                                   (click)="canDelete && deleteSupplier(item)">
+                                    <i class="fa fa-trash text-danger"></i>
+                                </a>
+                            </td>
+
+                            <!-- 🔥 STATUS TOGGLE (Locked by canUpdate) -->
+                            <td class="text-center">
+                                <span (click)="canUpdate && toggleStatus(item)" 
+                                      [style.color]="item.isActive ? 'green' : 'red'"
+                                      [class.disable-custom]="!canUpdate"
+                                      [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Toggle Status'"
+                                      style="cursor:pointer; font-weight: bold;">
+                                    {{ item.isActive ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+
+                            <!-- 🔥 RESET PASSWORD (Locked by canUpdate) -->
+                            <td class="text-center">
+                                <a style="cursor: pointer; color: cornflowerblue;" 
+                                   [class.disable-custom]="!canUpdate"
+                                   [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Reset Password'"
+                                   (click)="canUpdate && resetPassword(item)">
+                                    <mat-icon>autorenew</mat-icon>
+                                </a>
+                            </td>
+
+                            <td>{{item.userName}}</td>
+                            <td>{{item.supplierName}}</td>
+                            <td>{{item.contactPerson}}</td>
+                            <td>{{item.stateName}}</td>
+                            <td>{{item.cityName}}</td>
+                            <td>{{item.address}}</td>
+                            <td>{{item.email}}</td>
+                            <td>{{item.phone}}</td>
+                        </tr>
+
+                        <tr *ngIf="dataSource.data.length === 0">
+                            <td colspan="11" class="text-center">No records found</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"
+                    showFirstLastButtons></mat-paginator>
+            </div>
+        </div>
+    </div>
+</div>

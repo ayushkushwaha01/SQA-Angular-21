@@ -1,0 +1,174 @@
+:host {
+  display: block;
+}
+
+.helpdesk-popup-container {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: -24px; // cancels mat-dialog default content padding
+
+  .helpdesk-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1e3a8a; // rich professional navy blue
+    color: #ffffff;
+    padding: 14px 20px;
+
+    .header-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: #93c5fd;
+    }
+
+    .header-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .module-chip {
+        font-size: 13px;
+        font-weight: 500;
+        color: #bfdbfe;
+      }
+    }
+
+    .close-btn {
+      color: #ffffff;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      opacity: 0.85;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      &:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .helpdesk-body {
+    padding: 24px 24px 10px 24px;
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .clean-input {
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #1e293b;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      outline: none;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+
+      &:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+    }
+
+    .clean-textarea {
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #1e293b;
+      min-height: 140px;
+      resize: vertical;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      outline: none;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+
+      &:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+    }
+  }
+
+  .helpdesk-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 14px 24px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+
+    .btn-cancel {
+      background-color: #f1f5f9 !important;
+      color: #dc2626 !important;
+      border: 1px solid #e2e8f0;
+      font-weight: 500;
+      padding: 0 16px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #dc2626;
+      }
+
+      &:hover {
+        background-color: #fee2e2 !important;
+      }
+    }
+
+    .btn-send {
+      background-color: #1e3a8a !important;
+      color: #ffffff !important;
+      font-weight: 500;
+      padding: 0 20px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover:not([disabled]) {
+        background-color: #172554 !important;
+      }
+    }
+  }
+}

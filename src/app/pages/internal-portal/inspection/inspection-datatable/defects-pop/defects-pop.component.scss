@@ -1,0 +1,40 @@
+.defects-dialog-container {
+  padding: 10px 15px;
+  background-color: #fff;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* ✅ 5 Columns */
+  grid-template-rows: repeat(10, 50px);  /* ✅ 10 Rows */
+  gap: 8px; /* Space between the blocks */
+}
+
+.grid-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 4px;
+  transition: transform 0.1s ease;
+  line-height: 1.2;
+
+  /* Subtle hover effect */
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+}

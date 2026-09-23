@@ -1,0 +1,192 @@
+<div class="login-wrapper">
+  <!-- Left Side: Branding / Intro -->
+  <div class="login-left-panel">
+    <div class="login-left-content">
+      <h1 class="project-title">SQA</h1>
+      <h2 class="project-subtitle">Supplier Quality Audit</h2>
+      <p class="project-desc">
+        Streamlining supplier quality audits, checklist configurations, monthly target tracking, and corrective actions
+        in one unified platform.
+      </p>
+      <div class="decor-card">
+        <div class="decor-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="decor-body">
+          <div class="bar-chart-preview">
+            <div class="bar" style="height: 40px;"></div>
+            <div class="bar" style="height: 70px;"></div>
+            <div class="bar" style="height: 50px;"></div>
+            <div class="bar" style="height: 90px;"></div>
+            <div class="bar" style="height: 60px;"></div>
+          </div>
+          <div class="line-preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Login Form -->
+  <div class="login-right-panel">
+    <div class="login-form-container">
+
+      <!-- <div class="logo-wrapper-center">
+        <div class="logo-area">
+          <img alt="SQA - Supplier Quality Audits" class="logo-default logo-img box-content-center"
+            src="../../../assets/sqa-logo.svg">
+        </div>
+      </div> -->
+
+      <!-- ========================================== -->
+      <!-- STEP 1: STANDARD LOGIN FORM                -->
+      <!-- ========================================== -->
+      <div *ngIf="step === 'login'">
+        <div class="welcome-text">
+          <h2>Welcome back</h2>
+          <p *ngIf="loginStep === 'email'">Please enter your email to continue.</p>
+          <p *ngIf="loginStep === 'password'">Enter your password to sign in.</p>
+        </div>
+
+        <form [formGroup]="form" class="login-form">
+          <!-- EMAIL FIELD (Always visible) -->
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Enter your email" autocomplete="username">
+            <mat-error *ngIf="form.controls.email.errors?.required">Email is required</mat-error>
+            <mat-error *ngIf="form.controls.email.hasError('invalidEmail')">Invalid email address</mat-error>
+          </mat-form-field>
+
+          <!-- PASSWORD FIELD (Only visible in password step) -->
+          <div *ngIf="loginStep === 'password'" style="animation: fadeIn 0.3s ease-in-out;">
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label>Password</mat-label>
+              <input matInput [type]="passwordType" formControlName="password" placeholder="Enter your password"
+                autocomplete="current-password" (keyup.enter)="onSubmit(form.value)">
+              <span matSuffix (click)="togglePassword()" style="cursor: pointer; margin-right: 8px; color: #6b7280;">
+                <mat-icon>{{ passwordType === 'password' ? 'visibility' : 'visibility_off' }}</mat-icon>
+              </span>
+            </mat-form-field>
+
+            <div class="forgot-pwd-row">
+              <a [routerLink]="['/login/forgot']" class="forgot-link">Forgot Password?</a>
+            </div>
+          </div>
+
+          <!-- BUTTONS: EMAIL STEP -->
+          <div *ngIf="loginStep === 'email'">
+            <button mat-raised-button color="primary" class="btn-signin w-100" type="button"
+              [disabled]="form.controls.email.invalid || isCheckingPasskey" (click)="checkEmailAndPasskey()">
+              {{ isCheckingPasskey ? 'Checking securely...' : 'Continue' }}
+            </button>
+          </div>
+
+          <!-- BUTTONS: PASSWORD STEP -->
+          <div *ngIf="loginStep === 'password'">
+            <button mat-raised-button color="primary" class="btn-signin w-100 mb-3" type="button"
+              (click)="onSubmit(form.value)">
+              Sign In
+            </button>
+            <div class="text-center">
+              <a style="cursor: pointer; color: #6b7280; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+                (click)="loginStep = 'email'">
+                <mat-icon
+                  style="font-size: 16px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; color: #6b7280;">arrow_back</mat-icon>
+                <span>Use a different email</span>
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 2: MFA CHOICE MENU                    -->
+      <!-- ========================================== -->
+      <div *ngIf="step === 'mfa-choice'" class="mfa-section" style="animation: fadeIn 0.3s ease-in-out;">
+        <div class="welcome-text text-center mb-4">
+          <h2>Security Verification</h2>
+          <p style="font-size: 13px; color: #6b7280;">
+            How would you like to verify your identity?
+          </p>
+        </div>
+
+        <button mat-stroked-button class="w-100 mb-3" style="height: 50px; font-weight: 500;"
+          (click)="chooseAuthenticator()">
+          <mat-icon style="color: #10b981; margin-right: 8px;">smartphone</mat-icon>
+          Authenticator App
+        </button>
+
+        <button mat-stroked-button class="w-100 mb-4" style="height: 50px; font-weight: 500;" (click)="chooseEmailOtp()"
+          [disabled]="isSendingOtp">
+          <mat-icon style="color: #3b82f6; margin-right: 8px;">mail</mat-icon>
+          {{ isSendingOtp ? 'Sending...' : 'Send Email OTP' }}
+        </button>
+
+        <div class="text-center">
+          <a style="cursor: pointer; color: #dc3545; font-size: 13px;" (click)="cancelMfa()">Cancel & Return to
+            Login</a>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 3A: AUTHENTICATOR APP INPUT           -->
+      <!-- ========================================== -->
+      <div *ngIf="step === 'mfa-auth'" class="mfa-section" style="animation: fadeIn 0.3s ease-in-out;">
+        <div class="welcome-text text-center mb-4">
+          <h2>Authenticator App</h2>
+          <p style="font-size: 13px; color: #6b7280;">
+            Enter the 6-digit code from your authenticator app.
+          </p>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>6-Digit Code</mat-label>
+          <input matInput type="text" [(ngModel)]="mfaCode" placeholder="Enter code here" maxlength="6"
+            (keyup.enter)="submitMfaCode()">
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="btn-signin w-100 mb-3" [disabled]="mfaCode.length < 6"
+          (click)="submitMfaCode()">
+          Verify Code
+        </button>
+
+        <div class="text-center">
+          <a style="cursor: pointer; color: #6b7280; font-size: 13px; margin-right: 15px;"
+            (click)="goBackToChoice()">Change Method</a>
+          <a style="cursor: pointer; color: #dc3545; font-size: 13px;" (click)="cancelMfa()">Cancel</a>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 3B: EMAIL OTP INPUT                   -->
+      <!-- ========================================== -->
+      <div *ngIf="step === 'mfa-email'" class="mfa-section" style="animation: fadeIn 0.3s ease-in-out;">
+        <div class="welcome-text text-center mb-4">
+          <h2>Check Your Email</h2>
+          <p style="font-size: 13px; color: #6b7280;">
+            We've sent a 6-digit code to your email.
+          </p>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>6-Digit Code</mat-label>
+          <input matInput type="text" [(ngModel)]="mfaCode" placeholder="Enter code here" maxlength="6"
+            (keyup.enter)="submitMfaCode()">
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="btn-signin w-100 mb-3" [disabled]="mfaCode.length < 6"
+          (click)="submitMfaCode()">
+          Verify Code
+        </button>
+
+        <div class="text-center">
+          <a style="cursor: pointer; color: #6b7280; font-size: 13px; margin-right: 15px;"
+            (click)="goBackToChoice()">Change Method</a>
+          <a style="cursor: pointer; color: #dc3545; font-size: 13px;" (click)="cancelMfa()">Cancel</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

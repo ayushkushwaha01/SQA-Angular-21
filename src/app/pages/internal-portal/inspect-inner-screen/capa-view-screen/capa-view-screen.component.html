@@ -1,0 +1,390 @@
+<div class="back-btn ps-2 pt-4 mb-4" style="display: flex; justify-content: flex-end; font-size: 18px; font-weight:500">
+  <div class="col-sm-6">
+    <span style="color: blue; cursor: pointer; margin-left:5px" (click)="goBack()">
+      CAPA
+    </span>
+    
+    {{ parameterName || 'Details' }}
+  </div>
+
+  <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
+    <button mat-raised-button style="background-color: #808080; color: white; margin-right: 10px;" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </button>
+  </div>
+</div>
+
+<div class="container-fluid py-4">
+  <form [formGroup]="auditForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="row form-group mt-3 align-items-start">
+          <label class="control-label col-sm-4 font-weight-bold"> CAPA Subject : <span class="text-danger">*</span></label>
+          <div class="col-sm-7">
+            <textarea formControlName="subject" placeholder="Enter Subject" class="form-control" rows="4"
+              style="height: 100px; resize: vertical; background-color: #fefec4 !important;">
+            </textarea>
+          </div>
+        </div>
+
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold"> Log Date : <span class="text-danger">*</span></label>
+          <div class="col-sm-7">
+            <input type="date" formControlName="logDate" class="form-control"
+              style="background-color: #fefec4 !important;">
+          </div>
+        </div>
+
+        
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold"> Due Date :</label>
+          <div class="col-sm-7">
+            <input type="date" formControlName="dueDate" class="form-control">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold"> Completed Date :</label>
+          <div class="col-sm-7">
+            <input type="date" formControlName="completedDate" class="form-control">
+          </div>
+        </div>
+        <!-- <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Logged Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="date" class="form-control" formControlName="loggedDate">
+          </div>
+        </div> -->
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">PDCA Status :</label>
+          <div class="col-sm-7">
+            <mat-select formControlName="pdcaStatus" placeholder="Select PDCA Status"
+              class="form-control custom-mat-select">
+              <mat-option *ngFor="let status of pdcaOptions" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-4 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">Severity :</label>
+          <div class="col-sm-7">
+            <mat-select formControlName="severityId" placeholder="Select Severity"
+              class="form-control custom-mat-select">
+              <mat-option *ngFor="let s of severityOptions" [value]="s.severityId">
+                {{ s.severityName }} (Rating: {{ s.rating }})
+              </mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">Occurrence :</label>
+          <div class="col-sm-7">
+            <!-- <mat-select formControlName="occurrence" placeholder="Select Occurrence"
+              class="form-control custom-mat-select">
+              <mat-option *ngFor="let o of occurrenceOptions" [value]="o">
+                {{ o }}
+              </mat-option>
+            </mat-select> -->
+            <mat-select class="form-control custom-mat-select" placeholder="Select Occurrence"
+              formControlName="occurrenceId">
+
+              <mat-option *ngFor="let o of Occurrences" [value]="o.occurrenceId">
+
+                {{o.rating}} - {{o.subject}}
+
+              </mat-option>
+
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">Detection :</label>
+          <div class="col-sm-7">
+            <!-- <mat-select formControlName="detection" placeholder="Select Detection"
+              class="form-control custom-mat-select">
+              <mat-option *ngFor="let d of detectionOptions" [value]="d">
+                {{ d }}
+              </mat-option>
+            </mat-select> -->
+            <mat-select class="form-control custom-mat-select" placeholder="Select Detection"
+              formControlName="detectionId">
+
+              <mat-option *ngFor="let d of detections" [value]="d.detectionId">
+
+                {{d.rating}} - {{d.subject}}
+
+              </mat-option>
+
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">SOD Score :</label>
+          <div class="col-sm-7">
+            <input type="text" formControlName="sodScore" class="form-control bg-light">
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">Class :</label>
+          <div class="col-sm-7">
+            <mat-select formControlName="class" placeholder="Select Class" class="form-control custom-mat-select">
+              <mat-option value="Safety">Safety</mat-option>
+              <mat-option value="Critical">Critical</mat-option>
+              <mat-option value="Important">Important</mat-option>
+              <mat-option value="Fitment">Fitment</mat-option>
+              <mat-option value="Regular">Regular</mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">Action Type :</label>
+          <div class="col-sm-7">
+            <mat-select formControlName="actionType" placeholder="Select Action Type"
+              class="form-control custom-mat-select">
+              <mat-option value="Containment">Containment</mat-option>
+              <mat-option value="Corrective">Corrective</mat-option>
+              <mat-option value="Preventive">Preventive</mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-sm-6">
+        <!-- DEMERIT UI IMPLEMENTATION -->
+        <div class="form-group mt-3 mb-4">
+          <label class="control-label font-weight-bold mb-2">Demerit :</label>
+          <div class="demerit-container d-flex">
+
+            <div *ngFor="let item of demeritOptions" class="demerit-card" [class.selected-demerit]="
+            auditForm.get('demeritId')?.value === item.demeritId
+        " (click)="selectDemerit(item)" [matTooltip]="item.description" matTooltipPosition="above">
+
+              <div class="demerit-val">
+                {{ item.demerit }}
+              </div>
+
+              <div class="demerit-label" [ngStyle]="{
+                'background-color': item.bgColor,
+                'color': item.color
+            }">
+
+                {{ item.subject }}
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <div class="form-group mt-3">
+          <label class="control-label font-weight-bold mb-2">Auditor Remarks :</label>
+          <textarea rows="5" formControlName="observations" placeholder="Enter Remarks..."
+            class="form-control"></textarea>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="control-label font-weight-bold mb-2">Corrective Actions :</label>
+          <textarea rows="5" formControlName="correctiveActions" placeholder="Enter Corrective Actions..."
+            class="form-control"></textarea>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="control-label font-weight-bold mb-2">Preventive Actions :</label>
+          <textarea rows="5" formControlName="supplierRemarks" placeholder="Enter Preventive Actions..."
+            class="form-control"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGES AND DOCUMENTS SECTION -->
+    <div class="row mt-3">
+      <!-- Image Gallery (50% width) -->
+      <div class="col-md-6 mb-4">
+        <label class="control-label font-weight-bold mb-2">Images :</label>
+        <div class="gallery-container d-flex align-items-center p-2">
+          <div *ngIf="!isReadOnly || isSupplier"
+            class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
+            [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Image'"
+            (click)="canCreate && addImage()">
+
+            <mat-icon>add</mat-icon>
+
+          </div>
+
+          <!-- API Uploaded Images -->
+          <div *ngFor="let img of apiImages; let i = index"
+            class="gallery-item me-2 border cursor-pointer bg-white position-relative" (click)="openSlideshow(i)">
+            <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
+            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+              style="padding: 0 4px;" (click)="removeApiImage($event, i)">
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button> -->
+            <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && removeApiImage($event, i)">
+
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                close
+              </mat-icon>
+
+            </button>
+          </div>
+
+          <!-- Local Pending Images -->
+          <div *ngFor="let img of localImagePreviews; let i = index"
+            class="gallery-item me-2 border cursor-pointer bg-light position-relative"
+            (click)="openSlideshow(apiImages.length + i)">
+            <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover opacity-75">
+            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              (click)="removeLocalImage($event, i)">
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button> -->
+            <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && removeLocalImage($event, i)">
+
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                close
+              </mat-icon>
+
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Gallery (50% width) -->
+      <div class="col-md-6 mb-4">
+        <label class="control-label font-weight-bold mb-2">Documents (PDF) :</label>
+        <div class="gallery-container d-flex align-items-center p-2">
+          <div *ngIf="!isReadOnly || isSupplier"
+            class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
+            [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Document'"
+            (click)="canCreate && addDocument()">
+            <mat-icon>add</mat-icon>
+          </div>
+
+          <!-- API Uploaded PDFs -->
+          <div *ngFor="let doc of uploadedDocs; let i = index"
+            class="gallery-item me-2 border cursor-pointer bg-white position-relative d-flex flex-column justify-content-center align-items-center p-1 text-center"
+            [matTooltip]="doc.title"
+            (click)="viewApiDoc(doc.url)">
+            <mat-icon style="color: #dc3545; font-size: 32px; width: 32px; height: 32px;">picture_as_pdf</mat-icon>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">
+              {{ doc.title }}
+            </span>
+            <i *ngIf="!isReadOnly || isSupplier" class="fa fa-trash"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Document'"
+              style="position: absolute; top: 4px; right: 4px; color: red; font-size: 14px; cursor: pointer;"
+              (click)="canDelete && $event.stopPropagation(); canDelete && removeApiDoc(i)">
+            </i>
+          </div>
+
+          <!-- Local Pending PDFs -->
+          <div *ngFor="let file of selectedFiles; let i = index"
+            class="gallery-item me-2 border cursor-pointer bg-white position-relative d-flex flex-column justify-content-center align-items-center p-1 text-center"
+            [matTooltip]="file.name"
+            (click)="viewLocalFile(file)">
+            <mat-icon style="color: #dc3545; font-size: 32px; width: 32px; height: 32px;">picture_as_pdf</mat-icon>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">
+              {{ file.name }}
+            </span>
+            <i *ngIf="!isReadOnly || isSupplier" class="fa fa-trash"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Document'"
+              style="position: absolute; top: 4px; right: 4px; color: red; font-size: 14px; cursor: pointer;"
+              (click)="canDelete && $event.stopPropagation(); canDelete && removeLocalFile(i)">
+            </i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ACTION BUTTON ROW -->
+    <div class="row mb-5">
+      <!-- <div *ngIf="!isReadOnly || isSupplier" class="col-12 text-end">
+        <button type="submit" mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255)"
+          [disabled]="isSaved || auditForm.invalid">
+          <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);">
+            <mat-icon>{{ isUpdate ? 'edit' : 'save' }}</mat-icon> {{ isUpdate ? 'Update' : 'Save' }}
+          </span>
+        </button>
+      </div> -->
+      <div *ngIf="!isReadOnly || isSupplier" class="col-12 text-end">
+
+        <button type="submit" mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255)"
+          [ngClass]="{
+      'disable-custom': (!isUpdate && !canCreate) || (isUpdate && !canUpdate)
+    }" [matTooltip]="
+      !isUpdate && !canCreate
+        ? 'You don’t have permission to create'
+        : isUpdate && !canUpdate
+          ? 'You don’t have permission to update'
+          : (isSaved || auditForm.invalid ? '' : (isUpdate ? 'Update' : 'Save'))
+    " [disabled]="isSaved || auditForm.invalid" (click)="
+      (!isUpdate && canCreate) || (isUpdate && canUpdate)
+        ? null
+        : $event.preventDefault()
+    ">
+
+          <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);">
+
+            <mat-icon>
+              {{ isUpdate ? 'edit' : 'save' }}
+            </mat-icon>
+
+            {{ isUpdate ? 'Update' : 'Save' }}
+
+          </span>
+
+        </button>
+
+      </div>
+    </div>
+
+    <!-- FULL SCREEN SLIDESHOW OVERLAY -->
+    <div class="slideshow-overlay" *ngIf="isSlideshowOpen" (click)="closeSlideshow()">
+      <button type="button" class="slideshow-close" (click)="closeSlideshow()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <button type="button" class="slideshow-nav prev" (click)="prevSlide($event)" *ngIf="slideshowImages.length > 1">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <div class="slide-content text-center" (click)="$event.stopPropagation()">
+        <img [src]="slideshowImages[currentSlideIndex]" class="slideshow-image">
+        <div class="text-white mt-2" style="font-weight: 500; font-size: 16px;">
+          {{ currentSlideIndex + 1 }} / {{ slideshowImages.length }}
+        </div>
+      </div>
+
+      <button type="button" class="slideshow-nav next" (click)="nextSlide($event)" *ngIf="slideshowImages.length > 1">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </form>
+</div>

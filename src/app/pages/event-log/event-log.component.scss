@@ -1,0 +1,22 @@
+.confirm-btn-container .btn {
+  width: 100px !important;
+  margin-left: 10px;
+}
+
+.newMarginClass {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.tbl-head,
+.tbl-head th,
+.tbl-head tr th,
+.tr-grid-header,
+.tr-grid-header th,
+table thead tr th {
+  background-color: #3f3f3f !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+}

@@ -1,0 +1,78 @@
+<div class="custom-layout-wrapper">
+
+    <div class="table-responsive bg-white shadow-sm">
+
+        <table class="custom-grid-table">
+
+            <thead>
+                <tr>
+
+                    <th style="width:25%">Subject</th>
+
+                    <th class="text-center" style="width:120px;">
+                        Demerit
+                    </th>
+
+                    <th style="width:35%;">
+                        Description
+                    </th>
+
+                    <th class="text-center" style="width:150px;">
+                        Actions
+                    </th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let item of tableData">
+
+                    <!-- Subject -->
+                    <td>
+                        {{ item.subject }}
+                    </td>
+
+                    <!-- Demerit -->
+                    <td class="text-center">
+
+                        <input class="form-control text-center" type="number" [(ngModel)]="item.demerit">
+
+                    </td>
+
+                    <!-- Description -->
+                    <td>
+
+                        <textarea class="form-control" rows="2" [(ngModel)]="item.description"
+                            placeholder="Enter Description">
+                </textarea>
+
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="text-center">
+
+                        <button mat-raised-button color="primary" [ngClass]="{ 'disable-custom': !canUpdate }"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Save'"
+                            (click)="canUpdate && saveDemerit(item)">
+
+                            <mat-icon class="mt-1">
+                                save
+                            </mat-icon>
+
+                            <span class="button-text">
+                                Save
+                            </span>
+
+                        </button>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

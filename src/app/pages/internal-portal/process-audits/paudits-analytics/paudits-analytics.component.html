@@ -1,0 +1,101 @@
+<!-- 🔥 Show Access Denied message if user cannot read 🔥 -->
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view this page.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+<div class="analytics-container" *ngIf="canRead">
+
+  <div class="tab-row">
+
+    <button
+      mat-raised-button
+      class="tab-btn"
+      routerLink="summary"
+      routerLinkActive="active-tab"
+      #rla7="routerLinkActive"
+      [color]="rla7.isActive ? 'primary' : ''"
+    >
+      Summary
+    </button>
+
+    <button
+      mat-raised-button
+      class="tab-btn"
+      routerLink="commodity"
+      routerLinkActive="active-tab"
+      #rla1="routerLinkActive"
+      [color]="rla1.isActive ? 'primary' : ''"
+    >
+      Commodity
+    </button>  
+
+    <!-- <button
+      mat-raised-button
+      class="tab-btn"
+      routerLink="performance"
+      routerLinkActive="active-tab"
+      #rla2="routerLinkActive"
+      [color]="rla2.isActive ? 'primary' : ''"
+    >
+      Performance
+    </button> -->
+
+    <button
+      mat-raised-button
+      class="tab-btn"
+      routerLink="actions"
+      routerLinkActive="active-tab"
+      #rla3="routerLinkActive"
+      [color]="rla3.isActive ? 'primary' : ''"
+    >
+      CAPA
+    </button>
+
+    <button
+      mat-raised-button
+      class="tab-btn"
+      routerLink="scatter"
+      routerLinkActive="active-tab"
+      #rla4="routerLinkActive"
+      [color]="rla4.isActive ? 'primary' : ''"
+    >
+      Scatter
+    </button>
+
+    <button
+      mat-raised-button
+      class="tab-btn"
+      routerLink="bell-curve"
+      routerLinkActive="active-tab"
+      #rla5="routerLinkActive"
+      [color]="rla5.isActive ? 'primary' : ''"
+    >
+      Bell Curve
+    </button>
+
+    <button
+      mat-raised-button
+      class="tab-btn"
+      routerLink="pareto"
+      routerLinkActive="active-tab"
+      #rla6="routerLinkActive"
+      [color]="rla6.isActive ? 'primary' : ''"
+    >
+      Pareto
+    </button>
+
+    
+
+  </div>
+
+  
+
+  <div class="analytics-content">
+    <router-outlet></router-outlet>
+  </div>
+
+</div>

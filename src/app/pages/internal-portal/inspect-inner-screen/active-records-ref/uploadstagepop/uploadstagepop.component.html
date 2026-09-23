@@ -1,0 +1,67 @@
+<div class="NewHeader"
+    style="background-color: #f5f5f5; padding: 10px 20px; border-bottom: 1px solid #ddd; margin-bottom: 20px;">
+    <h3 style="margin: 0; font-weight: 500;">Upload Parameters</h3>
+</div>
+
+<div class="row" style="padding: 0 20px;">
+
+    <div class="col-md-6 mb-3">
+        <div class="form-group">
+            <label style="display: block; margin-bottom: 8px;">Enter Comma Separated List below</label>
+            <textarea [(ngModel)]="defectsText" (input)="onTextInput($event)" class="form-control"
+                style="width: 100%; height: 250px; background-color: #f0f0f0; border: 1px solid #000; resize: none; padding: 10px;"></textarea>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="form-group">
+            <label matTooltip="Development in progress"
+                style="display: block; margin-bottom: 8px; cursor: not-allowed;">Upload CSV :</label>
+
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" multiple>
+
+                <div class="drag-drop-zone" matTooltip="Development in progress"
+                    style="width: 100%; height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1.5px dashed #5cb85c; border-radius: 4px; background-color: #fff; cursor: not-allowed;">
+
+                    <mat-icon style="font-size: 24px; height: 24px; width: 24px;">upload</mat-icon>
+                    <span style="margin: 10px 0; color: #666;">Drag and drop files here</span>
+
+                    <!-- <button mat-raised-button class="browse-btn" type="button" style="background-color: #1485cc; color: white;"
+                        (click)="$event.stopPropagation(); fileInput.click()">
+                        Browse Files
+                    </button> -->
+                </div>
+
+                <div class="file-list" style="width: 100%;">
+                    <div *ngFor="let file of selectedFiles; let i = index" style="display: flex; align-items: center; gap: 8px;
+                         padding: 5px 8px; font-size: 13px; border-radius: 4px;
+                         background: #f5f5f5; margin-top: 8px;">
+                        <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
+                        <span>{{ file.name }}</span>
+                        <span style="color: #999; font-size: 12px;">({{ (file.size / 1024).toFixed(1) }} KB)</span>
+
+                        <button mat-icon-button type="button" [mat-dialog-close]="true" style="margin-left: auto;">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="padding: 10px 20px 20px 20px; display: flex; justify-content: flex-end; align-items: center; gap: 12px;">
+
+    <mat-dialog-actions align="end" style="margin-top: 15px;">
+        <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
+            style="background-color: lightgray; color: red;">
+            <mat-icon>cancel</mat-icon> Close
+        </button>
+        <button mat-raised-button type="button" class="save" color="primary" (click)="saveDefects()">
+            <mat-icon>save</mat-icon>Save
+        </button>
+    </mat-dialog-actions>
+
+</div>

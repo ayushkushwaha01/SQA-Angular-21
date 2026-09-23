@@ -1,0 +1,209 @@
+<div class="NewHeader">
+    <!-- <h3 *ngIf="!isEditMode" style="padding-top:10px; font-size: 24px;">Add Parameter</h3>
+    <h3 *ngIf="isEditMode" style="padding-top:10px; font-size: 24px;">Edit Parameter</h3> -->
+    <h2 style="padding-top:0px; padding-left:20px; font-weight:400; font-size:18px;">
+        {{ data?.auditParameterId ? 'Edit' : 'Add' }} Parameter
+    </h2>
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+
+
+        <div *ngIf="addStep == 1" class="col-sm-12" style="margin-top: 0px;padding-left:20px;">
+            <div mat-dialog-content>
+                <form class="form-horizontal" [formGroup]="myGroup">
+                    <div class="col-sm-6">
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Parameter :</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Parameter"
+                                    formControlName="ParmeterName">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Unit :</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <mat-select class="form-control" placeholder="Select Unit" formControlName="UnitId">
+
+                                    <mat-option *ngFor="let item of lookups" [value]="item.lookupId">
+
+                                        {{ item.lookupName }}
+
+                                    </mat-option>
+
+                                </mat-select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Spec :</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Spec" formControlName="Spec">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Min :</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter Min" formControlName="Min"
+                                    (keypress)="allowNumericOnly($event)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Max :</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter Max" formControlName="Max"
+                                    (keypress)="allowNumericOnly($event)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Method :</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Method"
+                                    formControlName="Method">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-6">
+
+                        <div class="col-sm-12">
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">S1:</label>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                    <input type="number" class="form-control" placeholder="Enter S1 Value"
+                                        formControlName="S1">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">S2:</label>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                    <input type="number" class="form-control" placeholder="Enter S2 Value"
+                                        formControlName="S2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">S3:</label>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                    <input type="number" class="form-control" placeholder="Enter S3 Value"
+                                        formControlName="S3">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">S4:</label>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                    <input type="number" class="form-control" placeholder="Enter S4 Value"
+                                        formControlName="S4">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">S5:</label>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                    <input type="number" class="form-control" placeholder="Enter S5 Value"
+                                        formControlName="S5">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Remarks:</label>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                    <input type="text" class="form-control" placeholder="Enter Remarks"
+                                        formControlName="Remarks">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <mat-dialog-actions align="end" style="margin-top: 15px; margin-bottom: -5px;margin-right: 16px;">
+                <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
+                    style="background-color: lightgray; color: red;margin-right: 5px;">
+                    <mat-icon>cancel</mat-icon> Close
+                </button>
+                <button mat-raised-button color="primary" (click)="UpsertParameter()"
+                    style="min-width: 110px; display: flex; align-items: center; justify-content: center;">
+                    <mat-icon style="margin-right: 4px;">save</mat-icon>
+                    Save
+                </button>
+            </mat-dialog-actions>
+        </div>
+
+        <!-- <div *ngIf="addStep == 2" class="col-sm-10" style="padding-left:50px;">
+            <div class="container-fluid" style="padding: 15px 5px 0px 0px;">
+
+                <div style="display: flex; gap: 20px; align-items: stretch;">
+
+                 
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+
+                        <div class="form-group" style="flex: 1;">
+                            <label class="control-label" style="font-weight: bold; margin-bottom: 8px; display: block;">
+                                Root Cause Analysis:
+                            </label>
+
+                            <textarea class="form-control" placeholder="Enter Root Cause Analysis" rows="5"
+                                style="resize: vertical; min-height: 120px;" [(ngModel)]="localData.rootCause"
+                                name="rootCause">
+                    </textarea>
+                        </div>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label class="control-label" style="font-weight: bold; margin-bottom: 8px; display: block;">
+                                Interim Corrective Action:
+                            </label>
+
+                            <textarea class="form-control" placeholder="Enter Interim Corrective Action" rows="5"
+                                style="resize: vertical; min-height: 120px;" [(ngModel)]="localData.interimAction"
+                                name="interimAction">
+                    </textarea>
+                        </div>
+
+                    </div>
+
+                 
+                    <div style="flex: 1; display: flex;">
+                        <div class="form-group" style="width: 100%; display: flex; flex-direction: column;">
+                            <label class="control-label" style="font-weight: bold; margin-bottom: 8px; display: block;">
+                                Permanent Corrective Action:
+                            </label>
+
+                            <textarea class="form-control" placeholder="Enter Permanent Corrective Action"
+                                style="flex: 1; min-height: 280px; resize: vertical;"
+                                [(ngModel)]="localData.permanentAction" name="permanentAction">
+                    </textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                    <button mat-raised-button class="add-dark-hover btn-default" (click)="close()"
+                        style="background-color: #f0f0f0; color: red; min-width: 110px; display: flex; align-items: center; justify-content: center;">
+                        <mat-icon style="margin-right: 4px;">cancel</mat-icon>
+                        Close
+                    </button>
+
+
+                    <button mat-raised-button color="primary" (click)="save()"
+                        style="min-width: 110px; display: flex; align-items: center; justify-content: center;">
+                        <mat-icon style="margin-right: 4px;">save</mat-icon>
+                        Save
+                    </button>
+                </div>
+
+            </div>
+        </div> -->
+    </div>
+</div>

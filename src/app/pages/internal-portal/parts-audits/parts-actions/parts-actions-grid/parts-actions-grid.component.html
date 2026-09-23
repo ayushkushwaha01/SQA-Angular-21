@@ -1,0 +1,41 @@
+<div class="NewHeader">
+    <h1 mat-dialog-title>Grid View Configuration </h1>
+</div>
+
+<div class="container" >
+    <h4 class="newMarginClass" style="color:brown;justify-content: center;">**Please select the required columns in the grid, to view grid with
+        specific columns**</h4>
+    <div mat-dialog-content style="overflow:hidden!important;">
+
+        <!-- Grid Names -->
+        <form class="form-horizontal" novalidate style="margin-top:10px">
+            <mat-checkbox class="col-sm-4 newMarginClass">Action Subject</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Process Area</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Supplier Remarks</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">log Date</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Status</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Supplier Name</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Process Category</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Docs</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Due Date</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Manage</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Audit Reference</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Description</mat-checkbox>
+                   <mat-checkbox class="col-sm-4 newMarginClass">Photos</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Completion</mat-checkbox>
+            <!-- <mat-checkbox class="col-sm-4 newMarginClass">Date</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Stages</mat-checkbox>
+            <mat-checkbox class="col-sm-4 newMarginClass">Actions</mat-checkbox> -->
+        </form>
+    </div>
+</div>
+<!-- Button -->
+<mat-dialog-actions align="end">
+     <button mat-raised-button style="background-color: rgb(237, 239, 239);color: #ff0000;" (click)="close()">
+        <mat-icon style="color: #ff0000;">cancel</mat-icon>Cancel
+    </button>
+    <button mat-raised-button color="primary" (click)="close()">
+        <mat-icon>send</mat-icon>&nbsp;Configure
+    </button>
+   
+</mat-dialog-actions>

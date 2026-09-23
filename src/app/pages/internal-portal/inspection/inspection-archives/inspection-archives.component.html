@@ -1,0 +1,378 @@
+<div class="toolbar-row">
+  <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
+    <mat-icon>grid_on</mat-icon> Columns
+  </button>
+  <button mat-raised-button class="btn-dark" matTooltip="Filter" (click)="filterToggle = !filterToggle">
+    <mat-icon>filter_list</mat-icon> Filter
+  </button>
+</div>
+
+<div fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 15px;">
+  <div fxFlex="100" class="flex-p w-100">
+    <form [formGroup]="myGroup">
+      <mat-card class="filter">
+        <mat-card-content>
+          <!-- ROW 1 -->
+          <div class="row col-sm-12 mb-3">
+            <div class="col-sm-4 row">
+              <div class="col-sm-4 d-flex align-items-center"><b>Inspection Date:</b></div>
+              <div class="col-sm-8">
+                <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; width: 100%; background-color: white; overflow: hidden;">
+                  <input matInput [matDatepicker]="archivePicker" placeholder="mm/dd/yyyy" readonly (click)="archivePicker.open()"
+                    formControlName="inspectionDate"
+                    style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent; cursor: pointer;">
+                  <mat-datepicker-toggle matSuffix [for]="archivePicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                  <mat-datepicker #archivePicker></mat-datepicker>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-4 row">
+              <div class="col-sm-4 d-flex align-items-center"><b>Part Family:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Part Family" class="form-control" formControlName="partFamily">
+                  <mat-option *ngFor="let family of partFamilies" [value]="family">
+                    {{ family }}
+                  </mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-sm-4 row">
+              <div class="col-sm-4 d-flex align-items-center"><b>Part Number:</b></div>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" placeholder="Enter Part Number" formControlName="partNumber">
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 2 -->
+          <div class="row col-sm-12 mb-3">
+            <div class="col-sm-4 row">
+              <div class="col-sm-4 d-flex align-items-center"><b>Inspector:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Inspector" class="form-control" formControlName="inspector">
+                  <mat-option *ngFor="let inspector of inspectors" [value]="inspector">
+                    {{ inspector }}
+                  </mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-sm-4 row">
+              <div class="col-sm-4 d-flex align-items-center"><b>Part Name:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Part Name" class="form-control" formControlName="partName">
+                  <input type="text" class="form-control" [value]="partNameSearch" placeholder="Search part name..."
+                    style="margin: 8px; width: calc(100% - 16px); box-sizing: border-box;"
+                    (keydown)="$event.stopPropagation()" (input)="filterPartNames($any($event.target).value)">
+                  <mat-option *ngFor="let name of filteredPartNames" [value]="name">
+                    {{ name }}
+                  </mat-option>
+                </mat-select>
+              </div>
+            </div>
+
+            <div class="col-sm-4 row">
+              <div class="col-sm-4 d-flex align-items-center"><b>Batch Number:</b></div>
+              <div class="col-sm-8">
+                <mat-select placeholder="Select Batch Number" class="form-control" formControlName="batchNumber">
+                  <mat-option *ngFor="let batch of batchNumbers" [value]="batch">
+                    {{ batch }}
+                  </mat-option>
+                </mat-select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW Buttons -->
+          <div class="row col-sm-12 mt-3">
+            <div class="col-sm-12 d-flex align-items-center justify-content-end">
+              <button mat-raised-button class="btn-default me-2" type="button" (click)="clearFilter()">
+                <mat-icon>settings_backup_restore</mat-icon> Clear
+              </button>
+              <button mat-raised-button color="primary" type="button" (click)="go()">
+                <mat-icon>search</mat-icon> Search
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </div>
+</div>
+
+<div class="table-responsive" id="grid-table-container" #tableContainer>
+  <table class="table table-bordered table-hover audit-table">
+    <!-- ===================== HEADER ===================== -->
+    <thead class="tbl-head">
+      <tr>
+        <th *ngFor="let column of activeColumns; let i = index" class="text-center" [class.frozen-col]="i < frozenCount"
+          [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+          [style.min-width.px]="getColumnWidth(column)" [style.width.px]="getColumnWidth(column)">
+          {{ column }}
+        </th>
+      </tr>
+    </thead>
+
+    <!-- ===================== BODY ===================== -->
+    <tbody>
+      <!-- Loading State -->
+      <tr *ngIf="isLoading">
+        <td [attr.colspan]="activeColumns.length" class="text-center p-0">
+          <div class="table-loader-wrapper">
+            <mat-spinner diameter="45" strokeWidth="4"></mat-spinner>
+            <div class="loader-text">Loading data, please wait...</div>
+          </div>
+        </td>
+      </tr>
+
+      <tr *ngFor="let item of pagedMockdata" [hidden]="isLoading">
+
+        <!-- ACTIONS -->
+        <td *ngFor="let column of activeColumns; let i = index" class="text-center" [class.frozen-col]="i < frozenCount"
+          [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+          [style.min-width.px]="getColumnWidth(column)" [style.width.px]="getColumnWidth(column)">
+
+          <ng-container [ngSwitch]="column">
+
+            <!-- ================= ACTIONS ================= -->
+            <ng-container *ngSwitchCase="'Actions'">
+              <div class="manage-icons">
+                <!-- Edit -->
+                <a [class.disable-custom]="!canUpdate" [matTooltip]="
+                    !canUpdate ? 'You don’t have permission to update' : 'Edit Record'
+                  " (click)="canUpdate && openEditDialog(item)">
+                  <i class="fa fa-edit edit-icon"></i>
+                </a>
+
+                <!-- Delete -->
+                <a [class.disable-custom]="!canDelete" [matTooltip]="
+                    !canDelete ? 'You don’t have permission to delete' : 'Delete Record'
+                  " (click)="canDelete && deleteConfirmation(item)">
+                  <i class="fa fa-trash delete-icon"></i>
+                </a>
+
+                <!-- Unarchive -->
+                <a [class.disable-custom]="!canUpdate" [matTooltip]="
+                    !canUpdate ? 'You don’t have permission to update' : 'Unarchive Record'
+                  " (click)="canUpdate && unarchiveRecord(item)">
+                  <i class="fa fa-undo undo-icon" style="color: #28a745"></i>
+                </a>
+              </div>
+            </ng-container>
+
+            <!-- ================= REFERENCE ================= -->
+            <ng-container *ngSwitchCase="'Reference'">
+
+              <a class="text-link" [class.disable-custom]="!canreadCAPAScreen" [matTooltip]="
+                  !canreadCAPAScreen
+                    ? 'You don’t have permission to view'
+                    : 'View Record'
+                " [routerLink]="
+                  canreadCAPAScreen
+                    ? [
+                        '/app',
+                        'sqm',
+                        'inspect-inner-screen',
+                        'active-records'
+                      ]
+                    : null
+                " [queryParams]="
+                  canreadCAPAScreen
+                    ? {
+                        inspectionId: item.id,
+                        reference: item.Reference,
+                        partFamily: item.PartFamily,
+                        partName: item.PartName
+                      }
+                    : null
+                ">
+                {{ item.Reference }}
+              </a>
+
+            </ng-container>
+
+            <!-- ================= PUBLISH ================= -->
+            <ng-container *ngSwitchCase="'Publish'">
+
+              <mat-checkbox [(ngModel)]="item.Publish" (change)="togglePublish(item)" color="primary">
+              </mat-checkbox>
+
+            </ng-container>
+
+            <!-- ================= INSPECTION DATE ================= -->
+            <ng-container *ngSwitchCase="'Inspection Date'">
+
+              {{ item.InspectionDate }}
+
+            </ng-container>
+
+            <!-- ================= TIME ================= -->
+            <ng-container *ngSwitchCase="'Time'">
+
+              {{ item.Time }}
+
+            </ng-container>
+
+            <!-- ================= INSPECTOR ================= -->
+            <ng-container *ngSwitchCase="'Inspector'">
+
+              {{ item.Inspector }}
+
+            </ng-container>
+
+            <!-- ================= SUPPLIER ================= -->
+            <ng-container *ngSwitchCase="'Supplier'">
+
+              {{ item.Supplier }}
+
+            </ng-container>
+
+            <!-- ================= PART FAMILY ================= -->
+            <ng-container *ngSwitchCase="'Part Family'">
+
+              {{ item.PartFamily }}
+
+            </ng-container>
+
+            <!-- ================= PART NAME ================= -->
+            <ng-container *ngSwitchCase="'Part Name'">
+
+              {{ item.PartName }}
+
+            </ng-container>
+
+            <!-- ================= PART NUMBER ================= -->
+            <!-- <ng-container *ngSwitchCase="'Part Number'">
+
+              {{ item.PartNumber }}
+
+            </ng-container> -->
+
+            <!-- ================= DEFECTS ================= -->
+            <ng-container *ngSwitchCase="'Defects'">
+
+              <a [class.disable-custom]="!canUpdate" [matTooltip]="
+                  !canUpdate
+                    ? 'You don’t have permission to update'
+                    : 'View Defects'
+                " style="
+                  color: #007bff;
+                  cursor: pointer;
+                  text-decoration: underline;
+                  font-weight: 500;
+                " (click)="canUpdate && openDefectsPop(item)">
+                {{ item.Defects }}
+              </a>
+
+            </ng-container>
+
+            <!-- ================= PARAMETERS ================= -->
+            <ng-container *ngSwitchCase="'Parameters'">
+
+              <a class="text-link" [class.disable-custom]="!canreadCAPAScreen" [matTooltip]="
+                  !canreadCAPAScreen
+                    ? 'You don’t have permission to view'
+                    : 'View Parameters'
+                " [routerLink]="
+                  canreadCAPAScreen
+                    ? [
+                        '/app',
+                        'sqm',
+                        'inspect-inner-screen',
+                        'active-records'
+                      ]
+                    : null
+                " [queryParams]="
+                  canreadCAPAScreen
+                    ? {
+                        inspectionId: item.id,
+                        reference: item.Reference,
+                        partFamily: item.PartFamily,
+                        partName: item.PartName
+                      }
+                    : null
+                ">
+                {{ item.Parameters }}
+              </a>
+
+            </ng-container>
+
+            <!-- ================= REMARKS ================= -->
+            <ng-container *ngSwitchCase="'Remarks'">
+
+              {{ item.Remarks }}
+
+            </ng-container>
+
+            <!-- ================= BATCH NUMBER ================= -->
+            <ng-container *ngSwitchCase="'Batch Number'">
+
+              {{ item.BatchNumber }}
+
+            </ng-container>
+
+            <!-- ================= BATCH QTY ================= -->
+            <ng-container *ngSwitchCase="'Batch Qty'">
+
+              {{ item.BatchQuantity }}
+
+            </ng-container>
+
+            <!-- ================= SAMPLE QTY ================= -->
+            <ng-container *ngSwitchCase="'Sample Qty'">
+
+              {{ item.SampleQuantity }}
+
+            </ng-container>
+
+            <!-- ================= ERROR RATE % ================= -->
+            <ng-container *ngSwitchCase="'Error Rate (%)'">
+
+              {{ item.ErrorRatePct }}
+
+            </ng-container>
+
+            <!-- ================= ERROR RATE PPM ================= -->
+            <ng-container *ngSwitchCase="'Error Rate (PPM)'">
+
+              {{ item.ErrorRatePPM }}
+
+            </ng-container>
+
+          </ng-container>
+
+        </td>
+
+      </tr>
+
+      <!-- ================= NO RECORDS ================= -->
+      <tr *ngIf="!isLoading && (!pagedMockdata || pagedMockdata.length === 0)">
+        <td [attr.colspan]="activeColumns.length" class="text-center py-4">
+          No records found
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <!-- ===================== HORIZONTAL SCROLL BUTTONS ===================== -->
+
+
+
+</div>
+
+<div style="width: 100%;">
+  <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 20, 25, 50, 100]" showFirstLastButtons (page)="onPageChange($event)">
+  </mat-paginator>
+</div>
+
+  <!-- Horizontal scroll buttons -->
+  <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+    <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+  </button>
+  <button class="mine mine-right" mat-fab (click)="scrollRight()">
+    <mat-icon style="color: #37474f">fast_forward</mat-icon>
+  </button>

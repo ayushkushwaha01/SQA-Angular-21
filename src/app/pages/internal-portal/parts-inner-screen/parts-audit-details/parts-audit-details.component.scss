@@ -1,0 +1,793 @@
+// ========================================
+// Typography
+// ========================================
+
+.font-weight-bold {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+
+// ========================================
+// Standard Form Controls
+// ========================================
+
+.form-control {
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.custom-mat-select {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+
+// ========================================
+// Red Risk Rating Input
+// ========================================
+
+.input-risk {
+  background-color: red !important;
+  color: white !important;
+  font-weight: 600;
+  border: none;
+}
+
+
+// ========================================
+// Main Container
+// ========================================
+
+.container-fluid {
+  padding-left: 30px;
+}
+
+
+// ========================================
+// IMAGE GALLERY
+// ========================================
+
+.gallery-container {
+  background-color: #eceaea;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+
+  padding: 15px;
+
+  border-radius: 6px;
+  box-shadow: none;
+
+  gap: 10px;
+
+  min-height: 110px;
+}
+
+
+// Common card style
+
+.inner-card {
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 6px;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+// ========================================
+// BLACK ADD IMAGE BUTTON
+// ========================================
+
+.add-btn-card {
+  background-color: #141313 !important;
+
+  width: 80px;
+  height: 80px;
+
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  .add-icon {
+    color: white !important;
+
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+
+// ========================================
+// IMAGE CARD
+// ========================================
+
+.img-card {
+  width: 80px;
+  height: 80px;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  background-color: white;
+
+  padding: 0 !important;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  .gallery-img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+  }
+}
+
+
+// ========================================
+// DOCUMENTS SECTION
+// ========================================
+
+.documents-container {
+  background-color: #eceaea;
+
+  padding: 15px;
+
+  border-radius: 6px;
+
+  min-height: 110px;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+
+// ========================================
+// BLACK ADD PDF BUTTON
+// Same style as Image + button
+// ========================================
+
+.document-add-card {
+  width: 80px;
+  height: 80px;
+
+  background-color: #141313 !important;
+
+  color: white !important;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  mat-icon {
+    color: white !important;
+
+    font-size: 32px;
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  span {
+    color: white;
+
+    font-size: 11px;
+
+    margin-top: 3px;
+  }
+}
+
+
+// ========================================
+// DOCUMENT ITEM
+// ========================================
+
+.document-item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  background-color: white;
+
+  border: 1px solid #ddd;
+
+  border-radius: 4px;
+
+  padding: 8px 10px;
+
+  min-height: 40px;
+
+  box-sizing: border-box;
+}
+
+
+// PDF ICON
+
+.pdf-icon {
+  color: #d32f2f !important;
+
+  font-size: 22px;
+
+  width: 22px;
+  height: 22px;
+
+  flex-shrink: 0;
+}
+
+
+// Document link
+
+.document-link {
+  color: #333;
+
+  font-size: 13px;
+
+  text-decoration: none;
+
+  word-break: break-word;
+
+  &:hover {
+    color: #1976d2;
+
+    text-decoration: underline;
+  }
+}
+
+
+// ========================================
+// SAVE BUTTON
+// ========================================
+
+.btn-save {
+  background-color: green !important;
+
+  color: white !important;
+
+  width: 100px;
+
+  font-weight: 500;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 4px;
+
+  &:hover {
+    background-color: darkgreen !important;
+  }
+
+  mat-icon {
+    color: white !important;
+
+    font-size: 20px;
+
+    width: 20px;
+    height: 20px;
+  }
+}
+
+
+// ========================================
+// SLIDESHOW OVERLAY
+// ========================================
+
+.slideshow-overlay {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.85);
+
+  z-index: 9999;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+}
+
+
+// Slideshow Image
+
+.slideshow-image {
+  max-width: 90%;
+
+  max-height: 90vh;
+
+  object-fit: contain;
+
+  border-radius: 4px;
+}
+
+
+// ========================================
+// SLIDESHOW CLOSE
+// ========================================
+
+.slideshow-close {
+  position: absolute;
+
+  top: 25px;
+  right: 30px;
+
+  background: transparent;
+
+  border: none;
+
+  color: white;
+
+  cursor: pointer;
+
+  mat-icon {
+    color: white;
+
+    font-size: 32px;
+
+    width: 32px;
+    height: 32px;
+  }
+}
+
+
+// ========================================
+// SLIDESHOW NAVIGATION
+// ========================================
+
+.slideshow-nav {
+  position: absolute;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  background: rgba(255, 255, 255, 0.15);
+
+  border: none;
+
+  color: white;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  mat-icon {
+    color: white;
+
+    font-size: 36px;
+
+    width: 36px;
+    height: 36px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  &.prev {
+    left: 30px;
+  }
+
+  &.next {
+    right: 30px;
+  }
+}
+
+
+// ========================================
+// DEMERIT
+// ========================================
+
+.demerit-container {
+  gap: 15px;
+}
+
+.demerit-card {
+  width: 105px;
+
+  background-color: #ffffff;
+
+  border: 1px solid #e0e0e0;
+
+  border-radius: 6px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  text-align: center;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease-in-out;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  user-select: none;
+
+  &.selected {
+    border: 2px solid #555;
+
+    transform: scale(1.05);
+
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  &.disabled-box {
+    cursor: not-allowed;
+
+    opacity: 0.6;
+
+    pointer-events: none;
+  }
+
+  .demerit-val {
+    font-size: 18px;
+
+    font-weight: 700;
+
+    padding: 10px 0;
+
+    color: #333;
+
+    background-color: #fff;
+  }
+
+  .demerit-label {
+    font-size: 12px;
+
+    font-weight: 700;
+
+    padding: 6px 0;
+
+    width: 100%;
+  }
+}
+
+
+// Demerit hover
+
+.demerit-card:hover {
+  transform: translateY(-1px);
+}
+
+
+// Selected Demerit
+
+.demerit-card.selected-demerit {
+  border: 2px solid #000 !important;
+}
+
+// ========================================
+// Gallery Container
+// ========================================
+
+.gallery-container {
+  background-color: #eceaea !important;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  align-items: center;
+
+  padding: 15px;
+
+  border-radius: 6px;
+
+  box-shadow: none;
+
+  gap: 10px;
+
+  min-height: 110px;
+}
+
+
+// ========================================
+// Common Card
+// ========================================
+
+.inner-card {
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 6px;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  flex-shrink: 0;
+}
+
+
+// ========================================
+// Black + Button
+// ========================================
+
+.add-btn-card {
+  width: 80px;
+  height: 80px;
+
+  background-color: #141313 !important;
+
+  cursor: pointer;
+
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  .add-icon {
+    color: white !important;
+
+    font-size: 32px;
+
+    width: 32px;
+    height: 32px;
+  }
+}
+
+
+// ========================================
+// Image Card
+// ========================================
+
+.img-card {
+  width: 80px;
+  height: 80px;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  background-color: white;
+
+  padding: 0;
+
+  .gallery-img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+  }
+}
+
+
+// ========================================
+// Document Card
+// ========================================
+
+.document-card {
+  position: relative;
+
+  width: 80px;
+  height: 80px;
+
+  background-color: white;
+
+  padding: 0;
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+
+// ========================================
+// PDF Icon
+// ========================================
+
+.pdf-icon {
+  color: #e53935 !important;
+
+  font-size: 34px;
+
+  width: 34px;
+  height: 34px;
+
+  transition: opacity 0.2s ease;
+}
+
+
+// ========================================
+// Document Title
+// Hidden normally
+// Shown only on hover
+// ========================================
+
+.document-title {
+  position: absolute;
+
+  left: 4px;
+  right: 4px;
+
+  bottom: 4px;
+
+  background-color: rgba(0, 0, 0, 0.75);
+
+  color: white;
+
+  font-size: 10px;
+
+  text-align: center;
+
+  padding: 4px 3px;
+
+  border-radius: 3px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  opacity: 0;
+
+  transition: opacity 0.2s ease;
+
+  pointer-events: none;
+}
+
+
+// Show title on hover
+
+.document-card:hover .document-title {
+  opacity: 1;
+}
+
+
+// ========================================
+// Save Button
+// ========================================
+
+.custom-save-btn {
+  background-color: rgb(0, 153, 255);
+  color: white !important;
+}
+
+.custom-save-btn mat-icon {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.custom-save-btn.disable-custom {
+  background-color: #d3d3d3 !important;
+  color: #808080 !important;
+  filter: grayscale(1) !important;
+  cursor: not-allowed !important;
+}
+
+.custom-save-btn.disable-custom mat-icon {
+  color: #808080 !important;
+}
+
+.delete-media-btn {
+  position: absolute;
+
+  top: 3px;
+  right: 3px;
+
+  width: 24px;
+  height: 24px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background-color: rgba(255, 255, 255, 0.95);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  z-index: 10;
+
+  opacity: 1;
+
+  ::ng-deep .mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+
+    color: #dc3545 !important;
+  }
+
+  ::ng-deep svg {
+    width: 16px !important;
+    height: 16px !important;
+    fill: #dc3545 !important;
+  }
+}

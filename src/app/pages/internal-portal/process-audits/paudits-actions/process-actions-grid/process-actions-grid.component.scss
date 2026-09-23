@@ -1,0 +1,14 @@
+::ng-deep .mat-mdc-dialog-container,
+::ng-deep .mat-dialog-container {
+  overflow: hidden !important;
+}
+
+::ng-deep .mat-mdc-dialog-content,
+::ng-deep .mat-dialog-content {
+  overflow: hidden !important;
+  max-height: none !important;
+}
+
+::ng-deep .mdc-dialog__surface {
+  overflow: hidden !important;
+}

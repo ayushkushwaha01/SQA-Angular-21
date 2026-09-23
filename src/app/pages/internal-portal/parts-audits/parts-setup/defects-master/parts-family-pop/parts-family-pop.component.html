@@ -1,0 +1,32 @@
+<div class="NewHeader">
+  <h1 mat-dialog-title>Assign Defects: {{ fullPartFamilyItem?.partFamilyName }}</h1>
+</div>
+
+<div mat-dialog-content style="overflow-x: hidden; max-height: 400px; padding-top: 15px;">
+  <form class="form-horizontal" novalidate>
+    <div class="row">
+      <div *ngFor="let col of defectColumns" class="col-sm-4" style="margin-bottom: 15px;">
+        <div *ngFor="let defect of col" style="margin-bottom: 8px;">
+          <mat-checkbox 
+            [checked]="isSelected(defect.defectId)"
+            (change)="toggleSelection(defect.defectId, $event)">
+            {{ defect.defectName }}
+          </mat-checkbox>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="allDefects.length === 0" style="padding: 15px; color: gray;">
+      No defects available in Master Table.
+    </div>
+  </form>
+</div>
+
+<mat-dialog-actions align="end" style="margin-top: 15px; padding-bottom: 10px;">
+  <button mat-raised-button class="grey" style="color:red; margin-right: 10px;" (click)="close()">
+    <mat-icon>cancel</mat-icon> Cancel
+  </button>
+  <button mat-raised-button color="primary" (click)="save()">
+    <mat-icon>save</mat-icon> Save
+  </button>
+</mat-dialog-actions>

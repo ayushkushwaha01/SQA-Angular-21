@@ -1,0 +1,50 @@
+.margins {
+    margin-bottom: 12px;
+  }
+  .newMarginClass {
+    margin-top: 7px !important;
+  }
+  
+  .confirm-btn-container .btn {
+    width: 100px !important;
+    margin-left: 10px;
+  }
+  .switchToggle input[type=checkbox]{height: 0; width: 0; visibility: hidden; position: absolute; }
+.switchToggle label {cursor: pointer; text-indent: -9999px; width: 100px; max-width: 100px; height: 30px; background: #d1d1d1; display: block; border-radius: 100px; position: relative; }
+.switchToggle label:after {content: ''; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px; background: #fff; border-radius: 90px; transition: 0.3s; }
+.switchToggle input:checked + label, .switchToggle input:checked + input + label  {background: #3e98d3; }
+.switchToggle input + label:before, .switchToggle input + input + label:before {content: 'Inactive'; position: absolute; top: 5px; left: 35px; width: 26px; height: 26px; border-radius: 90px; transition: 0.3s; text-indent: 0; color: #fff; }
+.switchToggle input:checked + label:before, .switchToggle input:checked + input + label:before {content: 'Active'; position: absolute; top: 5px; left: 10px; width: 26px; height: 26px; border-radius: 90px; transition: 0.3s; text-indent: 0; color: #fff; }
+.switchToggle input:checked + label:after, .switchToggle input:checked + input + label:after {left: calc(100% - 2px); transform: translateX(-100%); }
+.switchToggle label:active:after {width: 60px; } 
+.toggle-switchArea { margin: 10px 0 10px 0; }
+
+
+.mine {
+  position: fixed;
+  bottom: 80px;
+  right: 40px;
+  background-color: #e6e6e6 !important;
+}
+
+
+.disabled-action {
+  color: gray !important;   /* make icon gray */
+  opacity: 0.6;             /* slightly faded */
+  cursor: not-allowed !important;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;     /* 👈 this shows scrollbar at bottom */
+  overflow-y: hidden;
+}
+
+.table-wrapper table {
+  min-width: 1600px;    /* 👈 wider than container, forces horizontal scroll */
+}
+
+.mine {
+  margin: 5px;
+  background: #e0e0e0;
+}

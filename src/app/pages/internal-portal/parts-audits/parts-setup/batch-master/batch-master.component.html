@@ -1,0 +1,123 @@
+<div class="custom-layout-wrapper">
+
+  <div class="toolbar-row mb-3 d-flex justify-content-end gap-3" style="width: 100%;">
+    <button mat-raised-button
+      style="background-color: #1a1a1a; color: white; padding: 10px 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+      (click)="toggleFilters()">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px;  margin-top:4px">filter_list</mat-icon>
+      Filter
+    </button>
+
+
+
+    <button mat-raised-button color="primary" class="btn-blue" [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Batch'"
+      (click)="canCreate && addbatchpop(null)">
+
+      <mat-icon>add</mat-icon>
+      Add Batch
+
+    </button>
+  </div>
+
+  <div class="filter-wrapper" *ngIf="showFilters" style="width: 100%;">
+    <mat-card class="filter-card" [formGroup]="filterForm">
+      <mat-card-content>
+        <div class="filter-row">
+
+          <div class="filter-group">
+            <label class="filter-label mb-0">Keyword :</label>
+            <input type="text" placeholder="Enter Keyword" class="custom-mat-input" formControlName="Keyword">
+          </div>
+
+          <div class="button-group">
+            <button mat-raised-button color="primary" (click)="getBatchMaster()">
+              <mat-icon>search</mat-icon> Go
+            </button>
+            <button mat-raised-button class="btn-clear" (click)="clearFilter()">
+              <mat-icon>settings_backup_restore</mat-icon> Clear
+            </button>
+          </div>
+
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover" style="width:100%;">
+      <thead class="tbl-head">
+        <tr>
+          <th>Part Family</th>
+          <th>Part Name</th>
+          <th>Batch Number</th>
+          <th>Batch Date</th>
+          <th class="text-center">Remarks</th>
+          <th class="text-center" style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let item of tableLists">
+
+          <td>{{ item.partFamilyName || '-' }}</td>
+
+          <td>{{ item.partMasterName || '-' }}</td>
+
+          <td>{{ item.batchNumber || '-' }}</td>
+
+          <td>{{ item.batchDate | date:'dd/MM/yyyy' }}</td>
+
+          <td class="text-center">
+
+            <mat-icon *ngIf="item.remakrs" color="primary" [matTooltip]="item.remakrs" matTooltipPosition="above"
+              style="color:blue;cursor:pointer;">
+
+              info
+
+            </mat-icon>
+
+            <span *ngIf="!item.remakrs">-</span>
+
+          </td>
+
+          <td class="text-center">
+
+            <!-- Edit -->
+            <a [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Record'"
+              style="margin-right: 12px; cursor: pointer;" (click)="canUpdate && addbatchpop(item)">
+
+              <i class="fa fa-edit text-primary"></i>
+
+            </a>
+
+            <!-- Delete -->
+            <a [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Record'"
+              style="cursor: pointer;" (click)="canDelete && deleteConfirmation(item)">
+
+              <i class="fa fa-trash text-danger"></i>
+
+            </a>
+
+          </td>
+
+        </tr>
+
+        <tr *ngIf="tableLists.length === 0">
+          <td colspan="6" class="text-center py-4">
+            No Data Available
+          </td>
+        </tr>
+
+
+      </tbody>
+    </table>
+  </div>
+
+  <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+    [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+  </mat-paginator>
+</div>
