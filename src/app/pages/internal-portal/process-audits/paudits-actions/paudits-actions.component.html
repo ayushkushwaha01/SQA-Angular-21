@@ -71,7 +71,7 @@
                 <button mat-raised-button class="pull-right btn-default margin-right-10" (click)="clearFilter()">
                   <mat-icon>settings_backup_restore</mat-icon>Clear
                 </button>
-                <button mat-raised-button style="margin-right: 10px;" color="primary" class="pull-right" (click)="go()">
+                <button mat-raised-button style="margin-right: 10px;" class="search-btn pull-right" (click)="go()">
                   <mat-icon>search</mat-icon>Search
                 </button>
               </div>
@@ -159,9 +159,9 @@
             </th>
 
             <!-- SUPPLIER REMARKS -->
-            <th *ngSwitchCase="'Supplier Remarks'" mat-header-cell class="text-center" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
+            <th *ngSwitchCase="'Supplier Remarks'" mat-header-cell class="text-center"
+              [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)">
               Supplier Remarks
             </th>
 
@@ -187,9 +187,9 @@
             </th>
 
             <!-- COMPLETION DATE -->
-            <th *ngSwitchCase="'Completion Date'" mat-header-cell class="text-center" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
+            <th *ngSwitchCase="'Completion Date'" mat-header-cell class="text-center"
+              [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === frozenCount - 1"
+              [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)">
               Completion Date
             </th>
 
@@ -256,7 +256,8 @@
               [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
               <div class="manage-icons">
-                <a [class.disable-custom]="!canDelete" [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+                <a [class.disable-custom]="!canDelete"
+                  [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
                   (click)="canDelete && deleteConfirmation(applicant)">
                   <i class="fa fa-trash delete-icon"></i>
                 </a>

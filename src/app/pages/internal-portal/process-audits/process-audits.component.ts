@@ -53,7 +53,7 @@ export class ProcessAuditsComponent implements OnInit {
 
   openHelpDesk(){
     this.dialog.open(PauditsHelpDeskComponent, {
-      width: '650px',
+      width: '680px',
       data: { module: 'Process Audits' }
     });
   }

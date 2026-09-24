@@ -9,7 +9,7 @@
         </button>
         &nbsp;&nbsp;&nbsp;&nbsp;
         <!-- Add State -->
-        <button mat-raised-button color="primary" class="btn-blue" [class.disable-custom]="!canCreate"
+        <button mat-raised-button class="search-btn" [class.disable-custom]="!canCreate"
             [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add State'"
             (click)="canCreate && addState(null)">
 
@@ -50,7 +50,7 @@
                             </div>
 
                             <div class="col-sm-4">
-                                <button mat-raised-button color="primary" class="pull-right" (click)="applyFilter()">
+                                <button mat-raised-button  class=" search-btn pull-right" (click)="applyFilter()">
                                     <mat-icon>search</mat-icon> Search
                                 </button>
                                 <button mat-raised-button class="pull-right btn-default margin-right-10"

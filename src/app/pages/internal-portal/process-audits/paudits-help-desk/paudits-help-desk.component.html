@@ -1,51 +1,42 @@
 <div class="helpdesk-popup-container">
-    <!-- Header -->
-    <div class="helpdesk-header">
-        <div class="d-flex align-items-center gap-2">
-            <mat-icon class="header-icon">support_agent</mat-icon>
-            <h2 class="header-title">Send Mail <span class="module-chip">({{ data?.module || 'Process Audits' }})</span></h2>
+  <!-- Header -->
+  <div class="helpdesk-header">
+    <h2 class="header-title">Send Mail ({{ data?.module || 'Inspection' }})</h2>
+  </div>
+
+  <!-- Body Form -->
+  <div class="helpdesk-body">
+    <form (ngSubmit)="save()">
+      <!-- Subject Field -->
+      <div class="form-row">
+        <label class="field-label">Subject :<span class="required-star">*</span></label>
+        <div class="field-control">
+          <input type="text" class="custom-input" placeholder="Enter Subject"
+            [(ngModel)]="subject" name="subject" [disabled]="isSending" autocomplete="off">
         </div>
-        <button mat-icon-button class="close-btn" (click)="close()" [disabled]="isSending" matTooltip="Close">
-            <mat-icon>close</mat-icon>
-        </button>
-    </div>
+      </div>
 
-    <!-- Body Form -->
-    <div class="helpdesk-body">
-        <form (ngSubmit)="save()">
-            <!-- Subject Field -->
-            <div class="row align-items-center mb-3">
-                <div class="col-sm-3">
-                    <label class="form-label mb-0">Subject <span class="text-danger">*</span></label>
-                </div>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control clean-input" placeholder="Enter Subject" [(ngModel)]="subject"
-                        name="subject" [disabled]="isSending" autocomplete="off">
-                </div>
-            </div>
+      <!-- Description Field -->
+      <div class="form-row">
+        <label class="field-label field-label-top">Description :<span class="required-star">*</span></label>
+        <div class="field-control">
+          <textarea class="custom-textarea" rows="7" placeholder="Enter Description"
+            [(ngModel)]="description" name="description" [disabled]="isSending"></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
 
-            <!-- Description Field -->
-            <div class="row mb-3">
-                <div class="col-sm-3 pt-1">
-                    <label class="form-label mb-0">Description <span class="text-danger">*</span></label>
-                </div>
-                <div class="col-sm-9">
-                    <textarea class="form-control clean-textarea" rows="6" placeholder="Enter Description..." 
-                        [(ngModel)]="description" name="description" [disabled]="isSending"></textarea>
-                </div>
-            </div>
-        </form>
-    </div>
+  <!-- Actions -->
+  <div class="helpdesk-footer">
+    <button mat-raised-button type="button" class="btn-custom-close" (click)="close()" [disabled]="isSending">
+      <mat-icon class="icon-cancel">cancel</mat-icon>
+      <span>Close</span>
+    </button>
 
-    <!-- Actions -->
-    <div class="helpdesk-footer">
-        <button mat-raised-button class="btn-cancel" (click)="close()" [disabled]="isSending">
-            <mat-icon>cancel</mat-icon> Close
-        </button>
-
-        <button mat-raised-button color="primary" class="btn-send" (click)="save()" [disabled]="isSending">
-            <mat-icon>{{ isSending ? 'hourglass_top' : 'send' }}</mat-icon>
-            {{ isSending ? 'Sending...' : 'Send' }}
-        </button>
-    </div>
+    <button mat-raised-button type="button" class="btn-custom-send" (click)="save()" [disabled]="isSending">
+      <mat-icon class="icon-send">{{ isSending ? 'hourglass_top' : 'send' }}</mat-icon>
+      <span>{{ isSending ? 'Sending...' : 'Send' }}</span>
+    </button>
+  </div>
 </div>

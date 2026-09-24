@@ -21,8 +21,8 @@
 
                     <div class="col-sm-8">
 
-                        <mat-select class="form-control" placeholder="Select Part Family"
-                            formControlName="PartFamilyId" style="background-color: #fefec4 !important;">
+                        <mat-select class="form-control" placeholder="Select Part Family" formControlName="PartFamilyId"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
 
@@ -134,7 +134,7 @@
 
                 </button>
 
-                <button mat-raised-button color="primary" type="button" (click)="UpsertPartMaster()"
+                <button mat-raised-button class="search-btn" type="button" (click)="UpsertPartMaster()"
                     [disabled]="myGroup.invalid">
 
                     <mat-icon>save</mat-icon>

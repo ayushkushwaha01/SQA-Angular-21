@@ -61,7 +61,7 @@
                     Close
                 </button>
 
-                <button mat-raised-button color="primary" (click)="UpsertPartFamily()" [disabled]="myGroup.invalid">
+                <button mat-raised-button class="search-btn" (click)="UpsertPartFamily()" [disabled]="myGroup.invalid">
 
                     <mat-icon>save</mat-icon>
                     {{ data ? 'Update' : 'Save' }}

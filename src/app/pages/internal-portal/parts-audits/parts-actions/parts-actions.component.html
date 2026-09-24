@@ -61,7 +61,7 @@
                 <button mat-raised-button class="btn-dark me-2" (click)="clearFilters()">
                   <mat-icon>settings_backup_restore</mat-icon> Clear
                 </button>
-                <button mat-raised-button color="primary" class="btn-blue me-3" (click)="getCapas()">
+                <button mat-raised-button class="search-btn btn-blue me-3" (click)="getCapas()">
                   <mat-icon>search</mat-icon> Search
                 </button>
                 <a (click)="filterToggle = !filterToggle" style="font-size: 22px; cursor: pointer; color: #555;">
@@ -370,21 +370,19 @@
 
                 <div style="line-height: 1.4;">
                   <!-- 🔥 Color and weight rely ONLY on the OVERDUE threshold -->
-                  <span
-                    [ngStyle]="{
+                  <span [ngStyle]="{
                       'color': applicant.calculatedDelayInDays >= overdueThreshold ? 'red' : 'inherit',
                       'font-weight': applicant.calculatedDelayInDays >= overdueThreshold ? '600' : 'normal'
-                    }"
-                    style="display: inline-flex; align-items: center; justify-content: center;">
-                    
+                    }" style="display: inline-flex; align-items: center; justify-content: center;">
+
                     <!-- 🔥 The Flag Icon relies ONLY on the ESCALATE threshold -->
-                    <mat-icon *ngIf="applicant.calculatedDelayInDays >= escalateThreshold" 
+                    <mat-icon *ngIf="applicant.calculatedDelayInDays >= escalateThreshold"
                       style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">
                       flag
                     </mat-icon>
-                    
+
                     <!-- <span>{{ applicant.subject || applicant.capaSubject || '-' }}</span> -->
-                     <span>{{ applicant.capaSubject || '-' }}</span>
+                    <span>{{ applicant.capaSubject || '-' }}</span>
                   </span>
                 </div>
 
@@ -510,7 +508,7 @@
 
                 </mat-select>
 
-              </td> --> 
+              </td> -->
 
               <!-- PDCA Status -->
               <td *ngSwitchCase="'PDCA Status'" class="text-center" [class.frozen-col]="i < frozenCount"

@@ -347,7 +347,7 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   // -------------------------------------------------------------
 
   addrecord(data: any) {
-    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data: null });
+    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1500px', height: 'auto', data: null });
     dialogRef.afterClosed().subscribe(res => { if (res) this.loadData(); });
   }
 

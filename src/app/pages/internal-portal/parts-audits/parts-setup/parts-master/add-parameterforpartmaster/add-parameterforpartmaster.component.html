@@ -21,7 +21,8 @@
 
                     <div class="col-sm-8">
 
-                        <mat-select class="form-control" placeholder="Select Category" formControlName="PartId" style="background-color: #fefec4 !important;">
+                        <mat-select class="form-control" placeholder="Select Category" formControlName="PartId"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let category of partAuditCategories" [value]="category.partId">
 
@@ -49,7 +50,8 @@
 
                     <div class="col-sm-8">
 
-                        <mat-select class="form-control" placeholder="Select Unit" formControlName="UnitId" style="background-color: #fefec4 !important;">
+                        <mat-select class="form-control" placeholder="Select Unit" formControlName="UnitId"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of lookups" [value]="item.lookupId">
 
@@ -180,7 +182,7 @@
 
                 </button>
 
-                <button mat-raised-button color="primary" type="button" (click)="UpsertParameter()"
+                <button mat-raised-button class="search-btn" type="button" (click)="UpsertParameter()"
                     [disabled]="myGroup.invalid">
 
                     <mat-icon>save</mat-icon>

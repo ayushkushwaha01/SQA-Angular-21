@@ -81,7 +81,7 @@ export class InspectionArchivesComponent implements OnInit {
 
     // Initialize the form group to prevent HTML errors
     this.myGroup = new FormGroup({
-      date: new FormControl(null),
+      inspectionDate: new FormControl(null),
       inspector: new FormControl(''),
       partFamily: new FormControl(''),
       partName: new FormControl(''),

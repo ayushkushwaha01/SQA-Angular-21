@@ -299,7 +299,7 @@
   align-items: center;
   gap: 20px;
   flex-wrap: nowrap; // was: wrap — this is what's causing the 2nd line
-  overflow-x: auto; // lets it scroll horizontally on small screens instead of wrapping
+  //  overflow-x: auto; // lets it scroll horizontally on small screens instead of wrapping
   justify-content: flex-start; // was: space-between, which stretches groups apart and pushes items off-row
 }
 

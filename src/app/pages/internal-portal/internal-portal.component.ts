@@ -115,7 +115,7 @@ export class InternalPortalComponent implements OnInit, OnDestroy {
   // 🔥 Update this function
   openHelpDesk(moduleName: string) {
     this.dialog.open(PauditsHelpDeskComponent, { 
-      width: '650px', 
+      width: '680px', 
       data: { module: moduleName } // Send module name to popup
     });
   }

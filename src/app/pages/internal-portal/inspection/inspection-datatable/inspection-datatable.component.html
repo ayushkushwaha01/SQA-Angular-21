@@ -60,9 +60,10 @@
             <div class="col-sm-4 row">
               <div class="col-sm-4 d-flex align-items-center"><b>Inspection Date:</b></div>
               <div class="col-sm-8">
-                <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; width: 100%; background-color: white; overflow: hidden;">
-                  <input matInput [matDatepicker]="picker" placeholder="mm/dd/yyyy"
-                    readonly (click)="picker.open()" [(ngModel)]="filterObj.date" name="dateFilter"
+                <div
+                  style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; width: 100%; background-color: white; overflow: hidden;">
+                  <input matInput [matDatepicker]="picker" placeholder="mm/dd/yyyy" readonly (click)="picker.open()"
+                    [(ngModel)]="filterObj.date" name="dateFilter"
                     style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent; cursor: pointer;">
                   <mat-datepicker-toggle matSuffix [for]="picker" style="flex-shrink: 0;"></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
@@ -73,8 +74,8 @@
             <div class="col-sm-4 row">
               <div class="col-sm-4 d-flex align-items-center"><b>Part Family:</b></div>
               <div class="col-sm-8">
-                <mat-select placeholder="Select Part Family" class="form-control"
-                  [(ngModel)]="filterObj.partFamily" name="partFamilyFilter">
+                <mat-select placeholder="Select Part Family" class="form-control" [(ngModel)]="filterObj.partFamily"
+                  name="partFamilyFilter">
                   <mat-option *ngFor="let family of partFamilies" [value]="family">
                     {{ family }}
                   </mat-option>
@@ -85,8 +86,8 @@
             <div class="col-sm-4 row">
               <div class="col-sm-4 d-flex align-items-center"><b>Part Number:</b></div>
               <div class="col-sm-8">
-                <input type="text" class="form-control" placeholder="Enter Part Number" [(ngModel)]="filterObj.partNumber"
-                  name="partNumberFilter">
+                <input type="text" class="form-control" placeholder="Enter Part Number"
+                  [(ngModel)]="filterObj.partNumber" name="partNumberFilter">
               </div>
             </div>
           </div>
@@ -96,8 +97,8 @@
             <div class="col-sm-4 row">
               <div class="col-sm-4 d-flex align-items-center"><b>Inspector:</b></div>
               <div class="col-sm-8">
-                <mat-select placeholder="Select Inspector" class="form-control"
-                  [(ngModel)]="filterObj.inspector" name="inspectorFilter">
+                <mat-select placeholder="Select Inspector" class="form-control" [(ngModel)]="filterObj.inspector"
+                  name="inspectorFilter">
                   <mat-option *ngFor="let inspector of inspectors" [value]="inspector">
                     {{ inspector }}
                   </mat-option>
@@ -108,8 +109,8 @@
             <div class="col-sm-4 row">
               <div class="col-sm-4 d-flex align-items-center"><b>Part Name:</b></div>
               <div class="col-sm-8">
-                <mat-select placeholder="Select Part Name" class="form-control"
-                  [(ngModel)]="filterObj.partName" name="partNameFilter">
+                <mat-select placeholder="Select Part Name" class="form-control" [(ngModel)]="filterObj.partName"
+                  name="partNameFilter">
                   <input type="text" class="form-control" [value]="partNameSearch" placeholder="Search part name..."
                     style="margin: 8px; width: calc(100% - 16px); box-sizing: border-box;"
                     (keydown)="$event.stopPropagation()" (input)="filterPartNames($any($event.target).value)">
@@ -123,8 +124,8 @@
             <div class="col-sm-4 row">
               <div class="col-sm-4 d-flex align-items-center"><b>Batch Number:</b></div>
               <div class="col-sm-8">
-                <mat-select placeholder="Select Batch Number" class="form-control"
-                  [(ngModel)]="filterObj.batchNumber" name="batchNumberFilter">
+                <mat-select placeholder="Select Batch Number" class="form-control" [(ngModel)]="filterObj.batchNumber"
+                  name="batchNumberFilter">
                   <mat-option *ngFor="let batch of batchNumbers" [value]="batch">
                     {{ batch }}
                   </mat-option>
@@ -134,12 +135,12 @@
           </div>
 
           <!-- ROW Buttons -->
-          <div class="row col-sm-12 mt-3">
+          <div class="row col-sm-12 mt-3" style="margin-left: -50px;">
             <div class="col-sm-12 d-flex align-items-center justify-content-end">
               <button mat-raised-button class="btn-default me-2" (click)="clearFilter()">
                 <mat-icon>settings_backup_restore</mat-icon> Clear
               </button>
-              <button mat-raised-button color="primary" (click)="applyFilter()">
+              <button mat-raised-button class="search-btn" (click)="applyFilter()">
                 <mat-icon>search</mat-icon> Search
               </button>
             </div>
@@ -474,10 +475,10 @@
   </mat-paginator>
 </div>
 
-  <!-- Horizontal scroll buttons -->
-  <button class="mine mine-left" mat-fab (click)="scrollLeft()">
-    <mat-icon style="color: #37474f">fast_rewind</mat-icon>
-  </button>
-  <button class="mine mine-right" mat-fab (click)="scrollRight()">
-    <mat-icon style="color: #37474f">fast_forward</mat-icon>
-  </button>
+<!-- Horizontal scroll buttons -->
+<button class="mine mine-left" mat-fab (click)="scrollLeft()">
+  <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+</button>
+<button class="mine mine-right" mat-fab (click)="scrollRight()">
+  <mat-icon style="color: #37474f">fast_forward</mat-icon>
+</button>

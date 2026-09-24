@@ -17,11 +17,13 @@
             <div class="col-sm-4 row">
               <div class="col-sm-4 d-flex align-items-center"><b>Inspection Date:</b></div>
               <div class="col-sm-8">
-                <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; width: 100%; background-color: white; overflow: hidden;">
-                  <input matInput [matDatepicker]="archivePicker" placeholder="mm/dd/yyyy" readonly (click)="archivePicker.open()"
-                    formControlName="inspectionDate"
+                <div
+                  style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; width: 100%; background-color: white; overflow: hidden;">
+                  <input matInput [matDatepicker]="archivePicker" placeholder="mm/dd/yyyy" readonly
+                    (click)="archivePicker.open()" formControlName="inspectionDate"
                     style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent; cursor: pointer;">
-                  <mat-datepicker-toggle matSuffix [for]="archivePicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                  <mat-datepicker-toggle matSuffix [for]="archivePicker"
+                    style="flex-shrink: 0;"></mat-datepicker-toggle>
                   <mat-datepicker #archivePicker></mat-datepicker>
                 </div>
               </div>
@@ -86,12 +88,12 @@
           </div>
 
           <!-- ROW Buttons -->
-          <div class="row col-sm-12 mt-3">
+          <div class="row col-sm-12 mt-3" style="margin-left: -50px;">
             <div class="col-sm-12 d-flex align-items-center justify-content-end">
               <button mat-raised-button class="btn-default me-2" type="button" (click)="clearFilter()">
                 <mat-icon>settings_backup_restore</mat-icon> Clear
               </button>
-              <button mat-raised-button color="primary" type="button" (click)="go()">
+              <button mat-raised-button class="search-btn" type="button" (click)="go()">
                 <mat-icon>search</mat-icon> Search
               </button>
             </div>
@@ -369,10 +371,10 @@
   </mat-paginator>
 </div>
 
-  <!-- Horizontal scroll buttons -->
-  <button class="mine mine-left" mat-fab (click)="scrollLeft()">
-    <mat-icon style="color: #37474f">fast_rewind</mat-icon>
-  </button>
-  <button class="mine mine-right" mat-fab (click)="scrollRight()">
-    <mat-icon style="color: #37474f">fast_forward</mat-icon>
-  </button>
+<!-- Horizontal scroll buttons -->
+<button class="mine mine-left" mat-fab (click)="scrollLeft()">
+  <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+</button>
+<button class="mine mine-right" mat-fab (click)="scrollRight()">
+  <mat-icon style="color: #37474f">fast_forward</mat-icon>
+</button>

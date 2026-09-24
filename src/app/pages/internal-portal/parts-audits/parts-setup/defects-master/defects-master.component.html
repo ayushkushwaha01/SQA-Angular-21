@@ -21,7 +21,7 @@
     </button>  -->
 
 
-    <button mat-raised-button color="primary" class="btn-blue" [class.disable-custom]="!canCreate"
+    <button mat-raised-button class="search-btn" [class.disable-custom]="!canCreate"
       [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Defect'"
       (click)="canCreate && adddefects(null)">
 
@@ -45,7 +45,7 @@
               class="custom-mat-input form-control">
           </div>
           <div class="button-group" style="margin-top: 25px;">
-            <button mat-raised-button class="btn-go" color="primary" (click)="filterData()">
+            <button mat-raised-button class="search-btn" color="primary" (click)="filterData()">
               <mat-icon>search</mat-icon> Go
             </button> &nbsp;
             <button mat-raised-button class="btn-clear" (click)="clearFilter()">
