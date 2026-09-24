@@ -1,3 +1,5 @@
+import { DeleteDailogComponent } from 'src/app/shared/delete-dailog/delete-dailog.component';
+
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -21,7 +23,7 @@ import { StatusChangeComponent } from '../../../status-change/status-change.comp
 import { UserPermissionService } from '../../helpers/user-permission.service';
 import { MfaSetupDialogComponent } from '../../mfa-setup-dialog/mfa-setup-dialog.component';
 import { AuthTokenService } from '../../../../auth-token.service';
-import { DeleteDailogComponent } from 'src/app/shared/delete-dailog/delete-dailog.component';
+
 
 @Component({
   selector: 'app-users',

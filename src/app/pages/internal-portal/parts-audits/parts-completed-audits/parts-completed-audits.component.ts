@@ -14,6 +14,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   standalone: false,
@@ -313,8 +314,8 @@ export class PartsCompletedAuditsComponent implements OnInit {
 
   changeArchiveStatus(item: any) {
 
-    const dialogRef = this.dialog.open(DialogComponent, {
-      width: 'auto',
+    const dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: {
         component: null,
         title: 'Archive Confirmation',

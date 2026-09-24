@@ -1,28 +1,21 @@
-<div tabindex="-1" cdkFocusInitial></div>
-<div style="background-color: rgb(198, 40, 40); text-align: center;">
-    <h3 style="color: rgb(255, 255, 255) !important; font-weight: 500; margin: 0;" mat-dialog-title>
-        Delete Record
-    </h3>
+<div class="delete-dialog-container">
+  <!-- Red Header -->
+  <div class="delete-dialog-header">
+    <h3 class="dialog-title">{{ data?.title || 'Delete Record' }}</h3>
+  </div>
+
+  <!-- Content -->
+  <div class="delete-dialog-body">
+    <p class="dialog-message">{{ data?.content || 'Are you sure you want to delete this record?' }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="delete-dialog-actions">
+    <button mat-raised-button type="button" class="btn-delete" (click)="delete()">
+      Delete
+    </button>
+    <button type="button" mat-raised-button class="add-dark-hover btn-default" (click)="close()" style="cursor: pointer;">
+      <span>&nbsp;Close</span>
+    </button>
+  </div>
 </div>
-
-
-
-
-<mat-dialog-content style="text-align: center; max-height: 60vh; overflow-y: auto;">
-    <p>Are you sure you want to delete this record?</p>
-</mat-dialog-content>
-
-<div style="margin-bottom: 10px;"><mat-dialog-actions
-        style="display: flex; justify-content: center; padding-top: 10px;">
-        <button mat-raised-button type="button" class="btn-default pull-right" mat-stroked-button color="warn"
-            style="cursor: pointer; margin-left: 10px;  color:  rgb(198, 40, 40); background-color: white !important; display: flex; align-items: center;"
-            (click)="close()  ">Cancel</button>
-        <button mat-raised-button style="color: white; background-color: rgb(198, 40, 40)" (click)="delete()">
-            <span>Delete</span>
-        </button>
-
-
-
-
-
-    </mat-dialog-actions></div>

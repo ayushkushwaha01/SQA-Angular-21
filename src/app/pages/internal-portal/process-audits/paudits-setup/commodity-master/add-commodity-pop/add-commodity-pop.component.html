@@ -1,39 +1,41 @@
-<div class="NewHeader">
-    <h2 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
-        {{ isEditMode ? 'Update Commodity' : 'Add Commodity' }}
-    </h2>
-</div>
+<div class="commodity-popup-container">
+  <!-- Header -->
+  <div class="commodity-header">
+    <h3 class="header-title">{{ isEditMode ? 'Update Commodity' : 'Add Commodity' }}</h3>
+  </div>
 
-<div mat-dialog-content style="padding: 20px 25px 10px 25px;">
-    <form [formGroup]="form">
-        <div class="row mb-3 align-items-center mx-0">
-            <div class="col-sm-4 fw-bold p-0">
-                Commodity Name: <span class="text-danger">*</span>
-            </div>
-            <div class="col-sm-8 p-0">
-                <input type="text" class="form-control" formControlName="name" placeholder="Enter Commodity Name"
-                    style="background-color: #fefec4 !important;">
-            </div>
+  <!-- Body Form -->
+  <div class="commodity-body">
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <!-- Commodity Name -->
+      <div class="form-row">
+        <label class="field-label">Commodity Name :<span class="required-star">*</span></label>
+        <div class="field-control">
+          <input type="text" class="custom-input" formControlName="name" placeholder="Enter Commodity Name"
+            autocomplete="off">
         </div>
+      </div>
 
-        <div class="row mb-3 align-items-center mx-0">
-            <div class="col-sm-4 fw-bold p-0">
-                Commodity Code: <span class="text-danger">*</span>
-            </div>
-            <div class="col-sm-8 p-0">
-                <input type="text" class="form-control" formControlName="code" placeholder="Enter Commodity Code"
-                    (input)="onCodeInput($event)" maxlength="5" style="background-color: #fefec4 !important;">
-            </div>
+      <!-- Commodity Code -->
+      <div class="form-row">
+        <label class="field-label">Commodity Code :<span class="required-star">*</span></label>
+        <div class="field-control">
+          <input type="text" class="custom-input" formControlName="code" placeholder="Enter Commodity Code"
+            (input)="onCodeInput($event)" maxlength="5" autocomplete="off">
         </div>
+      </div>
     </form>
-</div>
+  </div>
 
-<mat-dialog-actions align="end"
-    style="padding: 15px 25px 20px 25px !important; margin: 0 -25px -20px -25px !important; display: flex !important; justify-content: flex-end !important; gap: 12px;">
-    <button mat-raised-button class="btn-default" (click)="close()" style="background-color: #e0e0e0; color: #333;">
-        <mat-icon>cancel</mat-icon> Close
+  <!-- Actions -->
+  <div class="commodity-footer">
+    <button mat-raised-button type="button" class="add-dark-hover btn-default" (click)="close()" style="cursor: pointer;">
+      <mat-icon class="icon-cancel">cancel</mat-icon>
+      <span>Close</span>
     </button>
-    <button mat-raised-button type="submit" class="save search-btn" [disabled]="!form.valid" (click)="save()">
-        <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
+    <button mat-raised-button type="button" class="btn-save" [disabled]="!form.valid" (click)="save()">
+      <mat-icon>save</mat-icon>
+      <span>{{ isEditMode ? 'Update' : 'Save' }}</span>
     </button>
-</mat-dialog-actions>
+  </div>
+</div>
