@@ -686,13 +686,15 @@ export class PartsActiveAuditsComponent implements OnInit {
   }
 
   openColumnSelector() {
+    this.loadGridColumns();
+
     const dialogRef = this.dialog.open(ColumnSelectorComponent, {
-      width: '750px',
+      width: '950px',
       height: 'auto',
       disableClose: true,
       data: {
         userId: 1,
-        gridType: 'ActiveAudits',
+        gridType: 'PartsAuditTable',
         defaultColumns: this.defaultColumns
       }
     });
@@ -708,7 +710,7 @@ export class PartsActiveAuditsComponent implements OnInit {
   loadGridColumns() {
     const filter = {
       userId: 1,
-      gridType: 'ActiveAudits'
+      gridType: 'PartsAuditTable'
     };
 
     this.partAuditService.getgridcolumns(filter).subscribe({

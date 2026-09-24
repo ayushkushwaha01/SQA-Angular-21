@@ -4,9 +4,9 @@
         {{ data?.partAuditId ? 'Edit' : 'Add' }} Parts Audit
     </h2>
 
-    <h2 style="padding-top:0px; padding-left:20px; font-weight:400; font-size:18px;">
+    <!-- <h2 style="padding-top:0px; padding-left:20px; font-weight:400; font-size:18px;">
         {{ data?.partMasterId ? 'Edit' : 'Add' }} Parameter
-    </h2>
+    </h2> -->
 
 </div>
 
@@ -34,7 +34,8 @@
 
                         </mat-select> -->
                         <mat-select class="form-control" formControlName="commodityId" placeholder="Select Commodity"
-                            (selectionChange)="onCommodityChange($event.value)" style="background-color: #fefec4 !important;">
+                            (selectionChange)="onCommodityChange($event.value)"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
 
@@ -72,7 +73,8 @@
 
                         </mat-select> -->
                         <mat-select class="form-control" formControlName="partFamilyId" placeholder="Select Part Family"
-                            (selectionChange)="onPartFamilyChange($event.value)" style="background-color: #fefec4 !important;">
+                            (selectionChange)="onPartFamilyChange($event.value)"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
 
@@ -110,7 +112,8 @@
 
                     <div class="col-sm-8">
                         <mat-select class="form-control" placeholder="Select Part" formControlName="partMasterId"
-                            (selectionChange)="onPartChange($event.value)" style="background-color: #fefec4 !important;">
+                            (selectionChange)="onPartChange($event.value)"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of parts" [value]="item.partMasterId">
                                 {{ item.partMasterName }}
@@ -193,7 +196,8 @@
 
                         </mat-select> -->
                         <mat-select class="form-control" placeholder="Select State" formControlName="stateId"
-                            (selectionChange)="onStateChange($event.value)" style="background-color: #fefec4 !important;">
+                            (selectionChange)="onStateChange($event.value)"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of states" [value]="item.stateId">
                                 {{ item.stateName }}
@@ -324,12 +328,12 @@
 
 
             <mat-dialog-actions align="end"
-                style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -20px;">
+                style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -39px;">
                 <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
                     style="background-color: lightgray; color: red;margin-right: 5px;">
                     <mat-icon>cancel</mat-icon> Close
                 </button>
-                <button mat-raised-button type="button" class="save" color="primary" style="margin-right: 17px;"
+                <button mat-raised-button type="button" class="search-btn save" style="margin-right: 17px;"
                     [disabled]="myGroup.invalid" (click)="UpsertPartAudit()">
 
                     <mat-icon>save</mat-icon>

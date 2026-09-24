@@ -64,7 +64,7 @@
                     <!-- Actions -->
                     <td class="text-center">
 
-                        <button mat-raised-button color="primary" [class.disable-custom]="!canUpdate"
+                        <button mat-raised-button class="search-btn" [class.disable-custom]="!canUpdate"
                             [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Save'"
                             (click)="canUpdate && saveBand(item)">
 

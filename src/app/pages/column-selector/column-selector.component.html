@@ -1,30 +1,98 @@
-<div class="column-selector-dialog">
-  <div class="dialog-header d-flex justify-content-between align-items-center">
-    <h3 mat-dialog-title class="m-0">Select Columns</h3>
-    <button mat-icon-button (click)="close()" class="close-btn">
-      <mat-icon>close</mat-icon>
-    </button>
+<h2 mat-dialog-title class="dialog-title">
+  <div class="title">Manage Grid Columns</div>
+  <div class="subtitle">
+    Select, reorder and freeze columns to customize your grid.
   </div>
+</h2>
 
-  <div mat-dialog-content class="dialog-content">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <span class="text-muted small">Choose columns to display in the grid</span>
-      <div>
-        <button mat-button color="primary" class="btn-sm" (click)="selectAll(true)">Select All</button>
-        <button mat-button class="btn-sm text-muted" (click)="selectAll(false)">Deselect All</button>
+<mat-dialog-content class="dialog-content">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="panel-header">
+      <h5>Available Columns</h5>
+      <div class="search-box">
+        <i class="fa fa-search"></i>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search columns..." />
       </div>
     </div>
-    <div class="columns-grid">
-      <div *ngFor="let col of columns" class="column-item">
-        <mat-checkbox [(ngModel)]="col.visible" color="primary">
-          {{ col.name }}
-        </mat-checkbox>
-      </div>
+
+    <div class="column-list">
+      @for (col of getFilteredColumns(); track col) {
+        <div class="checkbox-row">
+          <label>
+            <input type="checkbox" [checked]="isSelected(col)" (change)="toggleColumn(col, $event)">
+            <span>{{ col }}</span>
+          </label>
+        </div>
+      } @empty {
+        <div class="empty">
+          No Columns Found
+        </div>
+      }
     </div>
   </div>
 
-  <div mat-dialog-actions align="end" class="dialog-actions">
-    <button mat-button (click)="close()">Cancel</button>
-    <button mat-raised-button color="primary" (click)="save()">Save Layout</button>
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="panel-header selected-header">
+      <h5>
+        Selected ({{ selectedColumns.length }})
+      </h5>
+
+      <div class="freeze-container">
+        <span>Freeze First</span>
+        <select [(ngModel)]="frozenCount">
+          <option [ngValue]="0">0</option>
+          @for (c of selectedColumns; track i; let i = $index) {
+            <option [ngValue]="i + 1">
+              {{ i + 1 }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div cdkDropList class="selected-list" (cdkDropListDropped)="drop($event)">
+      @if (frozenCount === 0 && selectedColumns.length > 0) {
+        <div class="freeze-message">
+          <i class="fa fa-snowflake-o"></i>
+          No Frozen Columns
+        </div>
+      }
+
+      @for (col of selectedColumns; track col; let i = $index) {
+        @if (i === frozenCount && frozenCount > 0) {
+          <div class="freeze-divider">
+            <span>Above Columns Are Frozen</span>
+          </div>
+        }
+
+        <div cdkDrag class="drag-row">
+          <div class="left">
+            <i class="fa fa-grip-vertical drag-icon"></i>
+            <span>{{ col }}</span>
+          </div>
+
+          <div class="right">
+            <mat-icon class="remove" matTooltip="Remove" (click)="removeColumn(col)">
+              close
+            </mat-icon>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty">
+          No Columns Selected
+        </div>
+      }
+    </div>
   </div>
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-footer">
+  <button mat-button (click)="closeDialog(false)">
+    Cancel
+  </button>
+  <button mat-raised-button color="primary" (click)="saveConfiguration()">
+    Apply Changes
+  </button>
+</mat-dialog-actions>
