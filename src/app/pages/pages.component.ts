@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Settings, SettingsService } from '../services/settings.service';
 import { MenuService } from '../services/menu.service';
@@ -11,7 +11,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { SidenavComponent } from '../theme/components/sidenav/sidenav.component';
@@ -20,13 +19,13 @@ import { UserMenuComponent } from '../theme/components/user-menu/user-menu.compo
 import { HorizontalMenuComponent } from '../theme/components/menu/horizontal-menu/horizontal-menu.component';
 import { BreadcrumbComponent } from '../theme/components/breadcrumb/breadcrumb.component';
 import { MessagesComponent } from '../theme/components/messages/messages.component';
-import { SentMailsDialogComponent } from './login/sent-mails-dialog/sent-mails-dialog.component';
 import { ManageUsersService } from './manage-users/manage-users.service';
 
 @Component({
     selector: 'app-pages',
     imports: [
         RouterOutlet,
+        RouterModule,
         FormsModule,
         MatSidenavModule,
         MatToolbarModule,
@@ -36,7 +35,6 @@ import { ManageUsersService } from './manage-users/manage-users.service';
         MatRadioModule,
         MatBadgeModule,
         MatTooltipModule,
-        MatDialogModule,
         FlexLayoutModule,
         NgScrollbarModule,
         SidenavComponent,
@@ -71,7 +69,6 @@ export class PagesComponent implements OnInit {
         public settingsService: SettingsService,
         public router: Router,
         private menuService: MenuService,
-        private dialog: MatDialog,
         private manageUsersService: ManageUsersService
     ) {
         this.settings = this.settingsService.settings;
@@ -108,22 +105,12 @@ export class PagesComponent implements OnInit {
         });
     }
 
-    openSentMails(): void {
-        const dialogRef = this.dialog.open(SentMailsDialogComponent, {
-            width: '900px',
-            maxHeight: '90vh',
-            panelClass: 'custom-dialog-container'
-        });
-        dialogRef.afterClosed().subscribe(() => {
-            this.fetchSentMailsCount();
-        });
-    }
-
     ngAfterViewInit() {
         setTimeout(() => { this.settings.loadingSpinner = false }, 300);
         this.backToTop.nativeElement.style.display = 'none';
         this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
+                this.fetchSentMailsCount();
                 if (!this.settings.sidenavIsPinned && this.sidenav) {
                     this.sidenav.close();
                 }
@@ -133,7 +120,10 @@ export class PagesComponent implements OnInit {
             }
         });
         if (this.settings.menu == "vertical") {
-            this.menuService.expandActiveSubMenu(this.menuService.getVerticalMenuItems());
+            const verticalItems = this.router.url.startsWith('/app/supplier-login')
+                ? this.menuService.getSupplierMenuItems()
+                : this.menuService.getVerticalMenuItems();
+            this.menuService.expandActiveSubMenu(verticalItems);
         }
     }
 

@@ -63,7 +63,7 @@ export class UserPermissionService {
    * Handles both flat array of screens or nested module structures.
    */
   private static getPermissions(): any[] {
-    const rolePermissions = localStorage.getItem('rolePermissions');
+    const rolePermissions = sessionStorage.getItem('rolePermissions') || localStorage.getItem('rolePermissions');
     if (!rolePermissions) return [];
     try {
       const parsed = JSON.parse(rolePermissions);

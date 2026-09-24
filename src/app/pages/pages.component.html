@@ -37,7 +37,7 @@
                     <!-- Envelope Icon for Sent Mails -->
                     <button mat-icon-button matTooltip="Sent Mails" [matBadge]="sentMailsCount"
                         [matBadgeHidden]="sentMailsCount === 0" matBadgeColor="accent" matBadgeSize="small"
-                        (click)="openSentMails()">
+                        routerLink="/sent-mails">
                         <mat-icon style="color: white;">mail</mat-icon>
                     </button>
 

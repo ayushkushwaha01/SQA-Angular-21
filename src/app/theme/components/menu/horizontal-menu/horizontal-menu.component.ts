@@ -60,15 +60,27 @@ export class HorizontalMenuComponent implements OnInit {
 
   public isItemActive(menu: any): boolean {
     if (!menu) return false;
-    const currentUrl = this.router.url;
+    const currentUrl = (this.router.url || '').split('?')[0];
     if (menu.routerLink) {
-      if (menu.routerLink === '/internal-portal/dashboard') {
-        return currentUrl === '/internal-portal/dashboard' || currentUrl === '/internal-portal' || currentUrl === '/';
+      if (menu.routerLink === '/internal-portal/dashboard' || menu.routerLink === '/dashboard') {
+        return (
+          currentUrl === '/internal-portal/dashboard' ||
+          currentUrl === '/internal-portal' ||
+          currentUrl === '/dashboard' ||
+          currentUrl === '/'
+        );
       }
       if (menu.routerLink === '/app/supplier-login/dashboard') {
-        return currentUrl === '/app/supplier-login/dashboard' || currentUrl === '/app/supplier-login';
+        return (
+          currentUrl === '/app/supplier-login/dashboard' ||
+          currentUrl === '/app/supplier-login'
+        );
       }
-      return currentUrl === menu.routerLink || currentUrl.startsWith(menu.routerLink + '/') || (menu.routerLink === '/manage-users' && currentUrl.startsWith('/manage-users'));
+      return (
+        currentUrl === menu.routerLink ||
+        currentUrl.startsWith(menu.routerLink + '/') ||
+        (menu.routerLink === '/manage-users' && currentUrl.startsWith('/manage-users'))
+      );
     }
     if (menu.id === 6 || menu.title === 'Admin') {
       return currentUrl.startsWith('/manage-users') || currentUrl.startsWith('/admin');

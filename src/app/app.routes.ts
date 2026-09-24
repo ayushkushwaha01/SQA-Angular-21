@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
+import { authGuard, noAuthGuard, rootGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
 
-  // ✅ LOGIN FIRST
+  // ✅ AUTH PAGES
   {
     path: 'login',
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./pages/login/login.component')
         .then(c => c.LoginComponent)
@@ -16,18 +18,21 @@ export const routes: Routes = [
   },
   {
     path: 'forgot',
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./pages/login/forgot/forgot.component')
         .then(c => c.ForgotComponent)
   },
   {
     path: 'forgot-password',
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./pages/login/forgot/forgot.component')
         .then(c => c.ForgotComponent)
   },
   {
     path: 'login/forgot',
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./pages/login/forgot/forgot.component')
         .then(c => c.ForgotComponent)
@@ -45,19 +50,29 @@ export const routes: Routes = [
         .then(c => c.ResetPasswordWithTokenComponentComponent)
   },
 
-  // ✅ REDIRECT ROOT TO LOGIN
+  // ✅ ROOT ROUTE: Dynamically redirects to dashboard if authenticated, or login if not
   {
     path: '',
-    redirectTo: 'login',
-    pathMatch: 'full'
+    pathMatch: 'full',
+    canActivate: [rootGuard],
+    children: []
   },
 
-  // ✅ MAIN APP AFTER LOGIN
+  // ✅ MAIN APP AFTER LOGIN (PROTECTED)
   {
     path: '',
+    canActivate: [authGuard],
     loadChildren: () =>
       import('./pages/pages.routes')
         .then(m => m.routes)
+  },
+
+  // ❌ ERROR PAGE
+  {
+    path: 'error',
+    loadComponent: () =>
+      import('./pages/errors/error/error.component')
+        .then(c => c.ErrorComponent)
   },
 
   // ❌ NOT FOUND

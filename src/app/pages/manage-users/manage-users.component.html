@@ -1,6 +1,6 @@
-<div class="row col-12 mt-3" style="margin-left: -3px;">
+<div class="row col-12 mt-3" style="margin-left: -3px; position: relative; z-index: 10;">
     <div class="pills w-100">
-        <ul class="nav nav-pills custom-tabs" style="margin-left: 7px;margin-bottom: -25px;">
+        <ul class="nav nav-pills custom-tabs" style="margin-left: 7px;margin-bottom: -25px; position: relative; z-index: 10;">
 
             <li [class.active]="activeTab === 'users'">
                 <a (click)="selectTab('users')" routerLink="users">
@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<!-- 🔥 IMPORTANT -->
-<div class="tab-container">
+ 
+ 
     <router-outlet></router-outlet>
-</div>
+ 

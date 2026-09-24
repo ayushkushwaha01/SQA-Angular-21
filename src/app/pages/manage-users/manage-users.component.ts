@@ -14,7 +14,7 @@ export class MasterUsersComponent implements OnInit {
 
   activeTab = 'users';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit() {
     this.updateActiveTab(this.router.url);
@@ -40,3 +40,4 @@ export class MasterUsersComponent implements OnInit {
     this.activeTab = tab;
   }
 }
+ 

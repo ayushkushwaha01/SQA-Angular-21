@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -49,6 +49,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private api: ManageUsersService,
     private alertService: AlertService
   ) {
@@ -163,8 +164,8 @@ export class LoginComponent implements OnInit {
       next: (res: any) => {
         if (res.success) {
           if (res.requiresMfa) {
-            localStorage.setItem('jwt_token', res.token);
             sessionStorage.setItem('jwt_token', res.token);
+            localStorage.removeItem('jwt_token');
 
             if (res.isEmailEnabled && !res.isAuthEnabled) {
               this.chooseEmailOtp();
@@ -239,12 +240,10 @@ export class LoginComponent implements OnInit {
 
 
   private processSuccessfulLogin(res: any) {
-    // 1. Save the secure token
-    localStorage.setItem('jwt_token', res.token);
+    // 1. Save the secure token in sessionStorage (per-tab session) and clean localStorage
     sessionStorage.setItem('jwt_token', res.token);
+    localStorage.removeItem('jwt_token');
 
-    // 2. Decode the token
-    // const decodedToken: any = jwtDecode(res.token);
     // 2. Decode the token
     const decodedToken: any = jwtDecode(res.token);
     console.log('DECODED TOKEN:', decodedToken); // 🔍 TEMPORARY — remove after checking  
@@ -284,7 +283,7 @@ export class LoginComponent implements OnInit {
     if (userType === 'Supplier') {
       this.router.navigate(['/app/supplier-login/dashboard']);
     } else {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/internal-portal/dashboard']);
     }
   }
 

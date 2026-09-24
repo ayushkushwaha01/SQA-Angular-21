@@ -310,7 +310,7 @@
 
               <a [routerLink]="[
                 '/app',
-                'sqm',
+                'supplier-login',
                 'process-inner-screen',
                 'process-audit-reference'
               ]" [queryParams]="{
@@ -393,11 +393,12 @@
 
               <a [routerLink]="[
                 '/app',
-                'sqm',
+                'supplier-login',
                 'process',
                 'audit-summary-report'
               ]" [queryParams]="{
-                id: audit.processAuditId
+                id: audit.processAuditId,
+                role: 'supplier'
               }" style="
                 font-weight: 600;
                 color: #1d4ed8;

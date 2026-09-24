@@ -193,11 +193,12 @@
                 </ng-container> -->
 
                 <ng-container *ngSwitchCase="'Reference'">
-                  <a [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'capa-view']" 
+                  <a [routerLink]="['/app', 'supplier-login', 'inspect-inner-screen', 'capa-view']" 
                      [queryParams]="{
                         inspectionRefId: applicant.inspectionRefId,
                         isReadOnly: true,
-                        parameterName: applicant.parameterName
+                        parameterName: applicant.parameterName,
+                        role: 'supplier'
                      }" 
                      style="color: blue; font-weight: 500; text-decoration: underline;">
                     {{ applicant.reference }}

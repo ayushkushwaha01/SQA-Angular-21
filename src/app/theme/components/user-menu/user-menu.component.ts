@@ -104,7 +104,7 @@ export class UserMenuComponent implements OnInit {
     // Completely wipes all UI configurations and the JWT token
     localStorage.clear();
     sessionStorage.clear();
-    window.location.href = '/#/login';
+    this.router.navigate(['/login']);
   }
 
   openPasskeyManager() {

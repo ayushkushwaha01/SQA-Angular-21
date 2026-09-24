@@ -379,12 +379,13 @@
               [style.min-width.px]="getColumnWidth(col)"
             >
               <a
-                [routerLink]="['/app/supplier-login/inner-screen/parts-ref']"
+                [routerLink]="['/app', 'supplier-login', 'parts-inner-screen', 'parts-audit-reference']"
                 [queryParams]="{
                   partMasterId: audit.partMasterId,
                   partFamilyId: audit.partFamilyId,
                   partAuditId: audit.partAuditId,
-                  done: audit.done
+                  done: audit.done,
+                  role: 'supplier'
                 }"
               >
                 {{ "2026/PART/" + padId(audit.partAuditId) }}
@@ -513,8 +514,8 @@
 
               </a> -->
               <a
-                [routerLink]="['/app/sqm/parts-inner-screen/pdfref']"
-                [queryParams]="{ partAuditId: audit.partAuditId }"
+                [routerLink]="['/app', 'supplier-login', 'parts-inner-screen', 'pdfref']"
+                [queryParams]="{ partAuditId: audit.partAuditId, role: 'supplier' }"
               >
                 {{ audit.okayPercentage }}%
               </a>

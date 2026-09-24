@@ -2,23 +2,31 @@ import { Routes } from '@angular/router';
 import { PagesComponent } from './pages.component';
 import { MasterUsersComponent } from './manage-users/manage-users.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { internalGuard, supplierGuard, AuthGuard } from '../guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: PagesComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
       {
         path: '',
-        redirectTo: 'dashboard',
+        redirectTo: 'internal-portal/dashboard',
         pathMatch: 'full'
       },
       {
-        path: 'dashboard',
+        path: 'sent-mails',
         loadComponent: () =>
-          import('./internal-portal/internal-portal-dashboard/internal-portal-dashboard.component')
-            .then(c => c.InternalPortalDashboardComponent),
-        data: { breadcrumb: 'Dashboard' }
+          import('./login/sent-mails-dialog/sent-mails-dialog.component')
+            .then(c => c.SentMailsDialogComponent),
+        data: { breadcrumb: 'Sent Mails', description: 'View and search sent help desk tickets and emails.' }
+      },
+      {
+        path: 'dashboard',
+        redirectTo: 'internal-portal/dashboard',
+        pathMatch: 'full'
       },
       {
         path: 'project-dashboard',
@@ -141,6 +149,7 @@ export const routes: Routes = [
       },
       {
         path: 'manage-users',
+        canActivate: [internalGuard],
         loadChildren: () =>
           import('./manage-users/users.routes')
             .then(m => m.USERS_ROUTES),
@@ -148,18 +157,21 @@ export const routes: Routes = [
       },
       {
         path: 'internal-portal',
+        canActivate: [internalGuard],
         loadChildren: () =>
           import('./internal-portal/internal-portal.routes')
             .then(m => m.INTERNAL_PORTAL_ROUTES)
       },
       {
         path: 'app/sqm',
+        canActivate: [internalGuard],
         loadChildren: () =>
           import('./internal-portal/internal-portal.routes')
             .then(m => m.INTERNAL_PORTAL_ROUTES)
       },
       {
         path: 'app/supplier-login',
+        canActivate: [supplierGuard],
         data: { breadcrumb: 'Supplier Portal' },
         loadChildren: () =>
           import('./supplier-portal/supplier-portal.routes')

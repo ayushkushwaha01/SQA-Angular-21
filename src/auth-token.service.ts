@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthTokenService {
 
   public getToken(): string | null {
-    return localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    return sessionStorage.getItem('jwt_token');
   }
 
   public getDecodedToken(): any {
@@ -36,6 +36,26 @@ export class AuthTokenService {
 
   public getUserType(): string {
     const decoded = this.getDecodedToken();
-    return decoded ? decoded.UserType : '';
+    return decoded ? (decoded.UserType || decoded.userType || '') : '';
+  }
+
+  public isLoggedIn(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    const decoded = this.getDecodedToken();
+    if (!decoded) return false;
+    if (decoded.exp) {
+      const isExpired = Date.now() >= decoded.exp * 1000;
+      if (isExpired) {
+        this.clearToken();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public clearToken(): void {
+    localStorage.removeItem('jwt_token');
+    sessionStorage.removeItem('jwt_token');
   }
 }

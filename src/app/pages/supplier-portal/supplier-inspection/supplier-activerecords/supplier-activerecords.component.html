@@ -384,7 +384,7 @@
 
               <a [routerLink]="[
                 '/app',
-                'sqm',
+                'supplier-login',
                 'inspect-inner-screen',
                 'active-records'
               ]" [queryParams]="{
@@ -392,7 +392,8 @@
                 reference: item.Reference,
                 partFamily: item.PartFamily,
                 partName: item.PartName,
-                isReadOnly: true
+                isReadOnly: true,
+                role: 'supplier'
               }">
                 {{ item.Reference }}
               </a>
@@ -499,7 +500,7 @@
 
               <a [routerLink]="[
                 '/app',
-                'sqm',
+                'supplier-login',
                 'inspect-inner-screen',
                 'active-records'
               ]" [queryParams]="{
@@ -507,7 +508,8 @@
                 reference: item.Reference,
                 partFamily: item.PartFamily,
                 partName: item.PartName,
-                isReadOnly: true
+                isReadOnly: true,
+                role: 'supplier'
               }">
                 {{ item.Parameters }}
               </a>

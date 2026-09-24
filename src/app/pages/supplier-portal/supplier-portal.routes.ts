@@ -45,6 +45,34 @@ export const SUPPLIER_PORTAL_ROUTES: Routes = [
           import('./supplier-innerscreen/supplier-innerscreen.module')
             .then(m => m.SupplierInnerscreenModule),
         data: { breadcrumb: 'Details' }
+      },
+      {
+        path: 'process-inner-screen',
+        loadChildren: () =>
+          import('../internal-portal/process-inner-screen/process-inner-screen.module')
+            .then(m => m.ProcessInnerScreen),
+        data: { breadcrumb: 'Process Details', description: 'Detailed view of a process audit.' }
+      },
+      {
+        path: 'parts-inner-screen',
+        loadChildren: () =>
+          import('../internal-portal/parts-inner-screen/parts-inner-screen.module')
+            .then(m => m.PartsInnerScreen),
+        data: { breadcrumb: 'Parts Details', description: 'Detailed view of a parts audit.' }
+      },
+      {
+        path: 'inspect-inner-screen',
+        loadChildren: () =>
+          import('../internal-portal/inspect-inner-screen/inspect-inner-screen.module')
+            .then(m => m.InspectInnerScreenModule),
+        data: { breadcrumb: 'Inspection Details', description: 'Detailed inspection record.' }
+      },
+      {
+        path: 'process',
+        loadChildren: () =>
+          import('../internal-portal/process-audits/process-audits.module')
+            .then(m => m.ProcessAuditsModule),
+        data: { breadcrumb: 'Process Details' }
       }
     ]
   }
