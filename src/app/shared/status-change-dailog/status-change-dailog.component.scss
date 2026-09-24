@@ -5,7 +5,7 @@
   max-width: 420px;
 }
 
-.delete-dialog-container {
+.status-dialog-container {
   display: flex;
   flex-direction: column;
   background: #ffffff;
@@ -15,8 +15,8 @@
   overflow: hidden;
   box-sizing: border-box;
 
-  .delete-dialog-header {
-    background: #c83232;
+  .status-dialog-header {
+    background: #286ba5;
     padding: 13px 20px;
     display: flex;
     align-items: center;
@@ -35,7 +35,7 @@
     }
   }
 
-  .delete-dialog-body {
+  .status-dialog-body {
     padding: 28px 24px 22px 24px;
     text-align: center;
     box-sizing: border-box;
@@ -49,7 +49,7 @@
     }
   }
 
-  .delete-dialog-actions {
+  .status-dialog-actions {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,8 +57,8 @@
     padding: 0 24px 24px 24px;
     box-sizing: border-box;
 
-    .btn-delete {
-      background-color: #c83232 !important;
+    .btn-yes {
+      background-color: #0284c7 !important;
       color: #ffffff !important;
       border: none !important;
       border-radius: 4px !important;
@@ -73,7 +73,7 @@
       transition: background-color 0.2s, box-shadow 0.2s !important;
 
       &:hover {
-        background-color: #b52a2a !important;
+        background-color: #0369a1 !important;
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22) !important;
       }
     }

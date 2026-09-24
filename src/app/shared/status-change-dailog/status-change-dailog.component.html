@@ -1,0 +1,21 @@
+<div class="status-dialog-container">
+  <!-- Blue Header -->
+  <div class="status-dialog-header">
+    <h3 class="dialog-title">{{ data?.title || 'Confirm Save Change' }}</h3>
+  </div>
+
+  <!-- Content -->
+  <div class="status-dialog-body">
+    <p class="dialog-message">{{ data?.content || 'Are you sure you want to Change the Status ?' }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="status-dialog-actions">
+    <button mat-raised-button type="button" class="btn-yes" (click)="onConfirm()">
+      {{ data?.confirmText || 'Yes' }}
+    </button>
+    <button type="button" mat-raised-button class="add-dark-hover btn-default btn-no" (click)="onCancel()" style="cursor: pointer;">
+      <span>{{ data?.cancelText || 'No' }}</span>
+    </button>
+  </div>
+</div>

@@ -15,6 +15,7 @@ import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 import { NewAuditComponent } from '../new-audit/new-audit.component';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   standalone: false,
@@ -272,7 +273,7 @@ export class PartsActiveAuditsComponent implements OnInit {
 
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
+      width: '360px',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
 
@@ -293,8 +294,8 @@ export class PartsActiveAuditsComponent implements OnInit {
   }
 
   changeArchiveStatus(item: any) {
-    const dialogRef = this.dialog.open(DialogComponent, {
-      width: 'auto',
+    const dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: {
         component: null,
         title: 'Archive Confirmation',
@@ -417,8 +418,8 @@ export class PartsActiveAuditsComponent implements OnInit {
   }
 
   changeDoneStatus(item: any) {
-    let dialogRef = this.dialog.open(DialogComponent, {
-      width: 'auto',
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: {
         component: null,
         title: 'Change Status Confirmation',

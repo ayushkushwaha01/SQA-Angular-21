@@ -11,6 +11,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   standalone: false,
@@ -104,7 +105,7 @@ export class PartsMasterComponent implements OnInit {
   // }
 
   partsFamilies: any[] = [];
-  
+
   getPartsFamilies() {
     // 🔥 ZERO TRUST FIX: Do not send UserId
     this._setupService.getPartFamilies({}) // Pass an empty object
@@ -237,7 +238,7 @@ export class PartsMasterComponent implements OnInit {
 
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
+      width: '360px',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
 
@@ -291,8 +292,8 @@ export class PartsMasterComponent implements OnInit {
   // }
 
   changeStatus(item: any) {
-    let dialogRef = this.dialog.open(DialogComponent, {
-      width: 'auto',
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
     });
 
@@ -314,7 +315,7 @@ export class PartsMasterComponent implements OnInit {
       }
     });
   }
-  
+
   toggleFilters(): void {
 
     this.showFilters = !this.showFilters;

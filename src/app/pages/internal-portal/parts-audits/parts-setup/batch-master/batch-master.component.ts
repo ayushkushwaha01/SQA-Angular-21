@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   standalone: false,
@@ -164,7 +165,7 @@ export class BatchMasterComponent implements OnInit {
 
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
+      width: '360px',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
 
@@ -172,7 +173,7 @@ export class BatchMasterComponent implements OnInit {
       if (data) {
         // 🔥 ZERO TRUST: Just pass the item
         const payload = { ...item };
-        
+
         this._setupService.deleteBatchMaster(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
@@ -212,8 +213,8 @@ export class BatchMasterComponent implements OnInit {
 
 
   changeStatus(item: any) {
-    let dialogRef = this.dialog.open(DialogComponent, {
-      width: 'auto',
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
     });
 

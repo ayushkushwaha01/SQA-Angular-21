@@ -49,7 +49,7 @@ export class PartsActionsComponent implements OnInit {
   readonly SCREEN_ID: number = 23;
   readonly SCREEN_IDd: number = 41;
 
-  overdueThreshold: number = 9999; 
+  overdueThreshold: number = 9999;
   escalateThreshold: number = 9999;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -453,7 +453,7 @@ export class PartsActionsComponent implements OnInit {
 
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
+      width: '360px',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
 

@@ -8,6 +8,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { PartsFamilyPopComponent } from '../defects-master/parts-family-pop/parts-family-pop.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   standalone: false,
@@ -242,7 +243,7 @@ export class PartsFamiliesComponent implements OnInit {
 
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
+      width: '360px',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
 
@@ -297,8 +298,8 @@ export class PartsFamiliesComponent implements OnInit {
   // }
 
   changeStatus(item: any) {
-    let dialogRef = this.dialog.open(DialogComponent, {
-      width: 'auto',
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
     });
 
@@ -306,7 +307,7 @@ export class PartsFamiliesComponent implements OnInit {
       if (data) {
         // 🔥 ZERO TRUST: Just pass the item
         const payload = { ...item };
-        
+
         console.log('Toggle Status Payload:', payload);
 
         this._setupService.changeStatusPartFamily(payload).subscribe({

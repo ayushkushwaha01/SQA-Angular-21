@@ -8,17 +8,130 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   template: `
-    <h2 mat-dialog-title>Change Status</h2>
-    <mat-dialog-content>
-      <p>Are you sure you want to change the status?</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">No</button>
-      <button mat-raised-button color="primary" (click)="onConfirm()">Yes</button>
-    </mat-dialog-actions>
+    <div class="status-dialog-container">
+      <!-- Blue Header -->
+      <div class="status-dialog-header">
+        <h3 class="dialog-title">{{ data?.title || 'Confirm Save Change' }}</h3>
+      </div>
+
+      <!-- Content -->
+      <div class="status-dialog-body">
+        <p class="dialog-message">{{ data?.content || 'Are you sure you want to Change the Status ?' }}</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="status-dialog-actions">
+        <button mat-raised-button type="button" class="btn-yes" (click)="onConfirm()">
+          {{ data?.confirmText || 'Yes' }}
+        </button>
+        <button type="button" mat-raised-button class="add-dark-hover btn-default btn-no" (click)="onCancel()" style="cursor: pointer;">
+          <span>{{ data?.cancelText || 'No' }}</span>
+        </button>
+      </div>
+    </div>
   `,
   styles: [`
-    mat-dialog-actions { padding: 12px 16px; }
+    :host {
+      display: block;
+      width: 100%;
+      min-width: 360px;
+      max-width: 420px;
+    }
+
+    .status-dialog-container {
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      width: 100%;
+      margin: 0;
+      border-radius: 4px;
+      overflow: hidden;
+      box-sizing: border-box;
+
+      .status-dialog-header {
+        background: #286ba5;
+        padding: 13px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+
+        .dialog-title {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+          color: #ffffff;
+          line-height: normal;
+          letter-spacing: 0.2px;
+        }
+      }
+
+      .status-dialog-body {
+        padding: 28px 24px 22px 24px;
+        text-align: center;
+        box-sizing: border-box;
+
+        .dialog-message {
+          margin: 0;
+          font-size: 15px;
+          color: #2c3e50;
+          line-height: 1.4;
+          font-weight: 400;
+        }
+      }
+
+      .status-dialog-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        padding: 0 24px 24px 24px;
+        box-sizing: border-box;
+
+        .btn-yes {
+          background-color: #0284c7 !important;
+          color: #ffffff !important;
+          border: none !important;
+          border-radius: 4px !important;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18) !important;
+          height: 38px !important;
+          min-width: 88px !important;
+          padding: 0 20px !important;
+          font-size: 14px !important;
+          font-weight: 500 !important;
+          letter-spacing: 0.2px !important;
+          cursor: pointer;
+          transition: background-color 0.2s, box-shadow 0.2s !important;
+
+          &:hover {
+            background-color: #0369a1 !important;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22) !important;
+          }
+        }
+
+        .btn-default {
+          background-color: #e0e0e0 !important;
+          color: #212529 !important;
+          border: 1px solid #d0d0d0 !important;
+          border-radius: 4px !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+          height: 38px !important;
+          min-width: 88px !important;
+          padding: 0 20px !important;
+          font-size: 14px !important;
+          font-weight: 500 !important;
+          letter-spacing: 0.2px !important;
+          cursor: pointer;
+          transition: background 0.2s, box-shadow 0.2s !important;
+        }
+
+        .add-dark-hover:hover {
+          background: #bfbfbf !important;
+        }
+      }
+    }
   `]
 })
 export class StatusChangeComponent {

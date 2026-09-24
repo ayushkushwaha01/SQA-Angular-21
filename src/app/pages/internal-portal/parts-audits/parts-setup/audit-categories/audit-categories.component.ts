@@ -8,6 +8,7 @@ import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DownloadExcelService } from 'src/app/shared/download-excel.service';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   standalone: false,
@@ -192,7 +193,7 @@ export class AuditCategoriesComponent implements OnInit {
 
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
+      width: '360px',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
 
@@ -262,8 +263,8 @@ export class AuditCategoriesComponent implements OnInit {
 
 
   changeStatus(item: any) {
-    let dialogRef = this.dialog.open(DialogComponent, {
-      width: 'auto',
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
     });
 
@@ -286,7 +287,7 @@ export class AuditCategoriesComponent implements OnInit {
       }
     });
   }
-  
+
   // --- ADD THIS NEW METHOD ---
   downloadTemplate(): void {
     // 1. Define the headers and sample data for your CSV template

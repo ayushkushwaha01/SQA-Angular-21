@@ -6,7 +6,8 @@ import { CommodityService } from '../commodity.service';
 @Component({
   standalone: false,
   selector: 'app-add-commodity-pop',
-  templateUrl: './add-commodity-pop.component.html'
+  templateUrl: './add-commodity-pop.component.html',
+  styleUrls: ['./add-commodity-pop.component.scss']
 })
 export class AddCommodityPopComponent implements OnInit {
   isEditMode: boolean = false;

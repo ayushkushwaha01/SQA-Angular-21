@@ -16,7 +16,8 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { StatusConfirmationDialogComponent } from '../status-confirmation-dialog/status-confirmation-dialog.component';
 import { DepartmentService } from './department.service';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
-import { DeleteDailogComponent } from 'src/app/shared/delete-dailog/delete-dailog.component';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
+
 
 @Component({
   selector: 'app-department-master',
@@ -168,8 +169,8 @@ export class DepartmentMasterComponent implements OnInit {
   }
 
   Confirmation(item: any) {
-    let dialogRef = this.dialog.open(StatusConfirmationDialogComponent, {
-      width: 'auto',
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
       data: { title: 'Change Status', content: `Are you sure you want to change the status of ${item.departmentName}?` }
     });
 
@@ -186,8 +187,8 @@ export class DepartmentMasterComponent implements OnInit {
   }
 
   deleteConfirmation(item: any) {
-    let dialogRef = this.dialog.open(DeleteDailogComponent, {
-      width: 'auto',
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
 
       data: {
         title: 'Delete Confirmation',
