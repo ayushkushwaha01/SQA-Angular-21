@@ -25,8 +25,6 @@
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   display: block;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
   background-color: #ffffff;
 
   &::-webkit-scrollbar {
@@ -49,6 +47,7 @@
 
 .audit-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   font-size: 14px;
 
@@ -99,7 +98,8 @@
         text-align: center;
       }
 
-      &.text-link a, .text-link {
+      &.text-link a,
+      .text-link {
         color: #1d4ed8 !important;
         font-weight: 500;
         text-decoration: underline;
@@ -109,23 +109,7 @@
   }
 }
 
-/* Base column widths and padding */
-th[mat-header-cell],
-td[mat-cell],
-th,
-td {
-  white-space: nowrap !important;
-  min-width: 130px;
-  padding: 10px 14px;
-  vertical-align: middle;
-}
-
-/* Specific column widths */
-th[mat-header-cell]:nth-child(1),
-td:nth-child(1) {
-  min-width: 70px !important;
-  max-width: 90px !important;
-}
+/* Column widths are controlled via [style.min-width.px] bindings in the template */
 
 /* Dropdown styling */
 .status-select {
@@ -145,7 +129,8 @@ td:nth-child(1) {
   justify-content: center;
   gap: 10px;
 
-  .delete-icon, .fa-trash {
+  .delete-icon,
+  .fa-trash {
     color: #dc3545;
     cursor: pointer;
     font-size: 16px;

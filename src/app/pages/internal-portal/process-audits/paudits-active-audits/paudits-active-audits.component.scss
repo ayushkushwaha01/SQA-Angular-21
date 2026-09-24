@@ -85,15 +85,13 @@
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   background-color: white;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
 }
 
 .audit-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   font-size: 14px;
-  table-layout: auto;
 
   thead {
     background-color: #3f3f3f !important;
@@ -174,23 +172,28 @@
   gap: 12px;
   white-space: nowrap;
 
-  i, mat-icon {
+  i,
+  mat-icon {
     font-size: 16px;
     line-height: 1;
     cursor: pointer;
     vertical-align: middle;
     transition: transform 0.15s ease, color 0.15s ease;
 
-    &.edit-icon, &.fa-edit {
+    &.edit-icon,
+    &.fa-edit {
       color: #0d8add;
+
       &:hover {
         color: #0056b3;
         transform: scale(1.2);
       }
     }
 
-    &.delete-icon, &.fa-trash {
+    &.delete-icon,
+    &.fa-trash {
       color: #dc3545;
+
       &:hover {
         color: #a71d2a;
         transform: scale(1.2);

@@ -74,8 +74,6 @@
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   background-color: white;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
 
   &::-webkit-scrollbar {
     height: 8px;
@@ -97,6 +95,7 @@
 
 .custom-grid-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   background-color: #ffffff;
 
@@ -153,7 +152,8 @@
   }
 
   /* Link Styling for numbers and refs */
-  .text-link a, .text-link {
+  .text-link a,
+  .text-link {
     color: #1d4ed8 !important;
     cursor: pointer;
     font-weight: 500;

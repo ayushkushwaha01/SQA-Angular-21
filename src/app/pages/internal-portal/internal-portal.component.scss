@@ -126,9 +126,9 @@
   flex-direction: column;
   transition: margin-left 0.3s ease-in-out;
 
-  /* CRITICAL FIXES FOR HORIZONTAL SCROLLING: */
+  /* Allow table-responsive to handle horizontal scroll internally */
   min-width: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .content-shrink {

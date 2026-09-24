@@ -1,26 +1,9 @@
 .toolbar-row {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-
-    .btn-dark {
-      background-color: #111 !important;
-      color: #fff !important;
-    }
-
-    .btn-blue {
-      background-color: #0d8add !important;
-      color: #fff !important;
-    }
-
-    ::ng-deep .mdc-button__label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-  }
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
 
   .btn-dark {
     background-color: #111 !important;
@@ -32,329 +15,317 @@
     color: #fff !important;
   }
 
-  /* --- TABLE WRAPPER FOR HORIZONTAL SCROLLING --- */
-  .table-responsive {
-   width: 100%;
-   overflow-x: auto;
-   overflow-y: hidden;
-   scroll-behavior: smooth;
-   -webkit-overflow-scrolling: touch;
-   display: block;
-   border: 1px solid #dee2e6;
-   margin-bottom: 10px;
- }
+  ::ng-deep .mdc-button__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
 
- /* Ensure the table itself expands completely */
- table.table {
-   width: 100%;
-   border-collapse: collapse;
- }
+.btn-dark {
+  background-color: #111 !important;
+  color: #fff !important;
+}
 
- /* Base column styling - stops text wrapping and shrinking */
- th[mat-header-cell],
- td[mat-cell],
- th,
- td {
-   white-space: nowrap !important;
-   min-width: 150px;
-   padding: 10px 16px;
-   vertical-align: middle;
- }
+.btn-blue {
+  background-color: #0d8add !important;
+  color: #fff !important;
+}
 
- /* Specific column overrides (Actions and Info Icons) */
- th[mat-header-cell]:nth-child(1),
- td[mat-cell]:nth-child(1) {
-   min-width: 70px !important;
-   max-width: 100px !important;
-   text-align: center;
- }
+/* --- TABLE WRAPPER FOR HORIZONTAL SCROLLING --- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  display: block;
+  margin-bottom: 10px;
+}
 
- th[mat-header-cell]:nth-child(13),
- td[mat-cell]:nth-child(13) {
-   min-width: 50px !important;
-   max-width: 220px !important;
-   text-align: center;
- }
+/* Ensure the table itself expands completely */
+table.table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+}
 
- /* Action Icons Spacing */
- .fa-edit {
-   margin-right: 12px;
-   color: #5c85d6;
-   cursor: pointer;
-   font-size: 16px;
- }
+/* Column widths are controlled via [style.min-width.px] bindings in the template */
 
- .fa-trash {
-   color: #dc3545;
-   cursor: pointer;
-   font-size: 16px;
- }
+/* Action Icons Spacing */
+.fa-edit {
+  margin-right: 12px;
+  color: #5c85d6;
+  cursor: pointer;
+  font-size: 16px;
+}
 
- /* --- FAB SCROLL BUTTONS --- */
- .mine {
-   position: fixed;
-   bottom: 80px;
-   background-color: #e6e6e6 !important;
-   z-index: 100;
-   box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
- }
+.fa-trash {
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 16px;
+}
 
- .mine-right {
-   right: 40px;
- }
+/* --- FAB SCROLL BUTTONS --- */
+.mine {
+  position: fixed;
+  bottom: 80px;
+  background-color: #e6e6e6 !important;
+  z-index: 100;
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
+}
 
- /* Adjusted the left button to sit slightly next to the right button */
- .mine-left {
-   right: 110px;
- }
+.mine-right {
+  right: 40px;
+}
+
+/* Adjusted the left button to sit slightly next to the right button */
+.mine-left {
+  right: 110px;
+}
 
 
- /* --- UTILITIES & MISC --- */
- .outerDivFull {
-   margin: 50px;
- }
+/* --- UTILITIES & MISC --- */
+.outerDivFull {
+  margin: 50px;
+}
 
- .flexible-column {
-   white-space: nowrap !important;
-   overflow: hidden !important;
-   text-overflow: ellipsis !important;
- }
+.flexible-column {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
 
- .head {
-   overflow: hidden !important;
-   text-overflow: ellipsis !important;
- }
+.head {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
 
- /* --- SWITCH TOGGLE (from your original code) --- */
- .switchToggle input[type=checkbox] {
-   height: 0;
-   width: 0;
-   visibility: hidden;
-   position: absolute;
- }
+/* --- SWITCH TOGGLE (from your original code) --- */
+.switchToggle input[type=checkbox] {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+  position: absolute;
+}
 
- .switchToggle label {
-   cursor: pointer;
-   text-indent: -9999px;
-   width: 100px;
-   max-width: 100px;
-   height: 30px;
-   background: #d1d1d1;
-   display: block;
-   border-radius: 100px;
-   position: relative;
- }
+.switchToggle label {
+  cursor: pointer;
+  text-indent: -9999px;
+  width: 100px;
+  max-width: 100px;
+  height: 30px;
+  background: #d1d1d1;
+  display: block;
+  border-radius: 100px;
+  position: relative;
+}
 
- .switchToggle label:after {
-   content: '';
-   position: absolute;
-   top: 2px;
-   left: 2px;
-   width: 26px;
-   height: 26px;
-   background: #fff;
-   border-radius: 90px;
-   transition: 0.3s;
- }
+.switchToggle label:after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  border-radius: 90px;
+  transition: 0.3s;
+}
 
- .switchToggle input:checked+label,
- .switchToggle input:checked+input+label {
-   background: #3f51b5;
- }
+.switchToggle input:checked+label,
+.switchToggle input:checked+input+label {
+  background: #3f51b5;
+}
 
- .switchToggle input+label:before,
- .switchToggle input+input+label:before {
-   content: 'Expand';
-   position: absolute;
-   top: 5px;
-   left: 35px;
-   width: 26px;
-   height: 26px;
-   border-radius: 90px;
-   transition: 0.3s;
-   text-indent: 0;
-   color: black;
- }
+.switchToggle input+label:before,
+.switchToggle input+input+label:before {
+  content: 'Expand';
+  position: absolute;
+  top: 5px;
+  left: 35px;
+  width: 26px;
+  height: 26px;
+  border-radius: 90px;
+  transition: 0.3s;
+  text-indent: 0;
+  color: black;
+}
 
- .switchToggle input:checked+label:before,
- .switchToggle input:checked+input+label:before {
-   content: 'Collapse';
-   position: absolute;
-   top: 5px;
-   left: 10px;
-   width: 26px;
-   height: 26px;
-   border-radius: 90px;
-   transition: 0.3s;
-   text-indent: 0;
-   color: #fff;
- }
+.switchToggle input:checked+label:before,
+.switchToggle input:checked+input+label:before {
+  content: 'Collapse';
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 90px;
+  transition: 0.3s;
+  text-indent: 0;
+  color: #fff;
+}
 
- .switchToggle input:checked+label:after,
- .switchToggle input:checked+input+label:after {
-   left: calc(100% - 2px);
-   transform: translateX(-100%);
- }
+.switchToggle input:checked+label:after,
+.switchToggle input:checked+input+label:after {
+  left: calc(100% - 2px);
+  transform: translateX(-100%);
+}
 
- .switchToggle label:active:after {
-   width: 60px;
- }
+.switchToggle label:active:after {
+  width: 60px;
+}
 
- .toggle-switchArea {
-   margin: 10px 0 10px 0;
- }
+.toggle-switchArea {
+  margin: 10px 0 10px 0;
+}
 
- .example-card {
-   max-width: 400px;
-   margin-bottom: 8px;
- }
+.example-card {
+  max-width: 400px;
+  margin-bottom: 8px;
+}
 
- /* =========================================
+/* =========================================
    TABLE SCROLLING
 ========================================= */
 
- .table-responsive {
-   width: 100%;
-   overflow-x: auto;
-   overflow-y: hidden;
-   scroll-behavior: smooth;
-   -webkit-overflow-scrolling: touch;
-   display: block;
-   border: 1px solid #dee2e6;
-   margin-bottom: 10px;
- }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  display: block;
+  margin-bottom: 10px;
+}
 
- /* =========================================
+/* =========================================
    TABLE
 ========================================= */
 
- table.table {
-   width: 100%;
-   border-collapse: collapse;
- }
+table.table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
- .audit-table {
-   min-width: max-content;
- }
+.audit-table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+}
 
- /* Prevent columns from shrinking/wrapping */
+/* Prevent columns from shrinking/wrapping */
 
- th,
- td {
-   white-space: nowrap !important;
-   min-width: 150px;
-   padding: 10px 16px;
-   vertical-align: middle;
- }
+/* Column widths are controlled via [style.min-width.px] bindings in the template */
 
- /* =========================================
+/* =========================================
    FROZEN COLUMNS
 ========================================= */
 
- .frozen-col {
-   position: sticky !important;
-   z-index: 50 !important;
-   background-color: #fff !important;
- }
+.frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
 
- /* Frozen header */
+/* Frozen header */
 
- .audit-table thead .frozen-col {
-   background-color: #3f3f3f !important;
-   color: #fff !important;
-   z-index: 150 !important;
- }
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important;
+  color: #fff !important;
+  z-index: 150 !important;
+}
 
- /* Last frozen column divider */
+/* Last frozen column divider */
 
- .last-frozen {
-   box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
- }
+.last-frozen {
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
+}
 
-  /* =========================================
+/* =========================================
     HEADER
 ========================================= */
 
-  .tbl-head,
-  .audit-table thead {
-    background-color: #3f3f3f !important;
-    color: #ffffff !important;
-  }
+.tbl-head,
+.audit-table thead {
+  background-color: #3f3f3f !important;
+  color: #ffffff !important;
+}
 
-  .tbl-head th,
-  .audit-table thead th,
-  th[mat-header-cell] {
-    background-color: #3f3f3f !important;
-    color: #ffffff !important;
-    font-weight: 600;
-    text-align: center;
-    border: 1px solid #555 !important;
-    font-size: 14px;
-  }
+.tbl-head th,
+.audit-table thead th,
+th[mat-header-cell] {
+  background-color: #3f3f3f !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid #555 !important;
+  font-size: 14px;
+}
 
- /* =========================================
+/* =========================================
    BODY
 ========================================= */
 
- .audit-table tbody td {
-   border: 1px solid #dee2e6;
- }
+.audit-table tbody td {
+  border: 1px solid #dee2e6;
+}
 
- .audit-table tbody tr:hover {
-   background-color: #f5f5f5;
- }
+.audit-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
 
- /* =========================================
+/* =========================================
    ACTION ICONS
 ========================================= */
 
- .fa-edit {
-   margin-right: 12px;
-   color: #5c85d6;
-   cursor: pointer;
-   font-size: 16px;
- }
+.fa-edit {
+  margin-right: 12px;
+  color: #5c85d6;
+  cursor: pointer;
+  font-size: 16px;
+}
 
- .fa-trash {
-   color: #dc3545;
-   cursor: pointer;
-   font-size: 16px;
- }
+.fa-trash {
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 16px;
+}
 
- /* =========================================
+/* =========================================
    FAB SCROLL BUTTONS
 ========================================= */
 
-  .mine {
-    position: fixed;
-    bottom: 80px;
-    background-color: #e6e6e6 !important;
-    z-index: 100;
-    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    transition: all 0.2s ease;
+.mine {
+  position: fixed;
+  bottom: 80px;
+  background-color: #e6e6e6 !important;
+  z-index: 100;
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease;
 
-    &:hover {
-      background-color: #d6d6d6 !important;
-      transform: scale(1.05);
-    }
-
-    mat-icon {
-      color: #37474f !important;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      line-height: 24px;
-    }
+  &:hover {
+    background-color: #d6d6d6 !important;
+    transform: scale(1.05);
   }
 
-  .mine-right {
-    right: 40px;
+  mat-icon {
+    color: #37474f !important;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
   }
+}
 
-  .mine-left {
-    right: 110px;
-  }
+.mine-right {
+  right: 40px;
+}
+
+.mine-left {
+  right: 110px;
+}

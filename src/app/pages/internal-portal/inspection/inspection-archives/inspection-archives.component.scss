@@ -41,13 +41,12 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     display: block;
-    border: 1px solid #dee2e6;
     margin-bottom: 10px;
   }
 
   .audit-table {
-    width: max-content !important;
-    min-width: 100%;
+    width: 100%;
+    min-width: max-content;
     border-collapse: collapse;
   }
 
@@ -103,12 +102,7 @@
 
   /* ================= ACTION COLUMN ================= */
 
-  .audit-table th:first-child,
-  .audit-table td:first-child {
-    min-width: 100px !important;
-    width: 100px;
-    text-align: center;
-  }
+  /* Column widths are controlled via [style.min-width.px] bindings in the template */
 
   /* ================= LINKS ================= */
 
@@ -138,31 +132,38 @@
     gap: 12px;
     white-space: nowrap;
 
-    i, mat-icon {
+    i,
+    mat-icon {
       font-size: 16px;
       line-height: 1;
       cursor: pointer;
       vertical-align: middle;
       transition: transform 0.15s ease, color 0.15s ease;
 
-      &.edit-icon, &.fa-edit {
+      &.edit-icon,
+      &.fa-edit {
         color: #0d8add;
+
         &:hover {
           color: #0056b3;
           transform: scale(1.2);
         }
       }
 
-      &.delete-icon, &.fa-trash {
+      &.delete-icon,
+      &.fa-trash {
         color: #dc3545;
+
         &:hover {
           color: #a71d2a;
           transform: scale(1.2);
         }
       }
 
-      &.undo-icon, &.fa-undo {
+      &.undo-icon,
+      &.fa-undo {
         color: #28a745;
+
         &:hover {
           color: #1e7e34;
           transform: scale(1.2);
