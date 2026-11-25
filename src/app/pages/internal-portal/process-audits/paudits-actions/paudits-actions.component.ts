@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, NgZone, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -12,6 +12,8 @@ import { ProcessDocPopComponent } from './process-doc-pop/process-doc-pop.compon
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service'; // 🔥 Import permission service
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
+import { of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Component({
   standalone: false,
@@ -19,10 +21,14 @@ import { PartAuditService } from '../../parts-audits/part-audit.service';
   templateUrl: './paudits-actions.component.html',
   styleUrls: ['./paudits-actions.component.scss']
 })
-export class PauditsActionsComponent implements OnInit {
+export class PauditsActionsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   filterToggle: boolean = false;
   totalSize = 0;
+  // Server-side paging state (falls back to client-side if the paged API is unavailable)
+  serverMode = false;
+  private pagedUnsupported = false;
+  totalCount = 0;
   myGroup!: FormGroup;
   originalTableList: any[] = [];
   tableList: any[] = [];
@@ -53,6 +59,7 @@ export class PauditsActionsComponent implements OnInit {
   escalateThreshold: number = 9999; //   ADD THIS: New variable for the flag
 
   get pagedCapaData() {
+    if (this.serverMode) return this.tableList;
     const start = this.pageIndex * this.pageSize;
     return this.tableList.slice(start, start + this.pageSize);
   }
@@ -60,15 +67,88 @@ export class PauditsActionsComponent implements OnInit {
   onPageChange(event: any) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    if (this.serverMode) { this.loadData(); return; }
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
+
   constructor(
     public dialog: MatDialog,
     private api: ProcessAuditService,
-    private alertService: AlertService, private partAuditService: PartAuditService
+    private alertService: AlertService,
+    private partAuditService: PartAuditService,
+    private ngZone: NgZone
   ) { }
+
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container');
+    if (!container) return;
+
+    const table = container.querySelector('.audit-table') as HTMLElement;
+    const thead = container.querySelector('.audit-table thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+  }
 
   ngOnInit(): void {
 
@@ -88,51 +168,73 @@ export class PauditsActionsComponent implements OnInit {
       ActionType: new FormControl('')
     });
 
+    this.loadData();
     this.loadLookups();
     this.loadGridColumns();
 
     // 🔥 Silently runs the escalation check and logs the result to the browser console!
-    this.api.triggerDailyEscalations().subscribe({
-      next: (res: any) => console.log(' Background Escalation Check:', res.message),
-      error: (err) => console.error(' Escalation Check Failed:', err)
-    });
+    // this.api.triggerDailyEscalations().subscribe({
+    //   next: (res: any) => console.log(' Background Escalation Check:', res.message),
+    //   error: (err) => console.error(' Escalation Check Failed:', err)
+    // });
   }
 
   loadLookups() {
-    // 1. Fetch the Escalation Matrix FIRST to get both thresholds
     this.api.getEscalations().subscribe((res: any) => {
       if (res.success && res.data) {
-        // Grab Overdue (for red text)
         const overdue = res.data.find((x: any) => x.escalationName === 'Overdue');
         if (overdue && overdue.newValue) {
           this.overdueThreshold = parseInt(overdue.newValue, 10);
         }
 
-        // 🔥 ADDED THIS: Grab Escalate (for the flag icon)
         const escalate = res.data.find((x: any) => x.escalationName === 'Escalate');
         if (escalate && escalate.newValue) {
           this.escalateThreshold = parseInt(escalate.newValue, 10);
         }
       }
+    });
 
-      // 2. ONLY AFTER getting the thresholds, fetch lookups and load the table data!
-      this.api.getLookups().subscribe((lookupRes: any) => {
-        if (lookupRes.success) {
-          this.capaStatusLookups = lookupRes.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
-          this.loadData();
-        }
-      });
+    this.api.getLookups().subscribe((lookupRes: any) => {
+      if (lookupRes.success) {
+        this.capaStatusLookups = lookupRes.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
+      }
     });
   }
 
   
+  // Tries the server-paged endpoint first; falls back to the legacy "get all" call if unavailable.
+  private capaSource$() {
+    const legacy$ = this.api.getAllCapas();
+    if (this.pagedUnsupported) return legacy$;
+    const f = this.myGroup?.value || {};
+    const params = {
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      keyword: f.Keyword ? f.Keyword.trim() : '',
+      processCategory: f.ProcessCategory,
+      supplierName: f.SupplierName,
+      actionType: f.ActionType
+    };
+    return this.api.getCapasPaged(params).pipe(
+      map((r: any) => (r && r.success && r.totalCount !== undefined) ? { ...r, _server: true } : null),
+      catchError(() => of(null)),
+      switchMap((r: any) => {
+        if (r) return of(r);
+        this.pagedUnsupported = true;
+        return legacy$;
+      })
+    );
+  }
+
   loadData() {
     this.isLoading = true;
-    this.api.getAllCapas().subscribe({
+    this.capaSource$().subscribe({
       next: (res: any) => {
         this.isLoading = false;
         if (res.success) {
           // Sort latest CAPA on top
+          this.serverMode = !!res._server;
+          this.totalCount = res.totalCount ?? 0;
           const sortedData = (res.data || []).sort((a: any, b: any) => (b.capaId || 0) - (a.capaId || 0));
 
           this.originalTableList = sortedData.map((item: any) => {
@@ -168,11 +270,12 @@ export class PauditsActionsComponent implements OnInit {
           });
 
           this.tableList = [...this.originalTableList];
-          this.totalSize = this.tableList.length;
+          this.totalSize = this.serverMode ? this.totalCount : this.tableList.length;
 
-          this.processCategories = [...new Set(res.data.map((item: any) => item.processCategory).filter(Boolean))] as string[];
-          this.suppliers = [...new Set(res.data.map((item: any) => item.supplierName).filter(Boolean))] as string[];
-          this.actionTypes = [...new Set(res.data.map((item: any) => item.actionType).filter(Boolean))] as string[];
+          this.processCategories = (this.serverMode && res.filterOptions?.processCategories) || [...new Set(res.data.map((item: any) => item.processCategory).filter(Boolean))] as string[];
+          this.suppliers = (this.serverMode && res.filterOptions?.suppliers) || [...new Set(res.data.map((item: any) => item.supplierName).filter(Boolean))] as string[];
+          this.actionTypes = (this.serverMode && res.filterOptions?.actionTypes) || [...new Set(res.data.map((item: any) => item.actionType).filter(Boolean))] as string[];
+          setTimeout(() => this.updateStickyHeader(), 50);
         }
       },
       error: () => {
@@ -278,6 +381,7 @@ export class PauditsActionsComponent implements OnInit {
   }
 
   go() {
+    if (this.serverMode) { this.pageIndex = 0; this.loadData(); return; }
     const filters = this.myGroup.value;
     const keyword = filters.Keyword ? filters.Keyword.toLowerCase() : '';
     const category = filters.ProcessCategory;
@@ -298,16 +402,19 @@ export class PauditsActionsComponent implements OnInit {
 
     this.pageIndex = 0;
     this.totalSize = this.tableList.length;
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   clearFilter() {
     this.myGroup.reset();
+    if (this.serverMode) { this.pageIndex = 0; this.loadData(); return; }
     this.tableList = [...this.originalTableList];
     const maxPage = Math.max(0, Math.ceil(this.tableList.length / this.pageSize) - 1);
     if (this.pageIndex > maxPage) {
       this.pageIndex = maxPage;
     }
     this.totalSize = this.tableList.length;
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   defaultColumns: string[] = [
@@ -508,5 +615,6 @@ export class PauditsActionsComponent implements OnInit {
 
       });
 
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 }

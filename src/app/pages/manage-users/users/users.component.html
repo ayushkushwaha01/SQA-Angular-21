@@ -8,16 +8,16 @@
 </div>
 
 <!-- 🔥 MAIN SCREEN (Only renders if canRead is true) 🔥 -->
-<div *ngIf="canRead" fxLayout="row wrap" #resizedDiv>
+<div *ngIf="canRead" class="grid-page-wrapper" fxLayout="row wrap" #resizedDiv>
     <div class="flex-p w-100">
 
-        <div class="row" style="margin-bottom:14px;margin-right: 10px;">
+        <div class="row action-bar-row mb-3">
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"></div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <div class="w-100 flex-p">
 
                     <!-- 🔥 Add User Button (Locked by canCreate) -->
-                    <button mat-raised-button color="primary" class="search-btn pull-right"
+                    <button mat-raised-button color="primary" class="search-btn pull-right" style="cursor: pointer;"
                         [class.disable-custom]="!canCreate"
                         [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add User'"
                         (click)="canCreate && openEditDialog(null)">
@@ -32,8 +32,7 @@
             </div>
         </div>
 
-        <div fxLayout="row wrap" *ngIf="filterToggle" style=" margin-left: 13px;
-    margin-bottom: 17px;max-width: 98%;">
+        <div fxLayout="row wrap" *ngIf="filterToggle" class="filter-row mb-3">
             <div fxFlex="100" class="flex-p w-100">
                 <form [formGroup]="filterForm">
                     <mat-card class="filter">
@@ -73,8 +72,8 @@
             </div>
         </div>
 
-        <div class="col-sm-12" style="margin-left: 13px;">
-            <div id="grid-table-container" class="table-responsive" style="width: 101%; margin-left: -18px;">
+        <div class="grid-wrapper">
+            <div id="grid-table-container" class="table-responsive">
                 <table class="table table-bordered">
                     <thead class="table-dark">
                         <tr class="tr-grid-header">
@@ -183,7 +182,7 @@
                         </tr>
 
                         <tr *ngIf="dataSource.data.length === 0">
-                            <td colspan="13" class="text-center">No records found</td>
+                            <td colspan="15" class="text-center">No records found</td>
                         </tr>
                     </tbody>
                 </table>

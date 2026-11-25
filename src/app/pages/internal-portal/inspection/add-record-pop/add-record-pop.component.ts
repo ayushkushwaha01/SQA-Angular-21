@@ -104,10 +104,52 @@ export class AddRecordPopComponent implements OnInit {
     }
   }
 
+  // loadDropdownData() {
+  //   this.lookupService.getLookups().subscribe((res: any) => {
+  //     if (res.success && res.data) {
+  //       this.stages = res.data.filter((item: any) => item.codeMasterName === "Inspection-Stage" && item.isActive);
+  //       this.shifts = res.data.filter((item: any) => item.codeMasterName === "Shift" && item.isActive);
+  //     }
+  //   });
+
+  //   this.setupService.getAllSuppliers().subscribe((res: any) => {
+  //     if (res.success && res.data) {
+  //       this.suppliers = res.data.filter((item: any) => item.isActive);
+  //     }
+  //   });
+
+  //   this.manageUsersService.getAllUsers().subscribe((res: any) => {
+  //     if (res.success && res.data) {
+  //       this.inspectors = res.data.filter((user: any) => user.isInspector && user.isActive);
+  //     }
+  //   });
+
+  //   forkJoin({
+  //     families: this.setupService.getPartFamilies({}).pipe(catchError(() => of({ success: false }))),
+  //     parts: this.setupService.getPartMaster({ Keyword: "", Status: "" }).pipe(catchError(() => of({ success: false }))),
+  //     batches: this.setupService.getBatchMaster({ Keyword: "", Status: "" }).pipe(catchError(() => of({ success: false })))
+  //   }).subscribe(({ families, parts, batches }: any) => {
+  //     if (families?.success && families.data?.data) {
+  //       this.partFamilies = families.data.data.filter((item: any) => item.isActive);
+  //     }
+  //     if (parts?.success && parts.data?.data) {
+  //       this.allPartCodes = parts.data.data.filter((item: any) => item.isActive);
+  //     }
+  //     if (batches?.success && batches.data?.data) {
+  //       this.allBatches = batches.data.data.filter((item: any) => item.isActive);
+  //     }
+
+  //     if (this.data) {
+  //       this.applyEditValues();
+  //     }
+  //   });
+  // }
+
+
   loadDropdownData() {
     this.lookupService.getLookups().subscribe((res: any) => {
       if (res.success && res.data) {
-        this.stages = res.data.filter((item: any) => item.codeMasterName === "Inspection-Stage" && item.isActive);
+        // Removed the Inspection-Stage filter from here
         this.shifts = res.data.filter((item: any) => item.codeMasterName === "Shift" && item.isActive);
       }
     });
@@ -125,10 +167,14 @@ export class AddRecordPopComponent implements OnInit {
     });
 
     forkJoin({
+      stages: this.setupService.getAllStages().pipe(catchError(() => of({ success: false }))), // <-- Added Stage fetch
       families: this.setupService.getPartFamilies({}).pipe(catchError(() => of({ success: false }))),
       parts: this.setupService.getPartMaster({ Keyword: "", Status: "" }).pipe(catchError(() => of({ success: false }))),
       batches: this.setupService.getBatchMaster({ Keyword: "", Status: "" }).pipe(catchError(() => of({ success: false })))
-    }).subscribe(({ families, parts, batches }: any) => {
+    }).subscribe(({ stages, families, parts, batches }: any) => {
+      if (stages?.success && stages.data) {
+        this.stages = stages.data.filter((item: any) => item.isActive); // <-- Set stages data
+      }
       if (families?.success && families.data?.data) {
         this.partFamilies = families.data.data.filter((item: any) => item.isActive);
       }
@@ -144,6 +190,7 @@ export class AddRecordPopComponent implements OnInit {
       }
     });
   }
+  
 
   applyEditValues() {
     if (!this.data) return;

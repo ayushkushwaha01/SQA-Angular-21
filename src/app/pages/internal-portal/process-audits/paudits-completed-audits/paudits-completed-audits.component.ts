@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, NgZone, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActiveGridDialogComponent } from '../paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
@@ -17,7 +17,7 @@ import { PartAuditService } from '../../parts-audits/part-audit.service';
   templateUrl: './paudits-completed-audits.component.html',
   styleUrls: ['./paudits-completed-audits.component.scss']
 })
-export class PauditsCompletedAuditsComponent implements OnInit {
+export class PauditsCompletedAuditsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   //Screen Permissions
   canRead: boolean = false;
@@ -134,12 +134,22 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   // Filter variables
   originalAuditData: any[] = [];
   filteredAuditData: any[] = [];
+  // Server-side paging state (falls back to client-side if the paged API is unavailable)
+  serverMode = false;
+  // private pagedUnsupported = true;
+
+  private pagedUnsupported = false;
+  totalCount = 0;
+  filterOptions: any = null;
+  private serverCharts: any = null;
+  get gridLength() { return this.serverMode ? this.totalCount : this.filteredAuditData.length; }
   filterToggle = false;
   filterForm!: FormGroup;
 
-  get uniqueCommodities() { return [...new Set(this.originalAuditData.map(a => a.commodityName).filter(Boolean))].sort(); }
-  get uniqueStates() { return [...new Set(this.originalAuditData.map(a => a.stateName).filter(Boolean))].sort(); }
+  get uniqueCommodities() { if (this.filterOptions?.commodities) return this.filterOptions.commodities; return [...new Set(this.originalAuditData.map(a => a.commodityName).filter(Boolean))].sort(); }
+  get uniqueStates() { if (this.filterOptions?.states) return this.filterOptions.states; return [...new Set(this.originalAuditData.map(a => a.stateName).filter(Boolean))].sort(); }
   get uniqueCities() {
+    if (this.filterOptions?.cities) return this.filterOptions.cities;
     const selectedState = this.filterForm?.value?.State;
     let data = this.originalAuditData;
     if (selectedState) {
@@ -147,21 +157,34 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     }
     return [...new Set(data.map(a => a.cityName).filter(Boolean))].sort();
   }
-  get uniqueSuppliers() { return [...new Set(this.originalAuditData.map(a => a.supplierName).filter(Boolean))].sort(); }
-  get uniqueStages() { return [...new Set(this.originalAuditData.map(a => a.stageName).filter(Boolean))].sort(); }
-  get uniqueAuditors() { return [...new Set(this.originalAuditData.map(a => a.auditorName).filter(Boolean))].sort(); }
+  get uniqueSuppliers() { if (this.filterOptions?.suppliers) return this.filterOptions.suppliers; return [...new Set(this.originalAuditData.map(a => a.supplierName).filter(Boolean))].sort(); }
+  get uniqueStages() { if (this.filterOptions?.stages) return this.filterOptions.stages; return [...new Set(this.originalAuditData.map(a => a.stageName).filter(Boolean))].sort(); }
+  get uniqueAuditors() { if (this.filterOptions?.auditors) return this.filterOptions.auditors; return [...new Set(this.originalAuditData.map(a => a.auditorName).filter(Boolean))].sort(); }
 
   get pagedAuditData() {
+    if (this.serverMode) return this.filteredAuditData;
     const start = this.pageIndex * this.pageSize;
     return this.filteredAuditData.slice(start, start + this.pageSize);
   }
+
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
 
   constructor(
     private dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService,
     private fb: FormBuilder,
-    private partAuditService: PartAuditService
+    private partAuditService: PartAuditService,
+    private ngZone: NgZone
   ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
@@ -177,6 +200,64 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container');
+    if (!container) return;
+
+    const table = (container.querySelector('.custom-grid-table') || container.querySelector('.audit-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+  }
+
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
@@ -189,6 +270,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
 
     if (!this.canRead) return;
 
+    this.loadData();
     this.loadLookups();
     this.loadGridColumns();
   }
@@ -198,11 +280,66 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       if (res.success) {
         this.statusLookups = res.data.filter((l: any) => l.codeMasterName === 'Audit-Status');
       }
-      this.loadData();
     });
   }
 
+  private fmtDate(d: any): string | null {
+    if (!d) return null;
+    const x = new Date(d);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  }
+
+  private buildPagedParams() {
+    const f = this.filterForm.value;
+    return {
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      isDone: true,
+      keyword: f.Keyword,
+      commodity: f.Commodity,
+      state: f.State,
+      city: f.City,
+      supplier: f.Supplier,
+      stage: f.Stage,
+      auditor: f.Auditor,
+      fromDate: this.fmtDate(f.FromDate),
+      toDate: this.fmtDate(f.ToDate)
+    };
+  }
+
   loadData() {
+    if (this.pagedUnsupported) {
+      this.loadAllData();
+      return;
+    }
+    this.isLoading = true;
+    this.api.getAuditsPaged(this.buildPagedParams()).subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.totalCount !== undefined) {
+          this.serverMode = true;
+          this.isLoading = false;
+          this.totalCount = res.totalCount;
+          this.completedAuditData = res.data || [];
+          this.filteredAuditData = this.completedAuditData;
+          if (res.filterOptions) { this.filterOptions = res.filterOptions; }
+          this.serverCharts = res.chartCounts || null;
+          this.updateCharts();
+          setTimeout(() => this.updateStickyHeader(), 50);
+        } else {
+          this.pagedUnsupported = true;
+          this.loadAllData();
+        }
+      },
+      // Paged endpoint not available yet -> fall back to the legacy full load
+      error: () => {
+        this.pagedUnsupported = true;
+        this.loadAllData();
+      }
+    });
+  }
+
+  private loadAllData() {
+    this.serverMode = false;
     this.isLoading = true;
     this.api.getAllAudits().subscribe({
       next: (res: any) => {
@@ -218,6 +355,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
           }
 
           this.updateCharts();
+          setTimeout(() => this.updateStickyHeader(), 50);
         }
       },
       error: () => {
@@ -242,10 +380,11 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       }, {});
     };
 
-    const commodityCounts = getCounts('commodityName');
-    const auditorCounts = getCounts('auditorName');
+    const sc = this.serverMode ? this.serverCharts : null;
+    const commodityCounts = sc?.commodity || getCounts('commodityName');
+    const auditorCounts = sc?.auditor || getCounts('auditorName');
 
-    const statusCounts = chartData.reduce((acc: any, curr: any) => {
+    const statusCounts = sc?.status || chartData.reduce((acc: any, curr: any) => {
       const name = this.getStatusName(curr.statusId);
       acc[name] = (acc[name] || 0) + 1;
       return acc;
@@ -267,6 +406,8 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   onPageChange(event: any) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    if (this.serverMode) { this.loadData(); return; }
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   openGridView() {
@@ -283,6 +424,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   }
 
   filter() {
+    if (this.serverMode) { this.pageIndex = 0; this.loadData(); return; }
     const keyword = this.filterForm.value.Keyword?.toLowerCase() || '';
     const commodity = this.filterForm.value.Commodity;
     const state = this.filterForm.value.State;
@@ -339,15 +481,18 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       return matchesKeyword && matchesCommodity && matchesState && matchesCity && matchesSupplier && matchesStage && matchesAuditor && matchesDate;
     });
     this.pageIndex = 0;
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   clearFilter() {
     this.filterForm.reset();
+    if (this.serverMode) { this.pageIndex = 0; this.loadData(); return; }
     this.filteredAuditData = [...this.originalAuditData];
     const maxPage = Math.max(0, Math.ceil(this.filteredAuditData.length / this.pageSize) - 1);
     if (this.pageIndex > maxPage) {
       this.pageIndex = maxPage;
     }
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   onDoneClick(event: MouseEvent, audit: any): void {
@@ -493,5 +638,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
         this.frozenCount = 0;
       }
     });
+
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 }

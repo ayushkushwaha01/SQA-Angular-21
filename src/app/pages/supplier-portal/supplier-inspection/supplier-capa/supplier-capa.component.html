@@ -119,7 +119,16 @@
 
         <tbody>
 
-          <tr *ngFor="let applicant of pagedTableList">
+          <tr *ngIf="isLoading">
+            <td [attr.colspan]="activeColumns.length || 10" class="text-center p-0">
+              <div class="table-loader-wrapper">
+                <mat-spinner diameter="45" strokeWidth="4"></mat-spinner>
+                <div class="loader-text">Loading data, please wait...</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let applicant of pagedTableList" [hidden]="isLoading">
 
             <td *ngFor="let col of activeColumns; let i = index" class="text-center"
               [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
@@ -425,8 +434,8 @@
 
 
           <tr *ngIf="
-          !pagedTableList ||
-          pagedTableList.length === 0
+          !isLoading && (!pagedTableList ||
+          pagedTableList.length === 0)
         ">
 
             <td [attr.colspan]="activeColumns.length" class="text-center">

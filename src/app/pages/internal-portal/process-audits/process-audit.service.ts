@@ -15,6 +15,15 @@ export class ProcessAuditService {
 
   // Process Audit CRUD
   getAllAudits() { return this.http.get(this.apiUrl + 'ProcessAudits/get-all'); }
+  // Server-side paged list. Expected response:
+  // { success, data: [...page rows], totalCount, filterOptions?, chartCounts? }
+  getAuditsPaged(params: any) {
+    const q = Object.keys(params)
+      .filter(k => params[k] !== null && params[k] !== undefined && params[k] !== '')
+      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&');
+    return this.http.get(this.apiUrl + 'ProcessAudits/get-paged?' + q);
+  }
   upsertAudit(data: any) { return this.http.post(this.apiUrl + 'ProcessAudits/upsert', data); }
   deleteAudit(data: any) { return this.http.post(this.apiUrl + 'ProcessAudits/delete', data); }
 
@@ -43,6 +52,14 @@ export class ProcessAuditService {
 
   //CAPA Grid Main Menu-Item APIs
   getAllCapas() { return this.http.get(this.apiUrl + 'ProcessAuditInnerScreen/get-all-capas'); }
+  // Server-side paged CAPA list. Expected response: { success, data, totalCount, filterOptions? }
+  getCapasPaged(params: any) {
+    const q = Object.keys(params)
+      .filter(k => params[k] !== null && params[k] !== undefined && params[k] !== '')
+      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&');
+    return this.http.get(this.apiUrl + 'ProcessAuditInnerScreen/get-capas-paged?' + q);
+  }
   updateCapaStatus(payload: any) { return this.http.post(this.apiUrl + 'ProcessAuditInnerScreen/update-capa-status', payload); }
   deleteCapa(payload: any) {
     return this.http.post(this.apiUrl + 'ProcessAuditInnerScreen/delete-capa', payload);
@@ -82,7 +99,7 @@ export class ProcessAuditService {
   }
 
   getAllResponsesForAudit(auditId: number) {
-    return this.http.get(`${this.apiUrl}/ProcessAuditInnerScreen/get-all-responses-for-audit?processAuditId=${auditId}`);
+    return this.http.get(`${this.apiUrl}ProcessAuditInnerScreen/get-all-responses-for-audit?processAuditId=${auditId}`);
   }
 
   //Help Desk APIs

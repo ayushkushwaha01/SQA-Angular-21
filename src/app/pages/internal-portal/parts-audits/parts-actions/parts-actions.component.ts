@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, NgZone, OnDestroy } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewDocPhotosComponent } from './view-doc-photos/view-doc-photos.component';
@@ -27,7 +27,7 @@ import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users
   templateUrl: './parts-actions.component.html',
   styleUrls: ['./parts-actions.component.scss']
 })
-export class PartsActionsComponent implements OnInit {
+export class PartsActionsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   filterToggle: boolean = false;
 
@@ -37,6 +37,8 @@ export class PartsActionsComponent implements OnInit {
 
   currentPage: number = 0;
   totalSize: number = 0;
+  // Server-side paging: true only when the API returns a partial page (fewer rows than totalRecords)
+  serverMode: boolean = false;
   fromIndex: number = 0;
   pageSize: number = 20;
   isLoading: boolean = true;
@@ -54,10 +56,81 @@ export class PartsActionsComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   someElementRef: any;
+
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
+
   constructor(public dialog: MatDialog, private partAuditService: PartAuditService,
     private alertService: AlertService, private fb: FormBuilder, private manageUserService: ManageUsersService,
-    private lookupService: LookupService
+    private lookupService: LookupService,
+    private ngZone: NgZone
   ) { }
+
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+  }
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
@@ -75,10 +148,10 @@ export class PartsActionsComponent implements OnInit {
     this.loadGridColumns();
     this.getLookups();
 
-    this.manageUserService.triggerPartsEscalations().subscribe({
-      next: () => console.log('Parts Escalation Matrix Executed'),
-      error: (err: any) => console.error('Failed to run Parts Escalations', err)
-    });
+    // this.manageUserService.triggerPartsEscalations().subscribe({
+    //   next: () => console.log('Parts Escalation Matrix Executed'),
+    //   error: (err: any) => console.error('Failed to run Parts Escalations', err)
+    // });
 
   }
 
@@ -155,7 +228,8 @@ export class PartsActionsComponent implements OnInit {
   }
 
   allcaps: any[] = [];
-  getCapas() {
+  getCapas(keepPage: boolean = false) {
+    if (!keepPage) { this.currentPage = 0; this.fromIndex = 0; }
     const filter = { ...this.filterForm.value };
 
     Object.keys(filter).forEach(key => {
@@ -169,6 +243,9 @@ export class PartsActionsComponent implements OnInit {
     });
 
     this.isLoading = true;
+    // Ask the server for a single page (older APIs ignore these and return everything -> client paging)
+    filter.pageNumber = this.currentPage + 1;
+    filter.pageSize = this.pageSize;
     this.partAuditService.getAllCaps(filter)
       .subscribe({
         next: (res: any) => {
@@ -213,8 +290,9 @@ export class PartsActionsComponent implements OnInit {
             });
 
             this.totalSize = res.data.totalRecords;
-            this.currentPage = 0;
+            this.serverMode = !!res.data?.isPaged || this.allcaps.length < this.totalSize;
             this.loadPageData();
+            setTimeout(() => this.updateStickyHeader(), 50);
           }
         },
         error: () => {
@@ -225,6 +303,7 @@ export class PartsActionsComponent implements OnInit {
 
 
   loadPageData() {
+    if (this.serverMode) { this.tableLists = this.allcaps; return; }
 
     this.fromIndex = this.currentPage * this.pageSize;
 
@@ -237,9 +316,15 @@ export class PartsActionsComponent implements OnInit {
   fnHandlePage(event: any) {
 
     this.currentPage = event.pageIndex;
+    if (this.serverMode) {
+      this.pageSize = event.pageSize;
+      this.getCapas(true);
+      return;
+    }
     this.pageSize = event.pageSize;
 
     this.loadPageData();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
 
@@ -654,6 +739,8 @@ export class PartsActionsComponent implements OnInit {
       }
 
     });
+
+    setTimeout(() => this.updateStickyHeader(), 50);
 
   }
 

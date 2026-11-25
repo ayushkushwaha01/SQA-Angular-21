@@ -10,7 +10,7 @@
       style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
       [class.disable-custom]="!canCreate"
       [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Parts Family'"
-      (click)="canCreate && addPartFamily(null)">
+      (click)="canCreate && addPartFamily(null)" class="mdc-button mat-mdc-button-base mat-mdc-tooltip-trigger search-btn ms-2 mdc-button--raised mat-mdc-raised-button mat-primary">
 
       <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">
         add
@@ -96,7 +96,7 @@
             [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Parameter Details'">
 
             <a class="text-blue" style="cursor: pointer; text-decoration: underline;"
-              [routerLink]="canUpdate ? ['../families-inner-grid'] : null"
+              [routerLink]="canUpdate ? ['families-inner-grid'] : null"
               [queryParams]="canUpdate ? { partFamilyId: item.partFamilyId } : null">
 
               {{ item.parametersCount || 0 }}

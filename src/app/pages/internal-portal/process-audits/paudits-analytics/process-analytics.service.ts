@@ -48,4 +48,22 @@ export class ProcessAnalyticsService {
     if (month) params = params.set('month', month.toString());
     return this.http.get(this.apiUrl + 'get-summary-analytics', { params });
   }
+
+  //Global filters for analytics
+
+// ==============================================================
+  // 🔥 FIX: Use environment.apiUrl directly for the new Controller 
+  // ==============================================================
+
+  // Save filters
+  saveUserFilters(payload: any) {
+    // Note the change here: environment.apiUrl + 'UserFilterSettings/save-user-filters'
+    return this.http.post(environment.apiUrl + 'UserFilterSettings/save-user-filters', payload);
+  }
+
+  // Get filters
+  getUserFilters(userId: number, screenName: string) {
+    // Note the change here too
+    return this.http.get(environment.apiUrl + `UserFilterSettings/get-user-filters?userId=${userId}&screenName=${screenName}`);
+  }
 }

@@ -28,8 +28,13 @@ export class PartsFamilyPopComponent implements OnInit {
   ngOnInit(): void {
     this.allDefects = this.data.allDefects || [];
     this.defectColumns = [];
-    for (let i = 0; i < this.allDefects.length; i += 10) {
-      this.defectColumns.push(this.allDefects.slice(i, i + 10));
+    const total = this.allDefects.length;
+    if (total === 1) {
+      this.defectColumns.push(this.allDefects);
+    } else if (total > 1) {
+      const half = Math.ceil(total / 2);
+      this.defectColumns.push(this.allDefects.slice(0, half));
+      this.defectColumns.push(this.allDefects.slice(half));
     }
     this.fullPartFamilyItem = this.data.fullItem; // Get the complete item
     

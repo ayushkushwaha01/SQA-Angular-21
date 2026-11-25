@@ -1,26 +1,8 @@
 .page-container {
   background-color: #f9f9f9;
   min-height: 100vh;
-}
-
-/* Tabs */
-.top-tab-btn {
-  border-radius: 4px !important;
-  font-weight: 500 !important;
-  text-transform: none !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-}
-
-.tab-active {
-  background-color: #099ff0 !important;
-  /* Blue from image */
-  color: white !important;
-}
-
-.tab-inactive {
-  background-color: #d3d3d3 !important;
-  /* Grey from image */
-  color: black !important;
+  min-width: 0;
+  width: 100%;
 }
 
 /* Action Buttons */
@@ -57,15 +39,8 @@
 }
 
 /* Utility */
-.text-center {
-  text-align: center;
-}
-
-.manage-icons {
-  white-space: nowrap;
-}
-
-
+.text-center { text-align: center; }
+.manage-icons { white-space: nowrap; }
 
 td {
   font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -81,7 +56,6 @@ th {
   padding: 12px;
   font-size: 14px;
   border: 1px solid #e1e1e1;
-  /* already correct */
 }
 
 .manage-icons {
@@ -100,4 +74,178 @@ th {
   .delete-icon {
     color: red;
   }
+}
+
+/* ========================================================
+   RIGHT-SIDED NAVIGATION (EXACT MIRROR OF LEFT NAV)
+   ======================================================== */
+
+.sqm-wrapper.right-sided {
+  display: flex;
+  height: 100%;
+  position: relative;
+}
+
+/* --- RIGHT NAV CONTAINER --- */
+.nav-container.right-nav {
+  position: fixed;
+  right: 0;
+  left: auto;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  overflow-x: visible;
+  background-color: #f0f0f0;
+  transition: width 0.3s ease-in-out;
+  z-index: 100;
+  border-left: 1px solid #ddd;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-open {
+  width: 200px;
+}
+
+.nav-closed {
+  width: 56px;
+  overflow: visible;
+}
+
+/* --- TOGGLE BUTTON --- */
+.toggle-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 16px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    color: #333;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+  }
+}
+
+/* When sidenav is collapsed (mini rail), center the hamburger */
+.nav-closed .toggle-button {
+  justify-content: center;
+  padding: 0;
+
+  mat-icon {
+    margin: 0 auto;
+  }
+}
+
+/* --- NAV LINKS --- */
+.nav-links ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
+.nav-links li {
+  margin-bottom: 4px;
+  cursor: pointer;
+  color: #333;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.nav-closed .nav-links a {
+  padding: 0 6px;
+  justify-content: center;
+}
+
+.nav-icon {
+  padding: 0 !important;
+  margin: 0 auto !important;
+  vertical-align: middle;
+  flex-shrink: 0;
+  font-size: 22px;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  display: block !important;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.nav-links span {
+  white-space: nowrap;
+  padding-left: 0;
+}
+
+/* --- ACTIVE STATE --- */
+.nav-links li.active,
+.nav-links li:has(a.active),
+.nav-links li:has(a.router-link-active),
+.nav-links a.active,
+.nav-links a.router-link-active {
+  background-color: #dfefff !important;
+  font-weight: bold !important;
+  color: #1976d2 !important;
+
+  a {
+    color: #1976d2 !important;
+    font-weight: bold !important;
+  }
+
+  .nav-icon, span, mat-icon, i {
+    color: #1976d2 !important;
+  }
+}
+
+/* --- MAIN CONTENT OFFSET --- */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-right 0.3s ease-in-out;
+  min-width: 0;
+  overflow-x: hidden;
+  margin-left: 0;
+}
+
+.content-shrink {
+  margin-right: 200px;
+}
+
+.content-expanded {
+  margin-right: 56px;
 }

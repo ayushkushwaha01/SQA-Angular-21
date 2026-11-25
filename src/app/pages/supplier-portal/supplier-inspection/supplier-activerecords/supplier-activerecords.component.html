@@ -83,9 +83,6 @@
     <button mat-raised-button style="background-color: #000000; color: #ffffff" (click)="showFilter = !showFilter">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
-    <!-- <button mat-raised-button color="primary" (click)="addrecord(null)">
-    <mat-icon>add</mat-icon> Add Record
-  </button> -->
   </div>
 
   <div fxLayout="row wrap" *ngIf="showFilter" style="margin-bottom: 15px;">
@@ -182,7 +179,7 @@
   </div>
 
   <div class="table-responsive" id="grid-table-container" #tableContainer
-    style="overflow-x: auto; white-space: nowrap; margin-bottom: 150px">
+    style="overflow-x: auto; white-space: nowrap; margin-bottom: 10px">
 
     <table id="example2" class="table table-bordered table-hover audit-table">
 
@@ -356,7 +353,16 @@
 
       <tbody>
 
-        <tr *ngFor="let item of inspectionData">
+        <tr *ngIf="isLoading">
+          <td [attr.colspan]="activeColumns.length || 10" class="text-center p-0">
+            <div class="table-loader-wrapper">
+              <mat-spinner diameter="45" strokeWidth="4"></mat-spinner>
+              <div class="loader-text">Loading data, please wait...</div>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngFor="let item of pagedInspectionData" [hidden]="isLoading">
 
           <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
 
@@ -570,7 +576,7 @@
 
 
         <!-- No Records -->
-        <tr *ngIf="!inspectionData || inspectionData.length === 0">
+        <tr *ngIf="!isLoading && (!pagedInspectionData || pagedInspectionData.length === 0)">
 
           <td [attr.colspan]="activeColumns.length || defaultColumns.length" class="text-center">
             No records found
@@ -582,6 +588,13 @@
 
     </table>
 
+  </div>
+
+  <div style="width: 100%; margin-bottom: 120px">
+    <mat-paginator [length]="serverMode ? totalCount : inspectionData.length" [pageIndex]="pageIndex"
+      [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20, 50, 100]" (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
   </div>
 
   <div style="

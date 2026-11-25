@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { of } from 'rxjs';
+// import { BehaviorSubject, Observable, of, tap, finalize, shareReplay } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, finalize, shareReplay, catchError } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -8,10 +11,112 @@ import { environment } from '../../../environments/environment';
 })
 export class ManageUsersService {
 
-  // Base API URL
   apiUrl = environment.apiUrl;
 
+  public readonly sentMailsCount$ = new BehaviorSubject<number>(0);
+  public readonly cachedSentMails$ = new BehaviorSubject<any[] | null>(null);
+  private inFlightSentMails$: Observable<any> | null = null;
+
   constructor(private http: HttpClient) { }
+
+  getUserId(): number {
+    const localId = Number(localStorage.getItem('UserId'));
+    if (localId > 0) return localId;
+    const token = sessionStorage.getItem('jwt_token') || localStorage.getItem('jwt_token');
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        const id = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+          || decoded.nameid
+          || decoded.UserId
+          || decoded.userId
+          || decoded.sub;
+        if (id && Number(id) > 0) return Number(id);
+      } catch (e) {}
+    }
+    return 0;
+  }
+
+  // fetchSentMails(userId?: number, userType?: string, forceRefresh: boolean = false): Observable<any> {
+  //   if (!forceRefresh && this.inFlightSentMails$) {
+  //     return this.inFlightSentMails$;
+  //   }
+  //   const uid = userId ?? this.getUserId();
+  //   const ut = userType ?? (localStorage.getItem('UserType') || 'Internal');
+  //   this.inFlightSentMails$ = this.getSentMails(uid, ut).pipe(
+  //     tap({
+  //       next: (res: any) => {
+  //         if (res && res.success && Array.isArray(res.data)) {
+  //           const filtered = res.data.filter((m: any) => m && m.moduleName !== 'System Escalation');
+  //           this.sentMailsCount$.next(filtered.length);
+  //           this.cachedSentMails$.next(filtered);
+  //         } else {
+  //           this.sentMailsCount$.next(0);
+  //           this.cachedSentMails$.next([]);
+  //         }
+  //       },
+  //       error: () => {
+  //         this.sentMailsCount$.next(0);
+  //         this.cachedSentMails$.next([]);
+  //       }
+  //     }),
+  //     finalize(() => {
+  //       this.inFlightSentMails$ = null;
+  //     }),
+  //     shareReplay(1)
+  //   );
+  //   return this.inFlightSentMails$;
+  // }
+
+  // refreshSentMailsCount(userId?: number, userType?: string, forceRefresh: boolean = false): void {
+  //   this.fetchSentMails(userId, userType, forceRefresh).subscribe();
+  // }
+
+
+    private lastSentMailsFetch = 0;
+
+  fetchSentMails(userId?: number, userType?: string, forceRefresh: boolean = false): Observable<any> {
+    if (!forceRefresh && this.inFlightSentMails$) {
+      return this.inFlightSentMails$;
+    }
+    const uid = userId ?? this.getUserId();
+    const ut = userType ?? (localStorage.getItem('UserType') || 'Internal');
+
+    // new light endpoint; falls back to the old one if it is not deployed yet
+    this.inFlightSentMails$ = this.getSentMailsSummary().pipe(
+      catchError(() => this.getSentMails(uid, ut)),
+      tap({
+        next: (res: any) => {
+          if (res && res.success && Array.isArray(res.data)) {
+            const filtered = res.data.filter((m: any) => m && m.moduleName !== 'System Escalation');
+            this.sentMailsCount$.next(res.total ?? filtered.length);
+            this.cachedSentMails$.next(filtered);
+          } else {
+            this.sentMailsCount$.next(0);
+            this.cachedSentMails$.next([]);
+          }
+        },
+        error: () => {
+          this.sentMailsCount$.next(0);
+          this.cachedSentMails$.next([]);
+        }
+      }),
+      finalize(() => {
+        this.inFlightSentMails$ = null;
+      }),
+      shareReplay(1)
+    );
+    return this.inFlightSentMails$;
+  }
+
+  // The header calls this on every route change, tab focus and storage event.
+  // Skip it if we refreshed in the last 60 seconds, unless forced.
+  refreshSentMailsCount(userId?: number, userType?: string, forceRefresh: boolean = false): void {
+    const now = Date.now();
+    if (!forceRefresh && now - this.lastSentMailsFetch < 60000) return;
+    this.lastSentMailsFetch = now;
+    this.fetchSentMails(userId, userType, forceRefresh).subscribe();
+  }
 
   // ==========================================
   // ---------- ROLES API ENDPOINTS -----------
@@ -295,8 +400,23 @@ export class ManageUsersService {
 
 
 
-//   getInspectorNames() {
-//   return this.http.get(this.apiUrl + 'Users/get-inspector-names');
-// }
+  //   getInspectorNames() {
+  //   return this.http.get(this.apiUrl + 'Users/get-inspector-names');
+  // }
 
+
+  // Add these to your ManageUsersService
+getMailToggleStatus() {
+  return this.http.get(`${this.apiUrl}CapaEscalation/get-mail-toggle-status`);
+}
+
+toggleMailService(isEnabled: boolean) {
+  return this.http.post(`${this.apiUrl}CapaEscalation/toggle-mail-service?isEnabled=${isEnabled}`, {});
+}
+
+
+//optimization
+  getSentMailsSummary(take: number = 100) {
+    return this.http.get<any>(`${this.apiUrl}HelpDesk/get-sent-mails-summary?take=${take}`);
+  }
 }

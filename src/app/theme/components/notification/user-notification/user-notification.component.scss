@@ -1,10 +1,4 @@
 // Notifications Menu Styles
-:host ::ng-deep {
-  .mat-badge-content {
-    top: 4px !important;
-    right: 4px !important;
-  }
-}
 
 .notifications-menu {
   width: 450px !important;
@@ -79,6 +73,16 @@
           &.type-parts {
             background-color: #f3e5f5;
             color: #7b1fa2;
+          }
+
+          &.type-helpdesk {
+            background-color: #e0f2f1;
+            color: #00796b;
+          }
+
+          &.type-system {
+            background-color: #ffebee;
+            color: #c62828;
           }
         }
 
@@ -248,6 +252,8 @@
 
           &.type-process { background-color: #e3f2fd; color: #1976d2; }
           &.type-parts   { background-color: #f3e5f5; color: #7b1fa2; }
+          &.type-helpdesk { background-color: #e0f2f1; color: #00796b; }
+          &.type-system  { background-color: #ffebee; color: #c62828; }
         }
 
         .notification-date {

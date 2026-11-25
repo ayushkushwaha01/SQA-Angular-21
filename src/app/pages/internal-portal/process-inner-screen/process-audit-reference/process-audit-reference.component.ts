@@ -1,11 +1,13 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ActivatedRoute } from '@angular/router';
 import { ProcessAuditService } from '../../process-audits/process-audit.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
-import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service'; // 🔥 Import this
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { Subject, from, of } from 'rxjs';
+import { catchError, mergeMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   standalone: false,
@@ -13,7 +15,11 @@ import { UserPermissionService } from 'src/app/pages/helpers/user-permission.ser
   templateUrl: './process-audit-reference.component.html',
   styleUrls: ['./process-audit-reference.component.scss']
 })
-export class ProcessAuditReferenceComponent implements OnInit {
+export class ProcessAuditReferenceComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
+  private checklistsByCategory: { [catId: number]: any[] } = {};
+  private batchResponsesLoaded = false;
 
   // 🔥 Permission variables for Screen ID 13 (Active Audit Dashboard)
   canRead: boolean = false;
@@ -45,10 +51,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
   severities: any[] = [];
   parentAuditRef: string = 'Pending...';
 
-  // // Dropdown Options
-  // occurrences = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  // detections = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
   // NEW DYNAMIC ARRAYS
   occurrences: any[] = [];
   detections: any[] = [];
@@ -66,7 +68,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   complianceStatus: string = '';
   selectedClass = '';
   capaSubject = '';
-  logDate: any = null
+  logDate: any = null;
   dueDate: any = null;
   completedDate: any = null;
   pdcaStatus = '';
@@ -76,8 +78,8 @@ export class ProcessAuditReferenceComponent implements OnInit {
   correctiveActions = '';
   supplierRemarks = '';
 
-  targetCategoryId: any = null;  // 🔥 Add this
-  targetChecklistId: any = null; // 🔥 Add this
+  targetCategoryId: any = null;
+  targetChecklistId: any = null;
 
   // File Upload Variables
   selectedFiles: File[] = [];
@@ -103,36 +105,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
     private route: ActivatedRoute,
     private dialog: MatDialog
   ) { }
-
-  // ngOnInit(): void {
-
-  //   //Screen Permissions
-  //   //  1. Load Permissions First
-  //   this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
-  //   this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
-  //   this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
-  //   this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
-
-  //   // 2. Block page load if they cannot read
-  //   if (!this.canRead) return;
-
-
-  //   this.parentAuditRef = this.route.snapshot.queryParamMap.get('ref') || 'New Audit';
-  //   this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); 
-  //   this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); 
-
-  //   // Check if the user is a supplier via Angular Router OR Raw URL
-  //   this.route.queryParams.subscribe(params => {
-  //     if (params['role'] === 'supplier') {
-  //       this.isSupplier = true;
-  //     }
-  //   });
-  //   if (window.location.href.toLowerCase().includes('role=supplier')) {
-  //     this.isSupplier = true;
-  //   }
-
-  //   this.loadMasterData(); 
-  // }
 
   ngOnInit(): void {
     // 🔥 1. Check if user is a Supplier FIRST
@@ -167,73 +139,129 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.loadMasterData();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadMasterData() {
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
 
-    this.api.getSeverities().subscribe((res: any) => {
+    this.api.getSeverities().pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       if (res.success && res.data) {
         this.severities = res.data.sort((a: any, b: any) => Number(a.rating || 0) - Number(b.rating || 0));
       }
     });
 
-    this.api.getOccurrences().subscribe((res: any) => {
+    this.api.getOccurrences().pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       if (res.success && res.data) {
         this.occurrences = res.data.sort((a: any, b: any) => Number(a.rating || 0) - Number(b.rating || 0));
       }
     });
 
-    this.api.getDetections().subscribe((res: any) => {
+    this.api.getDetections().pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       if (res.success && res.data) {
         this.detections = res.data.sort((a: any, b: any) => Number(a.rating || 0) - Number(b.rating || 0));
       }
     });
 
+    // Fetch all responses for this audit in ONE single batch request first (falls back to throttled per-checklist if unavailable)
+    const batchResponses$ = parentAuditId
+      ? this.api.getAllResponsesForAudit(parentAuditId).pipe(
+          catchError(() => of(null)),
+          takeUntil(this.destroy$)
+        )
+      : of(null);
 
-    this.api.getProcessCategories().subscribe((res: any) => {
-      if (res.success && res.data.length > 0) {
-        this.categories = res.data;
+    batchResponses$.subscribe((batchRes: any) => {
+      const responseList = batchRes?.data || batchRes?.Data;
+      if (batchRes && (batchRes.success || batchRes.Success) && Array.isArray(responseList)) {
+        this.batchResponsesLoaded = true;
+        responseList.forEach((resp: any) => {
+          const chkId = resp.checklistId ?? resp.ChecklistId;
+          if (chkId) {
+            this.checklistResponses[chkId] = {
+              compliance: resp.compliance ?? resp.Compliance ?? '',
+              ...resp
+            };
+          }
+        });
+      }
 
-        // Fetch checklist counts and responses for each category
-        this.categories.forEach((cat: any) => {
-          const catId = cat.processCategoryId;
-          this.categoryStats[catId] = { attempted: 0, total: 0, hasFail: false };
+      this.api.getProcessCategories().pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
+        if (res.success && res.data.length > 0) {
+          this.categories = res.data;
 
-          this.api.getChecklists(catId).subscribe((chkRes: any) => {
-            if (chkRes.success && chkRes.data) {
-              const checklists = chkRes.data;
-              this.categoryCounts[catId] = checklists.length;
-              this.categoryStats[catId].total = checklists.length;
+          // If a categoryId came from the URL, select it. Otherwise, select the first one.
+          let catToSelect = this.categories[0];
+          if (this.targetCategoryId) {
+            const found = this.categories.find(c => c.processCategoryId == this.targetCategoryId);
+            if (found) catToSelect = found;
+          }
 
-              let loadedCount = 0;
-              checklists.forEach((chk: any) => {
-                const chkId = chk.checklistId;
-                if (parentAuditId && chkId) {
-                  this.api.getInnerScreenDetails(parentAuditId, chkId).subscribe((respRes: any) => {
-                    loadedCount++;
-                    if (respRes.success && respRes.data) {
+          // Fetch checklist counts and responses for each category
+          this.categories.forEach((cat: any) => {
+            const catId = cat.processCategoryId;
+            this.categoryStats[catId] = { attempted: 0, total: 0, hasFail: false };
+
+            this.api.getChecklists(catId).pipe(takeUntil(this.destroy$)).subscribe((chkRes: any) => {
+              if (chkRes.success && chkRes.data) {
+                const checklists = chkRes.data;
+                this.checklistsByCategory[catId] = checklists;
+                this.categoryCounts[catId] = checklists.length;
+                this.categoryStats[catId].total = checklists.length;
+
+                if (cat.processCategoryId === catToSelect?.processCategoryId && this.processSteps.length === 0) {
+                  this.applySelectedCategorySteps(checklists);
+                }
+
+                if (this.batchResponsesLoaded) {
+                  this.recalculateCategoryStats(catId, checklists);
+                } else if (parentAuditId) {
+                  // Fallback when batch endpoint is not yet deployed: limit concurrency to 3 and cancel on destroy
+                  from(checklists).pipe(
+                    mergeMap((chk: any) => {
+                      const chkId = chk.checklistId;
+                      if (!chkId) return of(null);
+                      return this.api.getInnerScreenDetails(parentAuditId, chkId).pipe(
+                        catchError(() => of(null))
+                      );
+                    }, 3),
+                    takeUntil(this.destroy$)
+                  ).subscribe((respRes: any) => {
+                    if (respRes && respRes.success && respRes.data) {
+                      const chkId = respRes.data.checklistId;
                       const comp = respRes.data.compliance || '';
-                      this.checklistResponses[chkId] = { compliance: comp, ...respRes.data };
-                    } else {
-                      this.checklistResponses[chkId] = { compliance: '' };
+                      if (chkId) {
+                        this.checklistResponses[chkId] = { compliance: comp, ...respRes.data };
+                      }
                     }
                     this.recalculateCategoryStats(catId, checklists);
                   });
                 }
-              });
-            }
+              }
+            });
           });
-        });
 
-        // If a categoryId came from the URL, select it. Otherwise, select the first one.
-        let catToSelect = this.categories[0];
-        if (this.targetCategoryId) {
-          const found = this.categories.find(c => c.processCategoryId == this.targetCategoryId);
-          if (found) catToSelect = found;
+          this.selectCategory(catToSelect);
         }
-
-        this.selectCategory(catToSelect);
-      }
+      });
     });
+  }
+
+  private applySelectedCategorySteps(checklists: any[]) {
+    this.processSteps = checklists;
+    this.allProcessSteps = [...checklists];
+
+    let stepToSelect = this.processSteps[0];
+    if (this.targetChecklistId) {
+      const found = this.processSteps.find(s => s.checklistId == this.targetChecklistId);
+      if (found) stepToSelect = found;
+      this.targetChecklistId = null;
+    }
+    if (stepToSelect) {
+      this.selectStep(stepToSelect);
+    }
   }
 
   recalculateCategoryStats(categoryId: number, checklists: any[]) {
@@ -305,21 +333,16 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.selectedStep = null;
     this.resetForm();
 
-    this.api.getChecklists(category.processCategoryId).subscribe((res: any) => {
+    const cached = this.checklistsByCategory[category.processCategoryId];
+    if (cached && cached.length > 0) {
+      this.applySelectedCategorySteps(cached);
+      return;
+    }
+
+    this.api.getChecklists(category.processCategoryId).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       if (res.success && res.data.length > 0) {
-        this.processSteps = res.data;
-        this.allProcessSteps = [...res.data]; // 🔥 Cache unfiltered steps
-
-        let stepToSelect = this.processSteps[0];
-        if (this.targetChecklistId) {
-          const found = this.processSteps.find(s => s.checklistId == this.targetChecklistId);
-          if (found) stepToSelect = found;
-
-          // Clear the target ID so if the user clicks other tabs manually, it works normally
-          this.targetChecklistId = null;
-        }
-
-        this.selectStep(stepToSelect);
+        this.checklistsByCategory[category.processCategoryId] = res.data;
+        this.applySelectedCategorySteps(res.data);
       }
     });
   }
@@ -328,32 +351,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.selectedStep = step;
     this.loadSavedResponse();
   }
-
-  // loadSavedResponse() {
-  //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
-  //   const chkId = this.selectedStep?.checklistId;
-
-  //   if (!parentAuditId || !chkId) return;
-
-  //   // ⚡ INSTANT POPULATION FROM MEMORY CACHE (0ms lag!)
-  //   if (this.checklistResponses[chkId] && this.checklistResponses[chkId].compliance !== undefined) {
-  //     this.populateFormFromData(this.checklistResponses[chkId]);
-  //   }
-
-  //   // Refresh from API in background to ensure latest sync
-  //   this.api.getInnerScreenDetails(parentAuditId, chkId).subscribe((res: any) => {
-  //     if (res.success && res.data) {
-  //       const d = res.data;
-  //       this.checklistResponses[chkId] = { compliance: d.compliance || '', ...d };
-  //       this.populateFormFromData(d);
-  //       if (this.selectedCategory) {
-  //         this.recalculateCategoryStats(this.selectedCategory.processCategoryId, this.processSteps);
-  //       }
-  //     } else if (!this.checklistResponses[chkId]) {
-  //       this.resetForm();
-  //     }
-  //   });
-  // }
 
   loadSavedResponse() {
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
@@ -365,13 +362,19 @@ export class ProcessAuditReferenceComponent implements OnInit {
     if (this.checklistResponses[chkId] && this.checklistResponses[chkId].compliance) {
       this.isExistingRecord = true; // Memory says it exists
       this.populateFormFromData(this.checklistResponses[chkId]);
+      if (this.batchResponsesLoaded) {
+        return;
+      }
     } else {
       this.isExistingRecord = false; // Memory says it's new
       this.resetForm(); // 🔥 Reset form so previous question's data doesn't leak
+      if (this.batchResponsesLoaded) {
+        return;
+      }
     }
 
     // 2. REFRESH FROM API
-    this.api.getInnerScreenDetails(parentAuditId, chkId).subscribe((res: any) => {
+    this.api.getInnerScreenDetails(parentAuditId, chkId).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       if (res.success && res.data) {
         this.isExistingRecord = true; // 🔥 API confirms it is an EXISTING record
         const d = res.data;
@@ -418,8 +421,9 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.uploadedDocs = [];
 
     // Parse Images
-    if (d.imageDocs) {
-      const allImages = d.imageDocs.split(',');
+    const imgDocs = d.imageDocs ?? d.ImageDocs;
+    if (imgDocs) {
+      const allImages = imgDocs.split(',');
       allImages.forEach((url: string) => {
         url = url.trim();
         if (url) this.galleryImages.push(url);
@@ -427,8 +431,9 @@ export class ProcessAuditReferenceComponent implements OnInit {
     }
 
     // Parse Documents (PDFs, docs, etc.)
-    if (d.pdfDocs) {
-      const allDocs = d.pdfDocs.split(',');
+    const pdfDocs = d.pdfDocs ?? d.PdfDocs;
+    if (pdfDocs) {
+      const allDocs = pdfDocs.split(',');
       allDocs.forEach((url: string) => {
         url = url.trim();
         if (url) this.uploadedDocs.push({ url: url, title: url.split('/').pop()?.split('?')[0] || 'Document' });
@@ -436,18 +441,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
     }
   }
 
-  // setRating(val: string) {
-  //   // if (this.isSupplier) return;  
-  //   if (this.isSupplier || !this.canUpdate) return;
-  //   this.rating = val;
-  //   if (this.selectedStep?.checklistId) {
-  //     const chkId = this.selectedStep.checklistId;
-  //     this.checklistResponses[chkId] = {
-  //       ...this.checklistResponses[chkId],
-  //       rating: val
-  //     };
-  //   }
-  // }
   setRating(val: string) {
     // 🔥 Block if supplier OR if user lacks the correct access (Create vs Update)
     if (this.isSupplier || !this.hasEditAccess) return;
@@ -487,8 +480,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
   removeApiDoc(index: number): void {
     this.uploadedDocs.splice(index, 1);
-    // You might also need an API call here to delete the doc if required by backend,
-    // or just re-upload current files on save. For now, it removes it from UI.
   }
 
   viewLocalFile(file: File): void {
@@ -534,7 +525,10 @@ export class ProcessAuditReferenceComponent implements OnInit {
     if (event.key === 'Escape') this.closeSlideshow();
   }
 
-  goBack(): void { this.location.back(); }
+  goBack(): void {
+    this.destroy$.next();
+    this.location.back();
+  }
 
   // --- FILTER PANEL METHODS ---
   toggleFilter(): void {
@@ -603,93 +597,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
   }
 
   // --- SAVE RECORD ---
-
-
-  // saveData() {
-  //   if (!this.isSupplier && (!this.complianceStatus || this.complianceStatus.trim() === '')) {
-  //     this.alertService.createAlert('Compliance (Pass/Fail) is mandatory.', 0);
-  //     return;
-  //   }
-
-  //   if (this.complianceStatus === 'Fail' && !this.isSupplier) {
-  //     if (!this.capaSubject || this.capaSubject.trim() === '') {
-  //       this.alertService.createAlert('CAPA Subject is mandatory when Compliance is Fail.', 0);
-  //       return;
-  //     }
-  //   }
-
-  //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
-
-  //   const payload = {
-  //     processAuditId: parentAuditId,
-  //     processCategoryId: this.selectedCategory?.processCategoryId,
-  //     checklistId: this.selectedStep?.checklistId,
-  //     guideline: this.selectedStep?.guideline,
-  //     rating: this.rating,
-  //     severityId: this.selectedSeverityId,
-  //     occurrence: this.selectedOccurrence,
-  //     detection: this.selectedDetection,
-  //     compliance: this.complianceStatus,
-
-  //     // CAPA fields
-  //     class: this.selectedClass,
-  //     capaSubject: this.capaSubject,
-  //     dueDate: this.dueDate,
-  //     completedDate: this.completedDate,
-  //     pdcaStatus: this.pdcaStatus,
-  //     isResolved: this.isResolved,
-  //     actionType: this.actionType,
-  //     remarks: this.remarks,
-  //     correctiveActions: this.correctiveActions,
-  //     supplierRemarks: this.supplierRemarks
-  //   };
-
-  //   const formData = new FormData();
-  //   formData.append('jsonData', JSON.stringify(payload));
-
-  //   // Append both file arrays separately so backend receives all uploads
-  //   this.selectedFiles.forEach(file => { 
-  //     formData.append('files', file); 
-  //   });
-  //   this.selectedImageFiles.forEach(file => { 
-  //     formData.append('files', file); 
-  //   });
-
-  //   this.isSaving = true;
-
-  //   this.api.saveInnerScreenDetails(formData).subscribe({
-  //     next: (res: any) => {
-  //       this.isSaving = false;
-  //       if (res.success) {
-  //         // Clear local selected files immediately to avoid duplicate UI display before refresh
-  //         this.selectedFiles = [];
-  //         this.selectedImageFiles = [];
-
-  //         // Update cache & category stats
-  //         if (this.selectedStep?.checklistId) {
-  //           this.checklistResponses[this.selectedStep.checklistId] = {
-  //             ...this.checklistResponses[this.selectedStep.checklistId],
-  //             ...payload,
-  //             compliance: this.complianceStatus
-  //           };
-  //         }
-  //         if (this.selectedCategory) {
-  //           this.recalculateCategoryStats(this.selectedCategory.processCategoryId, this.processSteps);
-  //         }
-
-  //         this.alertService.createAlert(res.message, 1);
-  //         this.loadSavedResponse(); 
-  //       } else {
-  //         this.alertService.createAlert(res.message || 'Error saving response', 0);
-  //       }
-  //     },
-  //     error: () => {
-  //       this.isSaving = false;
-  //       this.alertService.createAlert('Error saving response', 0);
-  //     }
-  //   });
-  // }
-
   saveData() {
     if (!this.isSupplier && (!this.complianceStatus || this.complianceStatus.trim() === '')) {
       this.alertService.createAlert('Compliance (Pass/Fail) is mandatory.', 0);
@@ -751,7 +658,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
     this.isSaving = true;
 
-    this.api.saveInnerScreenDetails(formData).subscribe({
+    this.api.saveInnerScreenDetails(formData).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
         this.isSaving = false;
         if (res.success) {
@@ -772,7 +679,9 @@ export class ProcessAuditReferenceComponent implements OnInit {
           }
 
           this.alertService.createAlert(res.message, 1);
+          this.batchResponsesLoaded = false;
           this.loadSavedResponse();
+          this.batchResponsesLoaded = true;
         } else {
           this.alertService.createAlert(res.message || 'Error saving response', 0);
         }
@@ -783,30 +692,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
       }
     });
   }
-
-  // resetForm() {
-  //   this.rating = '5';
-  //   this.selectedSeverityId = null;
-  //   this.selectedOccurrence = null;
-  //   this.selectedDetection = null;
-  //   this.complianceStatus = '';
-
-  //   this.selectedClass = '';
-  //   this.capaSubject = '';
-  //   this.dueDate = null;
-  //   this.completedDate = null;
-  //   this.pdcaStatus = '';
-  //   this.isResolved = false;
-  //   this.actionType = '';
-  //   this.remarks = '';
-  //   this.correctiveActions = '';
-  //   this.supplierRemarks = '';
-
-  //   this.selectedFiles = [];
-  //   this.selectedImageFiles = []; 
-  //   this.galleryImages = [];
-  //   this.uploadedDocs = [];
-  // }
 
   resetForm() {
     this.isExistingRecord = false; // 🔥 Reset to new record state
@@ -857,48 +742,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  // Add this method inside ProcessAuditReferenceComponent class
-
-  // deleteImage(index: number, imgUrl: string): void {
-  //   // 1. If it's a local Base64 preview that hasn't been saved to DB yet
-  //   if (imgUrl.startsWith('data:')) {
-  //     this.galleryImages.splice(index, 1);
-  //     const localIndex = this.selectedImageFiles.length - (this.galleryImages.length - index) - 1;
-  //     if (localIndex >= 0) {
-  //       this.selectedImageFiles.splice(localIndex, 1);
-  //     }
-  //     return;
-  //   }
-
-  //   // 2. Safely grab the IDs even after a page refresh
-  //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
-  //   // 🔥 FIXED: Changed this.checklistId to this.targetChecklistId
-  //   const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
-
-  //   if (!parentAuditId || !stepChecklistId) {
-  //     this.alertService.createAlert('Cannot delete: Missing Audit or Checklist ID', 0);
-  //     return;
-  //   }
-
-  //   const payload = {
-  //     processAuditId: parentAuditId,
-  //     checklistId: stepChecklistId,
-  //     fileUrl: imgUrl
-  //   };
-
-  //   this.api.deleteInnerScreenDocument(payload).subscribe({
-  //     next: (res: any) => {
-  //       if (res.success) {
-  //         this.alertService.createAlert('Image deleted successfully', 1);
-  //         this.loadSavedResponse(); // 🔥 Reloads clean data from DB
-  //       } else {
-  //         this.alertService.createAlert(res.message || 'Failed to delete image', 0);
-  //       }
-  //     },
-  //     error: () => this.alertService.createAlert('Error deleting image', 0)
-  //   });
-  // }
-
   deleteImage(index: number, imgUrl: string): void {
     if (!this.canDelete && !this.hasEditAccess && !imgUrl.startsWith('data:')) {
       this.alertService.createAlert('Access Denied: You cannot delete images.', 0);
@@ -917,7 +760,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
     });
 
     // 2. Only proceed if the user clicks "Yes / Confirm"
-    dialogRef.afterClosed().subscribe((result: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((result: any) => {
       if (result) {
         // A. If it's a local Base64 preview that hasn't been saved to DB yet
         if (imgUrl.startsWith('data:')) {
@@ -945,11 +788,13 @@ export class ProcessAuditReferenceComponent implements OnInit {
           fileUrl: imgUrl
         };
 
-        this.api.deleteInnerScreenDocument(payload).subscribe({
+        this.api.deleteInnerScreenDocument(payload).pipe(takeUntil(this.destroy$)).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert('Image deleted successfully', 1);
+              this.batchResponsesLoaded = false;
               this.loadSavedResponse(); // Reload clean data from DB
+              this.batchResponsesLoaded = true;
             } else {
               this.alertService.createAlert(res.message || 'Failed to delete image', 0);
             }
@@ -959,8 +804,6 @@ export class ProcessAuditReferenceComponent implements OnInit {
       }
     });
   }
-
-  // Replace removeApiDoc(index: number) with this:
 
   deleteDocument(index: number, doc: any): void {
     if (!this.canDelete && !this.hasEditAccess) {
@@ -990,19 +833,21 @@ export class ProcessAuditReferenceComponent implements OnInit {
     });
 
     // 3. Call backend API if confirmed
-    dialogRef.afterClosed().subscribe((result: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((result: any) => {
       if (result) {
         const payload = {
           processAuditId: parentAuditId,
           checklistId: stepChecklistId,
-          fileUrl: doc.url // Your backend C# RemoveKey() will match and remove this from PdfDocs
+          fileUrl: doc.url
         };
 
-        this.api.deleteInnerScreenDocument(payload).subscribe({
+        this.api.deleteInnerScreenDocument(payload).pipe(takeUntil(this.destroy$)).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert('Document deleted successfully', 1);
-              this.loadSavedResponse(); // 🔥 Reloads clean data directly from the DB
+              this.batchResponsesLoaded = false;
+              this.loadSavedResponse();
+              this.batchResponsesLoaded = true;
             } else {
               this.alertService.createAlert(res.message || 'Failed to delete document', 0);
             }

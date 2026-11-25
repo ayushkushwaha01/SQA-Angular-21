@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { ProcessAuditService } from 'src/app/pages/internal-portal/process-audits/process-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ActionDescRemarksComponent } from 'src/app/pages/internal-portal/process-audits/paudits-actions/action-desc-remarks/action-desc-remarks.component';
@@ -18,11 +19,27 @@ import { jwtDecode } from 'jwt-decode';
   templateUrl: './sup-procapa.component.html',
   styleUrls: ['./sup-procapa.component.scss']
 })
-export class SupProcapaComponent implements OnInit {
+export class SupProcapaComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
 
   filterToggle: boolean = false;
   isAlertsView: boolean = false;
   totalSize = 0;
+  pageIndex = 0;
+  pageSize: number = 20;
+  serverMode: boolean = false;
+  private pagedUnsupported: boolean = false;
+  isLoading: boolean = true;
   myGroup!: FormGroup;
 
   originalTableList: any[] = [];
@@ -34,7 +51,6 @@ export class SupProcapaComponent implements OnInit {
   TractorIdSections: any[] = [];
   responsibleSections: any[] = [];
   resSectionFilterLeads: any[] = [];
-  pageSize: number = 5;
 
   overdueThreshold: number = 9999; 
   escalateThreshold: number = 9999;
@@ -43,7 +59,9 @@ export class SupProcapaComponent implements OnInit {
     public dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService, private partAuditService: PartAuditService,
-    private manageUserService: ManageUsersService
+    private manageUserService: ManageUsersService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -59,8 +77,6 @@ export class SupProcapaComponent implements OnInit {
       ResponsibleSectionLeadId: new FormControl('')
     });
 
-    // this.loadData();
-
     this.manageUserService.getEscalation().subscribe((res: any) => {
       if (res.success && res.data) {
         const overdue = res.data.find((x: any) => x.escalationName === 'Overdue' || x.EscalationName === 'Overdue');
@@ -75,7 +91,7 @@ export class SupProcapaComponent implements OnInit {
     this.loadGridColumns();
   }
 
-private getSupplierId(): number {
+  private getSupplierId(): number {
     const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
     if (token) {
       try {
@@ -98,59 +114,107 @@ private getSupplierId(): number {
     return Number(localSuppId) || 0;
   }
 
+  private mapRows(list: any[]): any[] {
+    return (list || []).map((item: any) => {
+      let calculatedDelay: any = '-';
+      if (item.dueDate) {
+        const due = new Date(item.dueDate);
+        const completion = item.completion ? new Date(item.completion) : new Date();
+        due.setHours(0, 0, 0, 0);
+        completion.setHours(0, 0, 0, 0);
+
+        const diffTime = completion.getTime() - due.getTime();
+        if (diffTime > 0) {
+          calculatedDelay = Math.floor(diffTime / (1000 * 3600 * 24));
+        }
+      }
+
+      return {
+        capaId: item.capaId,
+        processAuditId: item.processAuditId,
+        processCategoryId: item.processCategoryId,
+        checklistId: item.checklistId,
+        auditReference: item.auditReference,
+        status: item.status,
+        resolved: item.resolved,
+        docs: item.docs,
+        reference: item.reference,
+        actionSubject: item.actionSubject,
+        supplierName: item.supplierName,
+        actionType: item.actionType,
+        processCategory: item.processCategory,
+        description: item.description,
+        supplierRemarks: item.supplierRemarks,
+        logDate: new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
+        dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+        completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+        delayInDays: calculatedDelay,
+        severity: item.severity,
+        occurrence: item.occurrence,
+        detection: item.detection,
+        riskRating: item.riskRating,
+        rating: item.rating,
+        pdcaStatus: item.pdcaStatus,
+        isAlert: calculatedDelay !== '-' && calculatedDelay > 5
+      };
+    });
+  }
+
   loadData() {
-    // const supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+    if (this.pagedUnsupported) {
+      this.loadDataLegacy();
+      return;
+    }
 
     const supplierId = this.getSupplierId();
+    const f = this.myGroup ? this.myGroup.value : {};
+    this.isLoading = true;
 
-    this.api.getAllCapasSupplie(supplierId).subscribe((res: any) => {
+    this.api.getCapasPaged({
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      supplierId: supplierId > 0 ? supplierId : null,
+      keyword: f.Keyword?.trim(),
+      processCategory: f.TractorIdSections,
+      supplierName: f.ResponsibleSections,
+      actionType: f.ResponsibleSectionLeadId
+    }).pipe(finalize(() => { this.isLoading = false; })).subscribe({
+      next: (res: any) => {
+        if (!res || !res.success || res.totalCount === undefined) {
+          this.pagedUnsupported = true;
+          this.loadDataLegacy();
+          return;
+        }
+        this.serverMode = true;
+        this.originalTableList = this.mapRows(res.data || []);
+        this.tableList = [...this.originalTableList];
+        this.totalSize = res.totalCount ?? 0;
+        this.pagedTableList = this.tableList;
+
+        const fo = res.filterOptions;
+        if (fo) {
+          this.TractorIdSections = (fo.processCategories || []).map((val: string) => ({ item_id: val, item_text: val }));
+          this.responsibleSections = (fo.suppliers || []).map((val: string) => ({ item_id: val, item_text: val }));
+          this.resSectionFilterLeads = (fo.actionTypes || []).map((val: string) => ({ UserId: val, UserName: val }));
+        }
+
+        setTimeout(() => this.updateStickyHeader(), 50);
+      },
+      error: () => {
+        this.pagedUnsupported = true;
+        this.loadDataLegacy();
+      }
+    });
+  }
+
+  private loadDataLegacy() {
+    const supplierId = this.getSupplierId();
+
+    this.isLoading = true;
+    this.api.getAllCapasSupplie(supplierId).pipe(finalize(() => { this.isLoading = false; })).subscribe((res: any) => {
       if (res.success) {
-        this.originalTableList = res.data.map((item: any) => {
-          
-          // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ PERMANENT DELAY CALCULATION
-          let calculatedDelay: any = '-';
-          if (item.dueDate) {
-            const due = new Date(item.dueDate);
-            // If completed, calculate delay up to completion date. Otherwise, up to today.
-            const completion = item.completion ? new Date(item.completion) : new Date();
-            due.setHours(0, 0, 0, 0);
-            completion.setHours(0, 0, 0, 0);
-
-            const diffTime = completion.getTime() - due.getTime();
-            if (diffTime > 0) {
-              calculatedDelay = Math.floor(diffTime / (1000 * 3600 * 24));
-            }
-          }
-
-          return {
-            capaId: item.capaId,
-            processAuditId: item.processAuditId,
-            processCategoryId: item.processCategoryId,
-            checklistId: item.checklistId,
-            auditReference: item.auditReference,
-            status: item.status,
-            resolved: item.resolved,
-            docs: item.docs,
-            reference: item.reference,
-            actionSubject: item.actionSubject,
-            supplierName: item.supplierName,
-            actionType: item.actionType,
-            processCategory: item.processCategory,
-            description: item.description,
-            supplierRemarks: item.supplierRemarks,
-            logDate: new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
-            dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            delayInDays: calculatedDelay, // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Replaced with permanent delay logic
-            severity: item.severity,
-            occurrence: item.occurrence,
-            detection: item.detection,
-            riskRating: item.riskRating,
-            rating: item.rating,
-            pdcaStatus: item.pdcaStatus,
-            isAlert: calculatedDelay !== '-' && calculatedDelay > 5
-          };
-        });
+        this.serverMode = false;
+        this.originalTableList = this.mapRows(res.data || []);
 
         this.tableList = [...this.originalTableList];
         this.totalSize = this.tableList.length;
@@ -160,23 +224,33 @@ private getSupplierId(): number {
         this.TractorIdSections = [...new Set(res.data.map((i: any) => i.processCategory).filter(Boolean))].map(val => ({ item_id: val, item_text: val }));
         this.responsibleSections = [...new Set(res.data.map((i: any) => i.supplierName).filter(Boolean))].map(val => ({ item_id: val, item_text: val }));
         this.resSectionFilterLeads = [...new Set(res.data.map((i: any) => i.actionType).filter(Boolean))].map(val => ({ UserId: val, UserName: val }));
+        setTimeout(() => this.updateStickyHeader(), 50);
       }
     });
   }
 
-  updatePagination() {
-    if (this.paginator) {
-      const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
-      this.pagedTableList = this.tableList.slice(startIndex, startIndex + this.paginator.pageSize);
+  onPageChange(event: PageEvent) {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    if (this.serverMode && !this.isAlertsView) {
+      this.loadData();
     } else {
-      this.pagedTableList = this.tableList.slice(0, 5); // Default size
+      this.updatePagination();
+      setTimeout(() => this.updateStickyHeader(), 50);
     }
   }
 
+  updatePagination() {
+    if (this.serverMode && !this.isAlertsView) {
+      this.pagedTableList = this.tableList;
+      return;
+    }
+    const startIndex = this.pageIndex * this.pageSize;
+    this.pagedTableList = this.tableList.slice(startIndex, startIndex + this.pageSize);
+  }
+
   ngAfterViewInit() {
-    this.paginator.page.subscribe(() => {
-      this.updatePagination();
-    });
+    this.setupStickyHeader();
     this.updatePagination();
   }
 
@@ -186,11 +260,21 @@ private getSupplierId(): number {
     this.isAlertsView = !this.isAlertsView;
     this.tableList = this.isAlertsView ? this.originalTableList.filter(item => item.isAlert) : [...this.originalTableList];
     this.totalSize = this.tableList.length;
+    this.pageIndex = 0;
     if (this.paginator) this.paginator.firstPage();
     this.updatePagination();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   go() {
+    this.pageIndex = 0;
+    if (this.paginator) this.paginator.firstPage();
+
+    if (this.serverMode && !this.isAlertsView) {
+      this.loadData();
+      return;
+    }
+
     const filters = this.myGroup.value;
     const keyword = filters.Keyword?.toLowerCase() || '';
     const processCat = filters.TractorIdSections;
@@ -211,44 +295,26 @@ private getSupplierId(): number {
     });
 
     this.totalSize = this.tableList.length;
-    if (this.paginator) this.paginator.firstPage();
     this.updatePagination();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   clearFilter() {
     this.myGroup.reset();
     this.isAlertsView = false;
+    this.pageIndex = 0;
+    if (this.paginator) this.paginator.firstPage();
+
+    if (this.serverMode) {
+      this.loadData();
+      return;
+    }
+
     this.tableList = [...this.originalTableList];
     this.totalSize = this.tableList.length;
-    if (this.paginator) this.paginator.firstPage();
     this.updatePagination();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
-
-  // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Triggered when the Supplier clicks the Resolved checkbox
-  // onResolvedChange(item: any, event: any) {
-  //   item.resolved = event.checked;
-
-  //   const payload = {
-  //     CapaId: item.capaId,
-  //     Status: item.status != null ? item.status.toString() : null, // Keeps the status whatever it currently is
-  //     IsResolved: item.resolved
-  //   };
-
-  //   this.api.updateCapaStatus(payload).subscribe({
-  //     next: (res: any) => {
-  //       if (res.success) {
-  //         this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
-  //       } else {
-  //         this.alertService.createAlert(res.message || 'Failed to update status', 0);
-  //         item.resolved = !event.checked; // Revert UI if API fails
-  //       }
-  //     },
-  //     error: () => {
-  //       this.alertService.createAlert('Error updating CAPA status', 0);
-  //       item.resolved = !event.checked; // Revert UI on error
-  //     }
-  //   });
-  // }
 
   onResolvedChange(item: any, event: any) {
     item.resolved = event.checked;
@@ -264,7 +330,6 @@ private getSupplierId(): number {
         if (res.success) {
           this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
 
-          // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ NOTIFICATION EMAIL LOGIC
           if (item.resolved) {
             const notifPayload = {
               UserId: Number(localStorage.getItem('UserId')) || 0,
@@ -273,19 +338,19 @@ private getSupplierId(): number {
               ModuleName: 'CAPA Resolution',
               Subject: `CAPA Resolved: ${item.reference}`,
               Description: `Supplier has successfully marked Process CAPA ${item.reference} as Resolved. It is now pending internal review.`,
-              SentToEmail: localStorage.getItem('Email') || 'admin@sqa.com' // Adjust fallback email if needed
+              SentToEmail: localStorage.getItem('Email') || 'admin@sqa.com'
             };
             this.api.sendHelpDeskMail(notifPayload).subscribe();
           }
 
         } else {
           this.alertService.createAlert(res.message || 'Failed to update status', 0);
-          item.resolved = !event.checked; // Revert UI if API fails
+          item.resolved = !event.checked;
         }
       },
       error: () => {
         this.alertService.createAlert('Error updating CAPA status', 0);
-        item.resolved = !event.checked; // Revert UI on error
+        item.resolved = !event.checked;
       }
     });
   }
@@ -304,9 +369,62 @@ private getSupplierId(): number {
     });
   }
 
-  // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Strictly Read-Only
   deleteConfirmation(item: any) {
     this.alertService.createAlert('Suppliers do not have permission to delete CAPA records.', 0);
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56;
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
   }
 
   defaultColumns: string[] = [
@@ -458,6 +576,8 @@ private getSupplierId(): number {
           ];
 
           this.frozenCount = 0;
+          this.cdr.detectChanges();
+          setTimeout(() => this.updateStickyHeader(), 50);
 
         }
 
@@ -475,6 +595,8 @@ private getSupplierId(): number {
         ];
 
         this.frozenCount = 0;
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
 
       }
 

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ViewEncapsulation } from '@angular/core';
+import { jwtDecode } from 'jwt-decode';
 import { Router, NavigationEnd, RouterModule } from '@angular/router'; 
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MenuService } from '../../../../services/menu.service';
@@ -36,8 +37,21 @@ export class HorizontalMenuComponent implements OnInit {
   }
 
   private loadMenuItems() {
-    const url = this.router.url;
-    const allItems = url.startsWith('/app/supplier-login')
+    let isSupplier = false;
+    const token = sessionStorage.getItem('jwt_token') || localStorage.getItem('jwt_token');
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        const uType = decoded.UserType || decoded.userType;
+        if (uType === 'Supplier') {
+          isSupplier = true;
+        }
+      } catch (e) {}
+    } else {
+      isSupplier = this.router.url.startsWith('/app/supplier-login');
+    }
+
+    const allItems = isSupplier
       ? this.menuService.getSupplierMenuItems()
       : this.menuService.getHorizontalMenuItems();
     this.menuItems = allItems.filter(item => item.parentId == this.menuParentId);
@@ -74,6 +88,24 @@ export class HorizontalMenuComponent implements OnInit {
         return (
           currentUrl === '/app/supplier-login/dashboard' ||
           currentUrl === '/app/supplier-login'
+        );
+      }
+      if (menu.routerLink === '/internal-portal/process') {
+        return (
+          (currentUrl === '/internal-portal/process' || currentUrl.startsWith('/internal-portal/process/'))
+          && !currentUrl.startsWith('/internal-portal/process/setup')
+        );
+      }
+      if (menu.routerLink === '/internal-portal/parts') {
+        return (
+          (currentUrl === '/internal-portal/parts' || currentUrl.startsWith('/internal-portal/parts/'))
+          && !currentUrl.startsWith('/internal-portal/parts/setup')
+        );
+      }
+      if (menu.id === 5 || menu.title === 'Setup') {
+        return (
+          currentUrl.startsWith('/internal-portal/process/setup')
+          || currentUrl.startsWith('/internal-portal/parts/setup')
         );
       }
       return (

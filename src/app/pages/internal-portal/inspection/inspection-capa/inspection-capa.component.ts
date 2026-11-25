@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -22,6 +22,8 @@ import { UserPermissionService } from 'src/app/pages/helpers/user-permission.ser
 import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
+import { of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Component({
   standalone: false,
@@ -30,10 +32,20 @@ import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users
   styleUrls: ['./inspection-capa.component.scss'],
   providers: [DatePipe]
 })
-export class InspectionCapaComponent implements OnInit {
+export class InspectionCapaComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
 
   filterToggle: boolean = false;
   totalSize = 0;
+  // Server-side paging state (falls back to client-side if the paged API is unavailable)
+  serverMode = false;
+  // private pagedUnsupported = true;
+
+
+   private pagedUnsupported = false;
+  totalCount = 0;
+  private serverFilterOptions: any = null;
   pageSize = 20;
   pageIndex = 0;
   pagedTableList: any[] = [];
@@ -52,11 +64,22 @@ export class InspectionCapaComponent implements OnInit {
   readonly SCREEN_ID: number = 29;
   readonly SCREEN_IDd: number = 42;
 
-  overdueThreshold: number = 9999; 
+  overdueThreshold: number = 9999;
   escalateThreshold: number = 9999;
   isLoading: boolean = true;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
 
   constructor(
     public dialog: MatDialog,
@@ -64,7 +87,9 @@ export class InspectionCapaComponent implements OnInit {
     private datePipe: DatePipe,
     private alertService: AlertService,
     private partAuditService: PartAuditService,
-    private manageUserService: ManageUsersService
+    private manageUserService: ManageUsersService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -97,7 +122,7 @@ export class InspectionCapaComponent implements OnInit {
         const escalate = res.data.find((x: any) => x.escalationName === 'Escalate');
         if (escalate && escalate.newValue) this.escalateThreshold = parseInt(escalate.newValue, 10);
       }
-      
+
       // 🔥 2. NOW fetch the table data
       this.fetchPendingCapas();
     });
@@ -105,12 +130,39 @@ export class InspectionCapaComponent implements OnInit {
     this.loadGridColumns();
   }
 
+  // Tries the server-paged endpoint first; falls back to the legacy "get all" call if unavailable.
+  private capaSource$() {
+    const legacy$ = this.inspectionService.getPendingCapaRecords();
+    if (this.pagedUnsupported) return legacy$;
+    const f = this.myGroup?.value || {};
+    const params = {
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      keyword: f.Keyword ? f.Keyword.trim() : '',
+      processCategory: f.TractorIdSections,
+      supplierName: f.ResponsibleSections,
+      actionType: f.ResponsibleSectionLeadId
+    };
+    return this.inspectionService.getPendingCapaPaged(params).pipe(
+      map((r: any) => (r && r.success && r.totalCount !== undefined) ? { ...r, _server: true } : null),
+      catchError(() => of(null)),
+      switchMap((r: any) => {
+        if (r) return of(r);
+        this.pagedUnsupported = true;
+        return legacy$;
+      })
+    );
+  }
+
   fetchPendingCapas() {
     this.isLoading = true;
-    this.inspectionService.getPendingCapaRecords().subscribe({
+    this.capaSource$().subscribe({
       next: (res: any) => {
         this.isLoading = false;
         if (res.success && res.data) {
+          this.serverMode = !!res._server;
+          this.totalCount = res.totalCount ?? 0;
+          this.serverFilterOptions = res.filterOptions || null;
           const sortedData = (res.data || []).sort((a: any, b: any) => {
             if (b.capaId && a.capaId && b.capaId !== a.capaId) {
               return b.capaId - a.capaId;
@@ -180,9 +232,11 @@ export class InspectionCapaComponent implements OnInit {
           });
 
           this.originalTableList = [...this.tableList];
-          this.pageIndex = 0;
+          if (!this.serverMode) { this.pageIndex = 0; }
           this.updatePagedList();
           this.populateFilterDropdowns();
+          this.cdr.detectChanges();
+          setTimeout(() => this.updateStickyHeader(), 50);
         }
       },
       error: (err) => {
@@ -193,6 +247,13 @@ export class InspectionCapaComponent implements OnInit {
   }
 
   populateFilterDropdowns() {
+    const o = this.serverMode ? this.serverFilterOptions : null;
+    if (o) {
+      this.processCategories = o.processCategories || [];
+      this.supplierNames = o.supplierNames || [];
+      this.actionTypes = o.actionTypes || [];
+      return;
+    }
     this.processCategories = Array.from(new Set(this.originalTableList.map(item => item.processCategory).filter(Boolean))).sort();
     this.supplierNames = Array.from(new Set(this.originalTableList.map(item => item.supplierName).filter(Boolean))).sort();
     this.actionTypes = Array.from(new Set(this.originalTableList.map(item => item.actionType).filter(Boolean))).sort();
@@ -276,6 +337,11 @@ export class InspectionCapaComponent implements OnInit {
   }
 
   updatePagedList() {
+    if (this.serverMode) {
+      this.pagedTableList = this.tableList;
+      this.totalSize = this.totalCount;
+      return;
+    }
     const startIndex = this.pageIndex * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.pagedTableList = this.tableList.slice(startIndex, endIndex);
@@ -285,10 +351,13 @@ export class InspectionCapaComponent implements OnInit {
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.pageIndex = event.pageIndex;
+    if (this.serverMode) { this.fetchPendingCapas(); return; }
     this.updatePagedList();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   go() {
+    if (this.serverMode) { this.pageIndex = 0; this.fetchPendingCapas(); return; }
     const filters = this.myGroup.value;
     const keyword = filters.Keyword ? filters.Keyword.toLowerCase().trim() : '';
     const processCategory = filters.TractorIdSections;
@@ -315,13 +384,74 @@ export class InspectionCapaComponent implements OnInit {
 
     this.pageIndex = 0;
     this.updatePagedList();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   clearFilter() {
     this.myGroup.reset();
+    if (this.serverMode) { this.pageIndex = 0; this.fetchPendingCapas(); return; }
     this.tableList = [...this.originalTableList];
     this.pageIndex = 0;
     this.updatePagedList();
+    setTimeout(() => this.updateStickyHeader(), 50);
+  }
+
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
   }
   defaultColumns: string[] = [
     'Delete',
@@ -478,6 +608,8 @@ export class InspectionCapaComponent implements OnInit {
           this.frozenCount = 0;
 
         }
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
 
       },
 
@@ -490,6 +622,8 @@ export class InspectionCapaComponent implements OnInit {
 
         this.activeColumns = [...this.defaultColumns];
         this.frozenCount = 0;
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
 
       }
 

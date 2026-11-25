@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import * as Highcharts from 'highcharts';
@@ -13,9 +14,6 @@ import { AuditDonePopupComponent } from 'src/app/pages/internal-portal/process-a
 import { CommodityService } from 'src/app/pages/internal-portal/process-audits/paudits-setup/commodity-master/commodity.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { jwtDecode } from 'jwt-decode';
-// import { NewAuditComponent } from '../new-audit/new-audit.component';
-// import { ActiveGridDialogComponent } from '../../process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
-// import { AuditDonePopupComponent } from '../../process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/audit-done-popup/audit-done-popup.component';
 
 @Component({
   standalone: false,
@@ -23,7 +21,18 @@ import { jwtDecode } from 'jwt-decode';
   templateUrl: './sup-parts-active.component.html',
   styleUrls: ['./sup-parts-active.component.scss']
 })
-export class SupPartsActiveComponent implements OnInit {
+export class SupPartsActiveComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
 
 
   Highcharts: typeof Highcharts = Highcharts;
@@ -33,8 +42,12 @@ export class SupPartsActiveComponent implements OnInit {
   currentPage: number = 0;
   totalSize: number = 0;
   fromIndex: number = 0;
-  pageSize: number = 5;
+  pageSize: number = 20;
   tableLists: any[] = [];
+  isLoading: boolean = true;
+  private serverMode: boolean = false;
+  private latest10Cache: any[] = [];
+
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
@@ -58,6 +71,7 @@ export class SupPartsActiveComponent implements OnInit {
 
   constructor(private dialog: MatDialog, private partAuditService: PartAuditService, private lookupService: LookupService, private fb: FormBuilder,
     private alertService: AlertService, private _setupService: SetupService, private api: CommodityService, private manageUsersService: ManageUsersService,
+    private ngZone: NgZone, private cdr: ChangeDetectorRef,
   ) { }
   padId(id: number): string {
     return String(id).padStart(6, '0');
@@ -108,18 +122,24 @@ export class SupPartsActiveComponent implements OnInit {
   }
   partsFamilies: any[] = [];
   getPartsFamilies() {
-    this._setupService.getPartFamilies(null)
-      .subscribe((res: any) => {
-        if (res.success) {
-
-          this.partsFamilies = res.data.data;
-
+    this.partAuditService.getFamilyDD().subscribe({
+      next: (res: any) => {
+        if (res?.success) {
+          this.partsFamilies = res.data || [];
         }
-      });
+      },
+      error: () => {
+        this._setupService.getPartFamilies(null).subscribe((res: any) => {
+          if (res?.success) {
+            this.partsFamilies = res.data?.data || res.data || [];
+          }
+        });
+      }
+    });
   }
 
 
-private getSupplierId(): number {
+  private getSupplierId(): number {
     const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
     if (token) {
       try {
@@ -143,27 +163,41 @@ private getSupplierId(): number {
   }
   parts: any[] = [];
   getParts() {
-    this._setupService.getPartMaster(null)
-      .subscribe((res: any) => {
-        if (res.success) {
-
-          this.parts = res.data.data;
-
+    this.partAuditService.getPartDD().subscribe({
+      next: (res: any) => {
+        if (res?.success) {
+          this.parts = res.data || [];
         }
-      });
+      },
+      error: () => {
+        this._setupService.getPartMaster(null).subscribe((res: any) => {
+          if (res?.success) {
+            this.parts = res.data?.data || res.data || [];
+          }
+        });
+      }
+    });
   }
   originalTableData: any[] = [];
   getCommodities() {
-    this.api.getCommodities().subscribe((res: any) => {
-      if (res.success) {
-        this.originalTableData = res.data;
-
+    this.partAuditService.getCommodityDD().subscribe({
+      next: (res: any) => {
+        if (res?.success) {
+          this.originalTableData = res.data || [];
+        }
+      },
+      error: () => {
+        this.api.getCommodities().subscribe((res: any) => {
+          if (res?.success) {
+            this.originalTableData = res.data || [];
+          }
+        });
       }
     });
   }
 
   Suppliers: any[] = [];
-    getSuppliers() {
+  getSuppliers() {
     this.partAuditService.getSupplierDD().subscribe({
       next: (res: any) => {
         if (res?.success) {
@@ -187,32 +221,44 @@ private getSupplierId(): number {
 
   states: any[] = []
   getStates() {
-    this._setupService.getAllStates()
-      .subscribe((res: any) => {
-        if (res.success) {
-
-          this.states = res.data;
-
+    this.partAuditService.getStateDD().subscribe({
+      next: (res: any) => {
+        if (res?.success) {
+          this.states = res.data || [];
         }
-      });
+      },
+      error: () => {
+        this._setupService.getAllStates().subscribe((res: any) => {
+          if (res?.success) {
+            this.states = res.data || [];
+          }
+        });
+      }
+    });
   }
 
 
   cities: any[] = []
   getCities() {
-    this._setupService.getAllCities()
-      .subscribe((res: any) => {
-        if (res.success) {
-
-          this.cities = res.data;
-
+    this.partAuditService.getCityDD().subscribe({
+      next: (res: any) => {
+        if (res?.success) {
+          this.cities = res.data || [];
         }
-      });
+      },
+      error: () => {
+        this._setupService.getAllCities().subscribe((res: any) => {
+          if (res?.success) {
+            this.cities = res.data || [];
+          }
+        });
+      }
+    });
   }
 
   Auditors: any[] = [];
 
-    getAuditors() {
+  getAuditors() {
     this.partAuditService.getAuditorDD().subscribe({
       next: (res: any) => {
         if (res?.success) {
@@ -245,11 +291,16 @@ private getSupplierId(): number {
     });
   }
   partsAudits: any[] = [];
-    getPartsAuidt() {
+  getPartsAuidt(keepPage = false) {
+    if (!keepPage) {
+      this.currentPage = 0;
+    }
     const supplierId = this.getSupplierId();
 
     const filter: any = {
-      ...this.filterForm.value
+      ...this.filterForm.value,
+      pageNumber: this.currentPage + 1,
+      pageSize: this.pageSize
     };
 
     if (supplierId > 0) {
@@ -265,15 +316,20 @@ private getSupplierId(): number {
         delete filter[key];
       }
     });
-    console.log('Filter:', filter);
 
-    this.partAuditService.getPartAudits(filter).subscribe({
+    this.isLoading = true;
+    this.partAuditService.getPartAudits(filter).pipe(finalize(() => { this.isLoading = false; })).subscribe({
       next: (res: any) => {
         if (res && res.success) {
           this.partsAudits = res.data?.data || res.data || [];
           this.totalSize = res.data?.toatalRecords || res.data?.totalRecords || this.partsAudits.length;
-          this.tableLists = this.partsAudits.slice(this.fromIndex, this.pageSize);
-          this.loadAuditScoreChart(this.partsAudits);
+          this.serverMode = !!res.data?.isPaged || !!res.data?.chartCounts || this.partsAudits.length < this.totalSize;
+          if (this.currentPage === 0) {
+            this.latest10Cache = [...this.partsAudits].slice(0, 10);
+          }
+          this.loadPageData();
+          this.loadAuditScoreChart(this.currentPage > 0 && this.latest10Cache.length > 0 ? this.latest10Cache : this.partsAudits);
+          setTimeout(() => this.updateStickyHeader(), 50);
         } else {
           this.partsAudits = [];
           this.tableLists = [];
@@ -291,7 +347,7 @@ private getSupplierId(): number {
     });
   }
 
-    updateFlag: boolean = false;
+  updateFlag: boolean = false;
 
   loadAuditScoreChart(audits: any[]): void {
     if (!audits || !audits.length) {
@@ -365,6 +421,10 @@ private getSupplierId(): number {
 
 
   loadPageData() {
+    if (this.serverMode) {
+      this.tableLists = this.partsAudits;
+      return;
+    }
     this.fromIndex = this.currentPage * this.pageSize;
 
     this.tableLists = this.partsAudits.slice(
@@ -373,14 +433,18 @@ private getSupplierId(): number {
     );
   }
   fnHandlePage(event: any) {
-
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
 
-    this.loadPageData();
+    if (this.serverMode) {
+      this.getPartsAuidt(true);
+    } else {
+      this.loadPageData();
+      setTimeout(() => this.updateStickyHeader(), 50);
+    }
   }
   scrollGrid(side: 'left' | 'right') {
-    const ele = document.getElementById('table-responsive');
+    const ele = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
     const scrollAmount = 210; // Adjust this value as needed
 
     if (ele) {
@@ -392,7 +456,7 @@ private getSupplierId(): number {
       }
     }
   }
-    auditScoreChartOptions: Highcharts.Options = {
+  auditScoreChartOptions: Highcharts.Options = {
     chart: {
       type: 'column',
       height: 380,
@@ -483,70 +547,6 @@ private getSupplierId(): number {
     ]
   };
 
-  // Table Data
-  auditData = [
-    {
-      ref: "2024/Process/254871",
-      commodity: "Engine Block",
-      location: "Chennai",
-      supplier: "ABC Castings Pvt Ltd",
-      auditor: "Vijay Mohan",
-      date: "12-09-2024",
-      action: "3/4",
-      score: "87 %",
-      done: true,
-    },
-    {
-      ref: "2024/Process/254832",
-      commodity: "Transmission Case",
-      location: "Pune",
-      supplier: "XYZ Industries Ltd",
-      auditor: "Arjun Sharma",
-      date: "05-09-2024",
-      action: "3/4",
-      score: "80 %",
-      done: false,
-    },
-    {
-      ref: "2024/Process/254812",
-      commodity: "Cylinder Head",
-      location: "Bangalore",
-      supplier: "LMN Castings Co",
-      auditor: "Radhika Iyer",
-      date: "22-08-2024",
-      action: "3/4",
-      score: "90 %",
-      done: false,
-    },
-    {
-      ref: "2024/Process/254854",
-      commodity: "Crankshaft",
-      location: "Hyderabad",
-      supplier: "PQR Castings Ltd",
-      auditor: "Siva Kumar",
-      date: "30-07-2024",
-      action: "3/4",
-      score: "75 %",
-      done: false,
-    },
-    {
-      ref: "2024/Process/254865",
-      commodity: "Camshaft",
-      location: "Mumbai",
-      supplier: "DEF Automotive Ltd",
-      auditor: "Manoj Singh",
-      date: "15-07-2024",
-      action: "3/4",
-      score: "95 %",
-      done: true,
-    },
-  ];
-
-
-
-
-
-
   onDoneClick(event: MouseEvent, audit: any): void {
     event.preventDefault(); // prevents the checkbox from toggling on its own
 
@@ -569,6 +569,64 @@ private getSupplierId(): number {
       maxHeight: '90vh',
       panelClass: 'no-scroll-dialog'
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
   }
 
   defaultColumns: string[] = [
@@ -704,6 +762,8 @@ private getSupplierId(): number {
 
           this.activeColumns = [...this.defaultColumns];
           this.frozenCount = 0;
+          this.cdr.detectChanges();
+          setTimeout(() => this.updateStickyHeader(), 50);
 
         }
 
@@ -715,10 +775,11 @@ private getSupplierId(): number {
 
         this.activeColumns = [...this.defaultColumns];
         this.frozenCount = 0;
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
 
       }
 
     });
-
   }
 }

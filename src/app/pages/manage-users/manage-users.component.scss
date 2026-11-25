@@ -7,7 +7,43 @@
 td {
   vertical-align: middle !important;
 }
+
+.custom-tabs {
+  position: relative !important;
+  z-index: 50 !important;
+  pointer-events: auto;
+}
+
+.custom-tabs li {
+  position: relative !important;
+  z-index: 55 !important;
+  pointer-events: auto !important;
+}
+
+.custom-tabs li a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px;
+  position: relative !important;
+  z-index: 60 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.custom-tabs li a mat-icon {
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
 .custom-tabs li a:hover {
   color: #fff !important;
   background-color: #495057 !important;
+  cursor: pointer !important;
+}
+
+button[mat-raised-button],
+button.search-btn,
+button.pull-right,
+.filter-hover {
+  cursor: pointer !important;
 }

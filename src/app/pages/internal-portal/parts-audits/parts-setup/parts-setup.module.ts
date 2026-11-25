@@ -43,6 +43,7 @@ import { BandMasterComponent } from './band-master/band-master.component';
 import { DemeritMasterComponent } from './demerit-master/demerit-master.component';
 import { OccurrenceMasterComponent } from './occurrence-master/occurrence-master.component';
 import { DetectionMasterComponent } from './detection-master/detection-master.component';
+import { StageMaasterComponent } from './stage-maaster/stage-maaster.component';
 
 // ❌ REMOVED AuditCategoriesComponent, AddPartCategoryComponent, and PartsauditcatInnergridComponent imports from here
 
@@ -61,9 +62,12 @@ const routes: Routes = [
         data: { breadcrumb: 'Parts Families', description: 'Configure parts families master data.' },
         children: [
           { path: '', component: PartsFamiliesComponent }, // Default view when hitting /families
-          { path: 'families-inner-grid', component: FamiliesInnerGridComponent, data: { breadcrumb: 'Family Detail' } } // Child view
+          { path: 'families-inner-grid', component: FamiliesInnerGridComponent, data: { breadcrumb: 'Family Detail' } }, // Child view
+          { path: 'families_inner_grid', component: FamiliesInnerGridComponent, data: { breadcrumb: 'Family Detail' } }
         ]
       },
+      { path: 'families-inner-grid', component: FamiliesInnerGridComponent, data: { breadcrumb: 'Family Detail' } },
+      { path: 'families_inner_grid', component: FamiliesInnerGridComponent, data: { breadcrumb: 'Family Detail' } },
       { path: 'master', component: PartsMasterComponent, data: { breadcrumb: 'Parts Master', description: 'Configure parts master data.' } },
       { path: 'batchmaster', component: BatchMasterComponent, data: { breadcrumb: 'Batch Master', description: 'Configure batch master data.' } },
       { path: 'defectsmaster', component: DefectsMasterComponent, data: { breadcrumb: 'Defects Master', description: 'Configure defects master data.' } },
@@ -78,6 +82,7 @@ const routes: Routes = [
       { path: 'demerit-master', component: DemeritMasterComponent, data: { breadcrumb: 'Demerit', description: 'Configure demerit master data.' } },
       { path: 'occurrence-master', component: OccurrenceMasterComponent, data: { breadcrumb: 'Occurrence', description: 'Configure occurrence master data.' } },
       { path: 'detection-master', component: DetectionMasterComponent, data: { breadcrumb: 'Detection', description: 'Configure detection master data.' } },
+      {path: 'stage-master', component: StageMaasterComponent, data: { breadcrumb: 'Stage Master', description: 'Configure stage master data.' }}
 
     ]
   }

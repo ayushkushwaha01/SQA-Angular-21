@@ -107,10 +107,20 @@ export class UserMenuComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // openPasskeyManager() {
+  //   this.dialog.open(PasskeyManageDialogComponent, {
+  //     width: '450px',
+  //     height: 'auto',
+  //     disableClose: false
+  //   });
+  // }
+
   openPasskeyManager() {
     this.dialog.open(PasskeyManageDialogComponent, {
-      width: '450px',
-      disableClose: false
+      width: '550px',        // 🔥 Increased for breathing room
+      maxWidth: '95vw',      // 🔥 Keeps it safe on small laptops/tablets
+      disableClose: false,
+      autoFocus: false       // 🔥 Prevents the input field from jumping immediately
     });
   }
 }

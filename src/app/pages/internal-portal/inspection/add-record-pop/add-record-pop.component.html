@@ -16,8 +16,8 @@
                     <div class="col-sm-8">
                         <mat-select placeholder="Select Stage" formControlName="stageId" class="form-control"
                             style="background-color: #fefec4 !important;">
-                            <mat-option *ngFor="let stage of stages" [value]="stage.lookupId">
-                                {{ stage.lookupName }}
+                            <mat-option *ngFor="let stage of stages" [value]="stage.stageId">
+                                {{ stage.stageName }}
                             </mat-option>
                         </mat-select>
                     </div>

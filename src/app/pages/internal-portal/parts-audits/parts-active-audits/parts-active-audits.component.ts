@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, NgZone, OnDestroy } from '@angular/core';
 import { ActiveGridDialogComponent } from '../../process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import * as Highcharts from 'highcharts';
@@ -23,7 +23,7 @@ import { StatusChangeComponent } from 'src/app/status-change/status-change.compo
   templateUrl: './parts-active-audits.component.html',
   styleUrls: ['./parts-active-audits.component.scss']
 })
-export class PartsActiveAuditsComponent implements OnInit {
+export class PartsActiveAuditsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('tableContainer') tableContainer!: ElementRef;
 
@@ -33,6 +33,9 @@ export class PartsActiveAuditsComponent implements OnInit {
 
   currentPage: number = 0;
   totalSize: number = 0;
+  // Server-side paging: true only when the API returns a partial page (fewer rows than totalRecords)
+  serverMode: boolean = false;
+  private serverCharts: any = null;
   fromIndex: number = 0;
   pageSize: number = 20;
   tableLists: any[] = [];
@@ -76,6 +79,17 @@ export class PartsActiveAuditsComponent implements OnInit {
     this.loadGridColumns();
   }
 
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
+
   constructor(
     private dialog: MatDialog,
     private partAuditService: PartAuditService,
@@ -85,7 +99,66 @@ export class PartsActiveAuditsComponent implements OnInit {
     private _setupService: SetupService,
     private api: CommodityService,
     private manageUsersService: ManageUsersService,
+    private ngZone: NgZone
   ) { }
+
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+  }
 
   filterForm!: FormGroup;
 
@@ -204,7 +277,8 @@ export class PartsActiveAuditsComponent implements OnInit {
   }
 
   partsAudits: any[] = [];
-  getPartsAuidt() {
+  getPartsAuidt(keepPage: boolean = false) {
+    if (!keepPage) { this.currentPage = 0; this.fromIndex = 0; }
     const filter = { ...this.filterForm.value };
 
     Object.keys(filter).forEach(key => {
@@ -218,14 +292,25 @@ export class PartsActiveAuditsComponent implements OnInit {
     });
 
     this.isLoading = true;
+    // Ask the server for a single page (older APIs ignore these and return everything -> client paging)
+    filter.pageNumber = this.currentPage + 1;
+    filter.pageSize = this.pageSize;
     this.partAuditService.getPartAudits(filter).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         if (res.success) {
           this.partsAudits = res.data.data;
           this.totalSize = res.data.toatalRecords;
-          this.tableLists = this.partsAudits.slice(this.fromIndex, this.pageSize);
+          this.serverMode = !!res.data?.isPaged || !!res.data?.chartCounts || this.partsAudits.length < this.totalSize;
+          this.serverCharts = res.data.chartCounts || null;
+          if (this.serverMode) {
+            this.tableLists = this.partsAudits;
+          } else {
+            this.fromIndex = this.currentPage * this.pageSize;
+            this.tableLists = this.partsAudits.slice(this.fromIndex, this.fromIndex + this.pageSize);
+          }
           this.loadCharts();
+          setTimeout(() => this.updateStickyHeader(), 50);
         }
       },
       error: (err) => {
@@ -236,6 +321,24 @@ export class PartsActiveAuditsComponent implements OnInit {
   }
 
   loadCharts() {
+    // In server mode, charts use whole-dataset counts from the API when provided (otherwise current page only)
+    const real = this.partsAudits;
+    const sc = this.serverMode ? this.serverCharts : null;
+    const expand = (counts: any, key: string) =>
+      Object.keys(counts).reduce((acc: any[], k: string) => {
+        for (let i = 0; i < counts[k]; i++) { acc.push({ [key]: k }); }
+        return acc;
+      }, []);
+    this.partsAudits = sc?.commodity ? expand(sc.commodity, 'commodityName') : real;
+    this.bindCommodityChart();
+    this.partsAudits = sc?.auditor ? expand(sc.auditor, 'auditorName') : real;
+    this.bindAuditorChart();
+    this.partsAudits = sc?.status ? expand(sc.status, 'statusName') : real;
+    this.bindStatusChart();
+    this.partsAudits = real;
+  }
+
+  loadChartsFromRows() {
     this.bindCommodityChart();
     this.bindAuditorChart();
     this.bindStatusChart();
@@ -251,8 +354,14 @@ export class PartsActiveAuditsComponent implements OnInit {
 
   fnHandlePage(event: any) {
     this.currentPage = event.pageIndex;
+    if (this.serverMode) {
+      this.pageSize = event.pageSize;
+      this.getPartsAuidt(true);
+      return;
+    }
     this.pageSize = event.pageSize;
     this.loadPageData();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   changeStatus(audit: any) {
@@ -736,6 +845,8 @@ export class PartsActiveAuditsComponent implements OnInit {
         this.frozenCount = 0;
       }
     });
+
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   padId(id: number): string {

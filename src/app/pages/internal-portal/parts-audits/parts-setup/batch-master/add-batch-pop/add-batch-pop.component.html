@@ -96,13 +96,19 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-4">
-                        <label class="fw-bold">Batch Date</label>
+                        <label class="fw-bold">Batch Date <span class="text-danger">*</span></label>
                     </div>
 
                     <div class="col-sm-8">
 
-                        <input type="date" class="form-control" formControlName="BatchDate">
+                        <input type="date" class="form-control" formControlName="BatchDate" style="background-color: #fefec4 !important;">
 
+                        <small class="text-danger"
+                            *ngIf="f['BatchDate'].touched && f['BatchDate'].errors?.['required']">
+
+                            Batch Date is required.
+
+                        </small>
 
                     </div>
                 </div>

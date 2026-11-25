@@ -186,6 +186,22 @@
         text-align: center;
       }
     }
+
+    &.is-sticky {
+      position: relative;
+      z-index: 100;
+      transform: translateY(var(--sticky-header-offset, 0px));
+      background-color: #3f3f3f !important;
+
+      tr {
+        background-color: #3f3f3f !important;
+      }
+
+      th {
+        background-color: #3f3f3f !important;
+        box-shadow: 0 0 0 1px #3f3f3f, inset 0 0 0 1px #555;
+      }
+    }
   }
 
   tbody {

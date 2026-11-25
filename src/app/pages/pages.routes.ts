@@ -24,6 +24,13 @@ export const routes: Routes = [
         data: { breadcrumb: 'Sent Mails', description: 'View and search sent help desk tickets and emails.' }
       },
       {
+        path: 'notifications',
+        loadComponent: () =>
+          import('../theme/components/notification/notifications-inbox/notifications-inbox.component')
+            .then(c => c.NotificationsInboxComponent),
+        data: { breadcrumb: 'Notifications', description: 'View and manage system notifications.' }
+      },
+      {
         path: 'dashboard',
         redirectTo: 'internal-portal/dashboard',
         pathMatch: 'full'

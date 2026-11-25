@@ -1,5 +1,8 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { jwtDecode } from 'jwt-decode';
+import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet, RouterModule } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Settings, SettingsService } from '../services/settings.service';
 import { MenuService } from '../services/menu.service';
@@ -19,11 +22,14 @@ import { UserMenuComponent } from '../theme/components/user-menu/user-menu.compo
 import { HorizontalMenuComponent } from '../theme/components/menu/horizontal-menu/horizontal-menu.component';
 import { BreadcrumbComponent } from '../theme/components/breadcrumb/breadcrumb.component';
 import { MessagesComponent } from '../theme/components/messages/messages.component';
+import { UserNotificationComponent } from '../theme/components/notification/user-notification/user-notification.component';
 import { ManageUsersService } from './manage-users/manage-users.service';
+
 
 @Component({
     selector: 'app-pages',
     imports: [
+        CommonModule,
         RouterOutlet,
         RouterModule,
         FormsModule,
@@ -42,12 +48,13 @@ import { ManageUsersService } from './manage-users/manage-users.service';
         UserMenuComponent,
         HorizontalMenuComponent,
         BreadcrumbComponent,
-        MessagesComponent
+        MessagesComponent,
+        UserNotificationComponent
     ],
     templateUrl: './pages.component.html',
     styleUrl: './pages.component.scss'
 })
-export class PagesComponent implements OnInit {
+export class PagesComponent implements OnInit, OnDestroy {
     @ViewChild('sidenav') sidenav: any;
     @ViewChild('backToTop') backToTop: any;
     @ViewChild('mainSidenavContent') mainSidenavContent: any;
@@ -64,67 +71,123 @@ export class PagesComponent implements OnInit {
     private defaultMenu: string;
     public showSidenav: boolean = false;
     public sentMailsCount: number = 0;
+    private countSub?: Subscription;
+    private routerSub?: Subscription;
+    private storageListener?: (e: StorageEvent) => void;
+    private pollTimer: any = null;
+    private pollAttempts = 0;
+    private readonly MAX_POLL_ATTEMPTS = 12;
 
     constructor(
         public settingsService: SettingsService,
         public router: Router,
         private menuService: MenuService,
-        private manageUsersService: ManageUsersService
+        private manageUsersService: ManageUsersService,
+        private cdr: ChangeDetectorRef
     ) {
         this.settings = this.settingsService.settings;
     }
 
     ngOnInit() {
-        // FORCE HORIZONTAL MENU
         this.settings.menu = 'horizontal';
         this.settings.sidenavIsOpened = false;
         this.settings.sidenavIsPinned = false;
         this.menuOption = 'horizontal';
         this.menuTypeOption = this.settings.menuType;
         this.defaultMenu = 'horizontal';
-        this.fetchSentMailsCount();
+
+        this.countSub = this.manageUsersService.sentMailsCount$.subscribe(count => {
+            this.sentMailsCount = count;
+            this.cdr.markForCheck();
+        });
+
+        const uid = parseInt(localStorage.getItem('UserId') || '0', 10);
+        if (uid > 0) {
+            this.manageUsersService.refreshSentMailsCount();
+        } else {
+            this.startPollUntilUserId();
+        }
+
+        this.storageListener = (_e: StorageEvent) => {
+            this.manageUsersService.refreshSentMailsCount();
+        };
+        window.addEventListener('storage', this.storageListener);
+        document.addEventListener('visibilitychange', this.onVisibilityChange);
     }
 
-    fetchSentMailsCount(): void {
-        const storedUserId = localStorage.getItem('UserId');
-        const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
-        const currentUserType = localStorage.getItem('UserType') || 'Internal';
+    private readonly onVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+            this.manageUsersService.refreshSentMailsCount();
+        }
+    };
 
-        if (currentUserId === 0) return;
-
-        this.manageUsersService.getSentMails(currentUserId, currentUserType).subscribe({
-            next: (res: any) => {
-                if (res.success && res.data) {
-                    const list = res.data.filter((m: any) => m.moduleName !== 'System Escalation');
-                    this.sentMailsCount = list.length;
-                }
-            },
-            error: (err: any) => {
-                console.error('Error fetching sent mails count', err);
+    private startPollUntilUserId(): void {
+        if (this.pollTimer) return;
+        this.pollTimer = setInterval(() => {
+            this.pollAttempts++;
+            const uid = parseInt(localStorage.getItem('UserId') || '0', 10);
+            if (uid > 0) {
+                this.manageUsersService.refreshSentMailsCount();
+                this.stopPoll();
+                return;
             }
-        });
+            if (this.pollAttempts >= this.MAX_POLL_ATTEMPTS) {
+                this.stopPoll();
+            }
+        }, 500);
+    }
+
+    private stopPoll(): void {
+        if (this.pollTimer) {
+            clearInterval(this.pollTimer);
+            this.pollTimer = null;
+        }
     }
 
     ngAfterViewInit() {
         setTimeout(() => { this.settings.loadingSpinner = false }, 300);
         this.backToTop.nativeElement.style.display = 'none';
-        this.router.events.subscribe(event => {
-            if (event instanceof NavigationEnd) {
-                this.fetchSentMailsCount();
+        this.routerSub = this.router.events
+            .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+            .subscribe(() => {
+                this.manageUsersService.refreshSentMailsCount();
                 if (!this.settings.sidenavIsPinned && this.sidenav) {
                     this.sidenav.close();
                 }
                 if (window.innerWidth <= 768 && this.sidenav) {
                     this.sidenav.close();
                 }
-            }
-        });
+            });
         if (this.settings.menu == "vertical") {
-            const verticalItems = this.router.url.startsWith('/app/supplier-login')
+            let isSupplier = false;
+            const token = sessionStorage.getItem('jwt_token') || localStorage.getItem('jwt_token');
+            if (token) {
+                try {
+                    const decoded: any = jwtDecode(token);
+                    const uType = decoded.UserType || decoded.userType;
+                    if (uType === 'Supplier') {
+                        isSupplier = true;
+                    }
+                } catch (e) {}
+            } else {
+                isSupplier = this.router.url.startsWith('/app/supplier-login');
+            }
+
+            const verticalItems = isSupplier
                 ? this.menuService.getSupplierMenuItems()
                 : this.menuService.getVerticalMenuItems();
             this.menuService.expandActiveSubMenu(verticalItems);
         }
+    }
+
+    ngOnDestroy(): void {
+        this.stopPoll();
+        this.countSub?.unsubscribe();
+        this.routerSub?.unsubscribe();
+        if (this.storageListener) {
+            window.removeEventListener('storage', this.storageListener);
+        }
+        document.removeEventListener('visibilitychange', this.onVisibilityChange);
     }
 
     public chooseMenu() {
@@ -172,5 +235,11 @@ export class PagesComponent implements OnInit {
                 }
             }
         }
+    }
+
+    public forceRefreshCount() {
+        // Manually trigger the service to fetch the latest count from the DB
+        // this.manageUsersService.refreshSentMailsCount();
+        this.manageUsersService.refreshSentMailsCount(undefined, undefined, true);
     }
 }

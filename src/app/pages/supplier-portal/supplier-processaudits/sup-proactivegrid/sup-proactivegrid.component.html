@@ -169,7 +169,7 @@
     </div>
   </div>
 
-  <div class="table-responsive">
+  <div class="table-responsive" id="grid-table-container">
 
     <table class="audit-table">
 
@@ -298,7 +298,16 @@
 
       <tbody>
 
-        <tr *ngFor="let audit of pagedAuditData">
+        <tr *ngIf="isLoading">
+          <td [attr.colspan]="activeColumns.length || 10" class="text-center p-0">
+            <div class="table-loader-wrapper">
+              <mat-spinner diameter="45" strokeWidth="4"></mat-spinner>
+              <div class="loader-text">Loading data, please wait...</div>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngFor="let audit of pagedAuditData" [hidden]="isLoading">
 
           <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
 
@@ -467,7 +476,8 @@
     </table>
 
 
-    <mat-paginator [length]="auditData.length" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
+    <mat-paginator [length]="serverMode ? totalCount : auditData.length" [pageIndex]="pageIndex" [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 20, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons
       aria-label="Select page">
 
     </mat-paginator>

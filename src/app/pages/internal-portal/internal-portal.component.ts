@@ -163,7 +163,7 @@ export class InternalPortalComponent implements OnInit, OnDestroy {
   private updateSidenavWidth(): void {
     let width = 0;
     if (this.activeTab !== 'sqmd' && !this.hideSidebar) {
-      width = this.isSidenavOpen ? 200 : 52;
+      width = this.isSidenavOpen ? 200 : 56;
     }
     this.pageHeaderService.setSidenavWidth(width);
   }
@@ -179,7 +179,8 @@ export class InternalPortalComponent implements OnInit, OnDestroy {
     }
 
     this.dialog.open(AddRecordPopComponent, {
-      width: '1000px',
+      width: '850px',
+      maxWidth: '90vw',
       height: 'auto',
       data: item 
     });

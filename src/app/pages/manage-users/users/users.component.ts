@@ -21,7 +21,7 @@ import { ManagerDialogComponent } from './manager-dialog/manager-dialog.componen
 import { ResetPasswordDialogComponent } from './reset-password-dialog/reset-password-dialog.component';
 import { StatusChangeComponent } from '../../../status-change/status-change.component';
 import { UserPermissionService } from '../../helpers/user-permission.service';
-import { MfaSetupDialogComponent } from '../../mfa-setup-dialog/mfa-setup-dialog.component';
+import { MfaSetupDialogComponent } from '../../login/mfa-setup-dialog/mfa-setup-dialog.component';
 import { AuthTokenService } from '../../../../auth-token.service';
 
 

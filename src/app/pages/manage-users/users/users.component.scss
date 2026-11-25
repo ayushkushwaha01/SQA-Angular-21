@@ -48,3 +48,52 @@
   margin: 5px;
   background: #e0e0e0;
 }
+
+/* ========================================= */
+/*  Consistent side padding for Users grid  */
+/* ========================================= */
+
+.grid-page-wrapper {
+  padding: 0 20px 20px 20px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+.grid-page-wrapper > .flex-p {
+  width: 100%;
+}
+
+.action-bar-row {
+  margin: 0 0 14px 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.filter-row {
+  margin: 0 0 17px 0 !important;
+  padding: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.grid-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.grid-wrapper > #grid-table-container {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+
+.grid-wrapper > #grid-table-container > table {
+  width: 100% !important;
+  margin: 0 !important;
+}

@@ -48,5 +48,15 @@ export class InternalPortalDashboardService {
     if (commodityId) url += `commodityId=${commodityId}`;
     return this.http.get(url);
   }
+
+  // Save filters
+  saveUserFilters(payload: any) {
+    return this.http.post(this.apiUrl + 'UserFilterSettings/save-user-filters', payload);
+  }
+
+  // Get filters
+  getUserFilters(userId: number, screenName: string) {
+    return this.http.get(this.apiUrl + `UserFilterSettings/get-user-filters?userId=${userId}&screenName=${screenName}`);
+  }
   
 }

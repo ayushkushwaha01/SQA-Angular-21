@@ -1,5 +1,218 @@
-import { Component } from '@angular/core';
+// import { Component, OnInit } from '@angular/core';
+// import { FormBuilder, FormGroup } from '@angular/forms';
+// import * as Highcharts from 'highcharts';
+// import { ProcessAuditService } from '../../process-audit.service';
+// import { PartAuditService } from '../../../parts-audits/part-audit.service';
+// import { PartsAuditAnalayticsService } from '../parts-audit-analaytics.service';
+
+// @Component({
+//   standalone: false,
+//   selector: 'app-analytics-performance',
+//   templateUrl: './analytics-performance.component.html',
+//   styleUrls: ['./analytics-performance.component.scss']
+// })
+// export class AnalyticsPerformanceComponent implements OnInit {
+//   Highcharts: typeof Highcharts = Highcharts;
+//   filterForm!: FormGroup;
+//   originalTableData: any[] = [];
+
+//   // Table Data Arrays
+//   ratingList: any[] = [];
+//   top10Year: any[] = [];
+//   bottom10Year: any[] = [];
+//   top10LastYears: any[] = [];
+//   bottom10LastYears: any[] = [];
+
+//   // Chart Options
+//   performancePieOptions: Highcharts.Options = this.getInitialPieOptions();
+//   top10YearOptions: Highcharts.Options = this.buildBarOptions([], []);
+//   bottom10YearOptions: Highcharts.Options = this.buildBarOptions([], []);
+//   top10LastYearsOptions: Highcharts.Options = this.buildBarOptions([], []);
+//   bottom10LastYearsOptions: Highcharts.Options = this.buildBarOptions([], []);
+
+//   constructor(
+//     private fb: FormBuilder,
+//     private auditService: ProcessAuditService,
+//     private partAuditService: PartAuditService,
+//     private analyticsService: PartsAuditAnalayticsService,
+//   ) {
+//     const currentYear = new Date().getFullYear().toString();
+//     this.filterForm = this.fb.group({
+//       commodityId: [null],
+//       year: [currentYear]
+//     });
+//   }
+
+//   ngOnInit(): void {
+//     this.getCommodities();
+//     this.getPerformance();
+//   }
+
+//   clearFilter(): void {
+//     const currentYear = new Date().getFullYear().toString();
+//     this.filterForm.reset({ year: currentYear });
+//     this.getPerformance();
+//   }
+
+//   getCommodities() {
+//     this.partAuditService.getCommodityDD().subscribe({
+//       next: (res: any) => {
+//         if (res.success) {
+//           this.originalTableData = res.data;
+//         }
+//       },
+//       error: (err: any) => {
+//         console.error('Commodities API error:', err);
+//       }
+//     });
+//   }
+
+//   getPerformance() {
+//     const filter = { ...this.filterForm.value };
+
+//     // Clean up empty params
+//     Object.keys(filter).forEach(key => {
+//       if (filter[key] === null || filter[key] === undefined || filter[key] === '' || filter[key] === 'null') {
+//         delete filter[key];
+//       }
+//     });
+
+//     this.analyticsService.getperformance(filter).subscribe((res: any) => {
+//       if (res.success) {
+//         this.loadDistribution(res.data.distribution);
+//         this.loadTopSuppliers(res.data.topSuppliers);
+//         this.loadBottomSuppliers(res.data.bottomSuppliers);
+//         this.loadTopSuppliersLast3Years(res.data.topSuppliersLast3Years);
+//         this.loadBottomSuppliersLast3Years(res.data.bottomSuppliersLast3Years);
+//       }
+//     });
+//   }
+
+//   // ── Data Loaders & Chart Updaters ────────────────────────────────────────
+
+//   private loadDistribution(data: any[]) {
+//     this.ratingList = data;
+
+//     // Map rating string to standard colors
+//     const colorMap: { [key: string]: string } = {
+//       'Excellent': '#e74c3c', // Red (as per original code)
+//       'Good': '#27ae60',      // Green
+//       'Average': '#f39c12',   // Orange/Yellow
+//       'Poor': '#3498db'       // Blue
+//     };
+
+//     const pieData = data.map(item => ({
+//       name: item.rating,
+//       y: item.percentage,
+//       color: colorMap[item.rating] || '#95a5a6'
+//     }));
+
+//     this.performancePieOptions = {
+//       ...this.performancePieOptions,
+//       series: [{
+//         type: 'pie',
+//         data: pieData
+//       }]
+//     };
+//   }
+
+//   private loadTopSuppliers(data: any[]) {
+//     this.top10Year = data;
+//     const categories = data.map(item => item.supplierName);
+//     const seriesData = data.map(item => item.score);
+//     this.top10YearOptions = this.buildBarOptions(categories, seriesData);
+//   }
+
+//   private loadBottomSuppliers(data: any[]) {
+//     this.bottom10Year = data;
+//     const categories = data.map(item => item.supplierName);
+//     const seriesData = data.map(item => item.score);
+//     this.bottom10YearOptions = this.buildBarOptions(categories, seriesData);
+//   }
+
+//   private loadTopSuppliersLast3Years(data: any[]) {
+//     this.top10LastYears = data;
+//     const categories = data.map(item => item.supplierName);
+//     const seriesData = data.map(item => item.score);
+//     this.top10LastYearsOptions = this.buildBarOptions(categories, seriesData);
+//   }
+
+//   private loadBottomSuppliersLast3Years(data: any[]) {
+//     this.bottom10LastYears = data;
+//     const categories = data.map(item => item.supplierName);
+//     const seriesData = data.map(item => item.score);
+//     this.bottom10LastYearsOptions = this.buildBarOptions(categories, seriesData);
+//   }
+
+//   // ── Helper Chart Configurations ──────────────────────────────────────────
+
+//   private getInitialPieOptions(): Highcharts.Options {
+//     return {
+//       chart: {
+//         type: 'pie',
+//         backgroundColor: 'transparent',
+//         height: 400
+//       },
+//       title: { text: '' },
+//       credits: { enabled: false },
+//       plotOptions: {
+//         pie: {
+//           dataLabels: {
+//             enabled: true,
+//             format: '<b>{point.name}</b>: {point.y:.1f}%'
+//           },
+//           showInLegend: false
+//         }
+//       },
+//       series: [{ type: 'pie', data: [] }]
+//     };
+//   }
+
+//   private buildBarOptions(categories: string[], data: number[]): Highcharts.Options {
+//     return {
+//       chart: {
+//         type: 'column',
+//         backgroundColor: 'transparent',
+//         height: 400
+//       },
+//       title: { text: '' },
+//       credits: { enabled: false },
+//       exporting: { enabled: false },
+//       xAxis: {
+//         categories: categories,
+//         labels: { rotation: -25, style: { fontSize: '11px' } }
+//       },
+//       yAxis: {
+//         min: 0,
+//         title: { text: '' },
+//         gridLineColor: '#e0e0e0'
+//       },
+//       legend: { enabled: false }, // Hiding legend to save space since color changes per point
+//       plotOptions: {
+//         column: {
+//           colorByPoint: true,
+//           borderWidth: 0
+//         }
+//       },
+//       series: [{
+//         type: 'column',
+//         name: 'Score',
+//         data: data
+//       }]
+//     };
+//   }
+
+//   scrollToTop(): void {
+//     window.scrollTo({ top: 0, behavior: 'smooth' });
+//   }
+// }
+
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
+import { ProcessAuditService } from '../../process-audit.service';
+import { PartAuditService } from '../../../parts-audits/part-audit.service';
+import { PartsAuditAnalayticsService } from '../parts-audit-analaytics.service';
 
 @Component({
   standalone: false,
@@ -7,150 +220,240 @@ import * as Highcharts from 'highcharts';
   templateUrl: './analytics-performance.component.html',
   styleUrls: ['./analytics-performance.component.scss']
 })
-export class AnalyticsPerformanceComponent {
+export class AnalyticsPerformanceComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;
+  filterForm!: FormGroup;
+  originalTableData: any[] = [];
 
-  clearFilter(): void {
-    // Reset filters if form exists
+  // 1. UNIQUE SCREEN NAME FOR THE DATABASE
+  private readonly SCREEN_NAME = 'ProcessAnalyticsPerformance';
+
+  // 2. GET CURRENT USER ID (Grabs from localStorage or defaults to 0)
+  private get currentUserId(): number {
+    const userId = localStorage.getItem('UserId') || sessionStorage.getItem('UserId');
+    return userId ? parseInt(userId, 10) : 0; 
   }
 
-  // Distribution by Performance table data
-  ratingList = [
-    { rating: 'Excellent', percentage: '95%' },
-    { rating: 'Good',      percentage: '75%' },
-    { rating: 'Average',   percentage: '65%' },
-    { rating: 'Poor',      percentage: '45%' },
-  ];
+  // Table Data Arrays
+  ratingList: any[] = [];
+  top10Year: any[] = [];
+  bottom10Year: any[] = [];
+  top10LastYears: any[] = [];
+  bottom10LastYears: any[] = [];
 
-  // Top 10 Suppliers – current year
-  top10Year = [
-    { name: 'Supplier A', score: '92%' },
-    { name: 'Supplier B', score: '87%' },
-    { name: 'Supplier C', score: '78%' },
-    { name: 'Supplier D', score: '85%' },
-    { name: 'Supplier E', score: '90%' },
-    { name: 'Supplier F', score: '76%' },
-    { name: 'Supplier G', score: '80%' },
-    { name: 'Supplier H', score: '88%' },
-    { name: 'Supplier I', score: '90%' },
-    { name: 'Supplier J', score: '82%' },
-  ];
+  // Chart Options
+  performancePieOptions: Highcharts.Options = this.getInitialPieOptions();
+  top10YearOptions: Highcharts.Options = this.buildBarOptions([], []);
+  bottom10YearOptions: Highcharts.Options = this.buildBarOptions([], []);
+  top10LastYearsOptions: Highcharts.Options = this.buildBarOptions([], []);
+  bottom10LastYearsOptions: Highcharts.Options = this.buildBarOptions([], []);
 
-  // Bottom 10 Suppliers – current year
-  bottom10Year = [
-    { name: 'Supplier A', score: '92%' },
-    { name: 'Supplier B', score: '87%' },
-    { name: 'Supplier C', score: '78%' },
-    { name: 'Supplier D', score: '84%' },
-    { name: 'Supplier E', score: '90%' },
-    { name: 'Supplier F', score: '76%' },
-    { name: 'Supplier G', score: '80%' },
-    { name: 'Supplier H', score: '88%' },
-    { name: 'Supplier I', score: '90%' },
-    { name: 'Supplier J', score: '82%' },
-  ];
+  constructor(
+    private fb: FormBuilder,
+    private auditService: ProcessAuditService,
+    private partAuditService: PartAuditService,
+    private analyticsService: PartsAuditAnalayticsService,
+  ) {
+    const currentYear = new Date().getFullYear().toString();
+    this.filterForm = this.fb.group({
+      commodityId: [null],
+      year: [currentYear]
+    });
+  }
 
-  // Top 10 Suppliers – last 3 years
-  top10LastYears = [
-    { name: 'Supplier A', score: '92%' },
-    { name: 'Supplier B', score: '87%' },
-    { name: 'Supplier C', score: '78%' },
-    { name: 'Supplier D', score: '85%' },
-    { name: 'Supplier E', score: '90%' },
-    { name: 'Supplier F', score: '76%' },
-    { name: 'Supplier G', score: '80%' },
-    { name: 'Supplier H', score: '88%' },
-    { name: 'Supplier I', score: '90%' },
-    { name: 'Supplier J', score: '82%' },
-  ];
+  ngOnInit(): void {
+    this.getCommodities();
+    
+    // 3. RESTORE DB FILTERS BEFORE LOADING DATA
+    this.restoreDbFilters();
+  }
 
-  // Bottom 10 Suppliers – last 3 years
-  bottom10LastYears = [
-    { name: 'Supplier A', score: '92%' },
-    { name: 'Supplier B', score: '87%' },
-    { name: 'Supplier C', score: '78%' },
-    { name: 'Supplier D', score: '84%' },
-    { name: 'Supplier E', score: '90%' },
-    { name: 'Supplier F', score: '76%' },
-    { name: 'Supplier G', score: '80%' },
-    { name: 'Supplier H', score: '88%' },
-    { name: 'Supplier I', score: '90%' },
-    { name: 'Supplier J', score: '82%' },
-  ];
-
-  private supplierCategories = [
-    'Supplier 1', 'Supplier 2', 'Supplier 3', 'Supplier 4', 'Supplier 5',
-    'Supplier 6', 'Supplier 7', 'Supplier 8', 'Supplier 9', 'Supplier 10',
-    'Correl. Score'
-  ];
-
-  // ── Charts ──────────────────────────────────────────────────────────────
-
-  performancePieOptions: Highcharts.Options = {
-    chart: {
-      type: 'pie',
-      backgroundColor: 'transparent',
-      height: 400                         // ← added
-    },
-    title: { text: '' },
-    credits: { enabled: false },
-    plotOptions: {
-      pie: {
-        dataLabels: {
-          enabled: true,
-          format: '<b>{point.name}</b>: {point.y:.1f}%'
-        },
-        showInLegend: false
+  /**
+   * Retrieves saved filter state from the DB and patches the reactive form.
+   */
+  private restoreDbFilters(): void {
+    this.analyticsService.getUserFilters(this.currentUserId, this.SCREEN_NAME).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          try {
+            const parsed = JSON.parse(res.data);
+            this.filterForm.patchValue({
+              commodityId: parsed.commodityId !== undefined ? parsed.commodityId : null,
+              year: parsed.year || new Date().getFullYear().toString()
+            });
+          } catch (e) {
+            console.error('Failed to parse DB filters', e);
+          }
+        }
+        // Load data AFTER filters are restored
+        this.getPerformance();
+      },
+      error: () => {
+        // Fallback if API fails
+        this.getPerformance();
       }
-    },
-    series: [{
-      type: 'pie',
-      data: [
-        { name: 'Excellent', y: 26.6, color: '#e74c3c' },
-        { name: 'Good',      y: 40.8, color: '#27ae60' },
-        { name: 'Average',   y: 21.2, color: '#f39c12' },
-        { name: 'Poor',      y: 11.4, color: '#3498db' }
-      ]
-    }]
-  };
+    });
+  }
 
-  top10YearOptions: Highcharts.Options = this.buildBarOptions(
-    [14, 3, 1, 7, 3, 15, 3, 3, 4, 7, 8]
-  );
+  /**
+   * Silently saves current form values to DB
+   */
+  private saveCurrentFiltersToDb(): void {
+    const payload = {
+      userId: this.currentUserId,
+      screenName: this.SCREEN_NAME,
+      filterJSON: JSON.stringify(this.filterForm.value)
+    };
+    this.analyticsService.saveUserFilters(payload).subscribe();
+  }
 
-  bottom10YearOptions: Highcharts.Options = this.buildBarOptions(
-    [13, 2, 1, 7, 3, 15, 3, 2, 4, 7, 7]
-  );
+  clearFilter(): void {
+    const currentYear = new Date().getFullYear().toString();
+    this.filterForm.reset({ year: currentYear });
+    
+    // Save empty state to DB
+    this.saveCurrentFiltersToDb();
+    
+    this.getPerformance();
+  }
 
-  top10LastYearsOptions: Highcharts.Options = this.buildBarOptions(
-    [16, 3, 1, 7, 3, 16, 3, 3, 4, 7, 8]
-  );
+  getCommodities() {
+    this.partAuditService.getCommodityDD().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.originalTableData = res.data;
+        }
+      },
+      error: (err: any) => {
+        console.error('Commodities API error:', err);
+      }
+    });
+  }
 
-  bottom10LastYearsOptions: Highcharts.Options = this.buildBarOptions(
-    [13, 3, 1, 6, 3, 15, 3, 2, 4, 6, 7]
-  );
+  getPerformance() {
+    // 4. SAVE FILTERS TO DB ON GO CLICK
+    this.saveCurrentFiltersToDb();
 
-  private buildBarOptions(data: number[]): Highcharts.Options {
+    const filter = { ...this.filterForm.value };
+
+    // Clean up empty params
+    Object.keys(filter).forEach(key => {
+      if (filter[key] === null || filter[key] === undefined || filter[key] === '' || filter[key] === 'null') {
+        delete filter[key];
+      }
+    });
+
+    this.analyticsService.getperformance(filter).subscribe((res: any) => {
+      if (res.success) {
+        this.loadDistribution(res.data.distribution);
+        this.loadTopSuppliers(res.data.topSuppliers);
+        this.loadBottomSuppliers(res.data.bottomSuppliers);
+        this.loadTopSuppliersLast3Years(res.data.topSuppliersLast3Years);
+        this.loadBottomSuppliersLast3Years(res.data.bottomSuppliersLast3Years);
+      }
+    });
+  }
+
+  // ── Data Loaders & Chart Updaters ────────────────────────────────────────
+
+  private loadDistribution(data: any[]) {
+    this.ratingList = data;
+
+    // Map rating string to standard colors
+    const colorMap: { [key: string]: string } = {
+      'Excellent': '#e74c3c', // Red (as per original code)
+      'Good': '#27ae60',      // Green
+      'Average': '#f39c12',   // Orange/Yellow
+      'Poor': '#3498db'       // Blue
+    };
+
+    const pieData = data.map(item => ({
+      name: item.rating,
+      y: item.percentage,
+      color: colorMap[item.rating] || '#95a5a6'
+    }));
+
+    this.performancePieOptions = {
+      ...this.performancePieOptions,
+      series: [{
+        type: 'pie',
+        data: pieData
+      }]
+    };
+  }
+
+  private loadTopSuppliers(data: any[]) {
+    this.top10Year = data;
+    const categories = data.map(item => item.supplierName);
+    const seriesData = data.map(item => item.score);
+    this.top10YearOptions = this.buildBarOptions(categories, seriesData);
+  }
+
+  private loadBottomSuppliers(data: any[]) {
+    this.bottom10Year = data;
+    const categories = data.map(item => item.supplierName);
+    const seriesData = data.map(item => item.score);
+    this.bottom10YearOptions = this.buildBarOptions(categories, seriesData);
+  }
+
+  private loadTopSuppliersLast3Years(data: any[]) {
+    this.top10LastYears = data;
+    const categories = data.map(item => item.supplierName);
+    const seriesData = data.map(item => item.score);
+    this.top10LastYearsOptions = this.buildBarOptions(categories, seriesData);
+  }
+
+  private loadBottomSuppliersLast3Years(data: any[]) {
+    this.bottom10LastYears = data;
+    const categories = data.map(item => item.supplierName);
+    const seriesData = data.map(item => item.score);
+    this.bottom10LastYearsOptions = this.buildBarOptions(categories, seriesData);
+  }
+
+  // ── Helper Chart Configurations ──────────────────────────────────────────
+
+  private getInitialPieOptions(): Highcharts.Options {
+    return {
+      chart: {
+        type: 'pie',
+        backgroundColor: 'transparent',
+        height: 400
+      },
+      title: { text: '' },
+      credits: { enabled: false },
+      plotOptions: {
+        pie: {
+          dataLabels: {
+            enabled: true,
+            format: '<b>{point.name}</b>: {point.y:.1f}%'
+          },
+          showInLegend: false
+        }
+      },
+      series: [{ type: 'pie', data: [] }]
+    };
+  }
+
+  private buildBarOptions(categories: string[], data: number[]): Highcharts.Options {
     return {
       chart: {
         type: 'column',
         backgroundColor: 'transparent',
-        height: 400                       // ← added
+        height: 400
       },
       title: { text: '' },
       credits: { enabled: false },
       exporting: { enabled: false },
       xAxis: {
-        categories: this.supplierCategories,
+        categories: categories,
         labels: { rotation: -25, style: { fontSize: '11px' } }
       },
       yAxis: {
         min: 0,
-        max: 20,
         title: { text: '' },
         gridLineColor: '#e0e0e0'
       },
-      legend: { enabled: true },
+      legend: { enabled: false }, // Hiding legend to save space since color changes per point
       plotOptions: {
         column: {
           colorByPoint: true,
@@ -160,7 +463,7 @@ export class AnalyticsPerformanceComponent {
       series: [{
         type: 'column',
         name: 'Score',
-        data
+        data: data
       }]
     };
   }

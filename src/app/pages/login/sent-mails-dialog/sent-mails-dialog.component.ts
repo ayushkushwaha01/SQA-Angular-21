@@ -39,25 +39,33 @@ export class SentMailsDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.fetchData();
+    this.fetchData(false);
   }
 
-  fetchData(): void {
-    this.isLoading = true;
+  fetchData(force: boolean = false): void {
+    // 1. Instantly use cached sent mails if available
+    const cached = this.api.cachedSentMails$.getValue();
+    if (cached && cached.length > 0 && !force) {
+      this.sentMails = cached;
+      if (!this.selectedMail) {
+        this.selectedMail = this.sentMails[0];
+      }
+      this.isLoading = false;
+    } else if (this.sentMails.length === 0) {
+      this.isLoading = true;
+    }
+
     const userId = parseInt(localStorage.getItem('UserId') || '0', 10);
     const userType = localStorage.getItem('UserType') || 'Internal';
 
-    // Fetch the sent emails for this specific user
-    this.api.getSentMails(userId, userType).subscribe({
+    // 2. Share in-flight request / refresh in background
+    this.api.fetchSentMails(userId, userType, force).subscribe({
       next: (res: any) => {
-        if (res.success && res.data) {
-          // 🔥 Filter out System Escalations so ONLY user-sent Help Desk emails appear in Sent Mails
-          this.sentMails = res.data.filter((m: any) => m.moduleName !== 'System Escalation');
+        if (res && res.success && Array.isArray(res.data)) {
+          this.sentMails = res.data.filter((m: any) => m && m.moduleName !== 'System Escalation');
           if (this.sentMails.length > 0 && !this.selectedMail) {
             this.selectedMail = this.sentMails[0];
           }
-        } else {
-          this.sentMails = [];
         }
         this.isLoading = false;
       },

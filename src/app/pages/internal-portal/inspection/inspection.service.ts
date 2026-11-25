@@ -25,6 +25,27 @@ export class InspectionService {
     return this.http.get(url);
   }
 
+  // ---- Server-side paged lists ----
+  // Expected response: { success, data: [...page rows], totalCount, filterOptions?, chartCounts? }
+  private toQuery(params: any): string {
+    return Object.keys(params)
+      .filter(k => params[k] !== null && params[k] !== undefined && params[k] !== '')
+      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&');
+  }
+
+  getInspectionsPaged(params: any): Observable<any> {
+    return this.http.get(`${this.apiUrl}DataTable/get-paged-records?${this.toQuery(params)}`);
+  }
+
+  getArchivedPaged(params: any): Observable<any> {
+    return this.http.get(`${this.apiUrl}DataTable/get-paged-archive?${this.toQuery(params)}`);
+  }
+
+  getPendingCapaPaged(params: any): Observable<any> {
+    return this.http.get(`${this.apiUrl}InspectionCapa/GetPendingCapaRecordsPaged?${this.toQuery(params)}`);
+  }
+
   addInspection(data: any): Observable<any> {
     return this.http.post(this.apiUrl + "DataTable/add-record", data);
   }
@@ -136,55 +157,78 @@ export class InspectionService {
     return this.http.get(`${this.apiUrl}InspectionRef/GetDefectsByInspectionRefId/${inspectionRefId}`);
   }
 
-  // --- Analytics Dashboard APIs ---
+  
 
-  getMonthlyErrorRates(year: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/monthly-error-rates/${year}`);
+  // Add this method to fetch stages (adjust the endpoint path if needed)
+  getAllStages(): Observable<any> {
+    return this.http.get(`${this.apiUrl}StageMaster/get-all`); 
   }
 
-  getDailyErrorRates(year: number, month: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/daily-error-rates/${year}/${month}`);
+  // --- Analytics Dashboard APIs (Updated to accept stageId) ---
+
+  getMonthlyErrorRates(year: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/monthly-error-rates/${year}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
   }
 
-  getHourlyErrorRates(year: number, month: number, day: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/hourly-error-rates/${year}/${month}/${day}`);
+  getDailyErrorRates(year: number, month: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/daily-error-rates/${year}/${month}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
   }
 
-  getShiftErrorRates(year: number, month: number, day: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/shift-error-rates/${year}/${month}/${day}`);
+  getHourlyErrorRates(year: number, month: number, day: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/hourly-error-rates/${year}/${month}/${day}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
   }
 
-  getMonthlyDefectCounts(year: number, month: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/monthly-defect-counts/${year}/${month}`);
+  getShiftErrorRates(year: number, month: number, day: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/shift-error-rates/${year}/${month}/${day}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
   }
 
-  getDailyDefectCounts(year: number, month: number, day: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/daily-defect-counts/${year}/${month}/${day}`);
+  getMonthlyDefectCounts(year: number, month: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/monthly-defect-counts/${year}/${month}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
   }
 
-  getMonthlyPartFamilyCounts(year: number, month: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/monthly-part-family-counts/${year}/${month}`);
+  getDailyDefectCounts(year: number, month: number, day: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/daily-defect-counts/${year}/${month}/${day}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
   }
 
-  getDailyPartFamilyCounts(year: number, month: number, day: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}Analytics/daily-part-family-counts/${year}/${month}/${day}`);
+  getMonthlyPartFamilyCounts(year: number, month: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/monthly-part-family-counts/${year}/${month}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
   }
 
-  getTopDefectCounts(year: number, month: number, day?: number): Observable<any> {
+  getDailyPartFamilyCounts(year: number, month: number, day: number, stageId: number = 0): Observable<any> {
+    let url = `${this.apiUrl}Analytics/daily-part-family-counts/${year}/${month}/${day}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
+    return this.http.get(url);
+  }
+
+  getTopDefectCounts(year: number, month: number, day?: number, stageId: number = 0): Observable<any> {
     let url = `${this.apiUrl}Analytics/top-defect-counts/${year}/${month}`;
-    if (day) {
-      url += `/${day}`;
-    }
+    if (day) url += `/${day}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
     return this.http.get(url);
   }
 
-  getTopInspectorCounts(year: number, month: number, day?: number): Observable<any> {
+  getTopInspectorCounts(year: number, month: number, day?: number, stageId: number = 0): Observable<any> {
     let url = `${this.apiUrl}Analytics/top-inspector-counts/${year}/${month}`;
-    if (day) {
-      url += `/${day}`;
-    }
+    if (day) url += `/${day}`;
+    if (stageId > 0) url += `?stageId=${stageId}`;
     return this.http.get(url);
   }
+
+  
 
 
 
@@ -201,5 +245,19 @@ export class InspectionService {
   deleteInspectionDoc(data: any): Observable<any> {
     return this.http.post(this.apiUrl + "DataTable/delete-doc", data);
   }
+
+
+    // ==========================================
+  // Shared Filter Settings API Calls
+  // ==========================================
+  saveUserFilters(payload: any) {
+    // Uses the dedicated controller we created earlier!
+    return this.http.post(this.apiUrl + 'UserFilterSettings/save-user-filters', payload);
+  }
+
+  getUserFilters(userId: number, screenName: string) {
+    return this.http.get(this.apiUrl + `UserFilterSettings/get-user-filters?userId=${userId}&screenName=${screenName}`);
+  }
+
 
 }

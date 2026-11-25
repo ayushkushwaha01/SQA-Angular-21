@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   template: `
     <div class="confirm-dialog-container">
-      <div class="confirm-dialog-header">
+      <div class="confirm-dialog-header" [ngStyle]="{'background': data?.type === 'info' ? '#1b85ca' : '#c83232'}">
         <h3 class="dialog-title">{{ data?.title || 'Delete Record' }}</h3>
       </div>
 
@@ -18,7 +18,9 @@ import { MatButtonModule } from '@angular/material/button';
       </div>
 
       <div class="confirm-dialog-actions">
-        <button mat-raised-button type="button" class="btn-confirm" (click)="onConfirm()">
+        <button mat-raised-button type="button" class="btn-confirm" [ngStyle]="{'background-color': data?.type === 'info' ? '#1b85ca' : '#c83232'}" (click)="onConfirm()"
+                (mouseover)="hover=true" (mouseleave)="hover=false"
+                [style.background-color]="hover ? (data?.type === 'info' ? '#156ba3' : '#b52a2a') : (data?.type === 'info' ? '#1b85ca' : '#c83232')">
           {{ data?.confirmText || 'Delete' }}
         </button>
         <button type="button" mat-raised-button class="add-dark-hover btn-default" (click)="onCancel()" style="cursor: pointer;">
@@ -44,7 +46,6 @@ import { MatButtonModule } from '@angular/material/button';
       box-sizing: border-box;
 
       .confirm-dialog-header {
-        background: #c83232;
         padding: 13px 20px;
         display: flex;
         align-items: center;
@@ -86,7 +87,6 @@ import { MatButtonModule } from '@angular/material/button';
         box-sizing: border-box;
 
         .btn-confirm {
-          background-color: #c83232 !important;
           color: #ffffff !important;
           border: none !important;
           border-radius: 4px !important;
@@ -101,7 +101,6 @@ import { MatButtonModule } from '@angular/material/button';
           transition: background-color 0.2s, box-shadow 0.2s !important;
 
           &:hover {
-            background-color: #b52a2a !important;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22) !important;
           }
         }
@@ -130,6 +129,8 @@ import { MatButtonModule } from '@angular/material/button';
   `]
 })
 export class ConfirmationDialogComponent {
+  hover = false;
+
   constructor(
     public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any

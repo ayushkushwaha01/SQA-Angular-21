@@ -1,25 +1,18 @@
-
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
-
-// interface Notification {
-//   id: number;
-//   auditType: 'Process Audit' | 'Parts Audit' | 'Help Desk';
-//   date: string;
-//   commodity: string;
-//   category: string;
-//   issue?: string;
-//   partFamily?: string;
-//   parameter?: string;
-//   sender?: string;
-//   moduleName?: string;
-//   severity: 'Critical' | 'Important' | 'Medium' | 'Low';
-// }
 
 interface Notification {
   id: number;
-  // 🔥 Add 'System Escalation' here
   auditType: 'Process Audit' | 'Parts Audit' | 'Help Desk' | 'System Escalation';
   date: string;
   commodity: string;
@@ -34,6 +27,19 @@ interface Notification {
 
 @Component({
   selector: 'app-user-notification',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    FlexLayoutModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatBadgeModule,
+    MatDividerModule,
+    MatTooltipModule
+  ],
   templateUrl: './user-notification.component.html',
   styleUrls: ['./user-notification.component.scss']
 })
@@ -43,79 +49,41 @@ export class UserNotificationComponent implements OnInit {
 
   notifications: Notification[] = [];
 
-  constructor(private api: ManageUsersService) { }
+  constructor(
+    private api: ManageUsersService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.fetchNotifications();
   }
 
-// fetchNotifications() { 
-//     // 1. Get the current user from Local Storage
-//     const storedUserId = localStorage.getItem('UserId');
-//     const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
-//     const currentUserType = localStorage.getItem('UserType') || 'Internal';
-
-//     // If no user is logged in, don't fetch anything
-//     if (currentUserId === 0) return;
-
-//     // 2. Pass the arguments into the service call
-//     this.api.getHelpDeskNotifications(currentUserId, currentUserType).subscribe({
-//       next: (res: any) => {
-//         // 🔥 THE FIX: We actually map the data and push it into the notifications array!
-//         if (res.success && res.data) {
-//           const liveTickets: Notification[] = res.data.map((log: any) => {
-//             return {
-//               id: log.ticketId, 
-//               auditType: 'Help Desk',
-//               date: new Date(log.createdDate).toLocaleDateString(), 
-//               commodity: 'System', 
-//               category: 'Support', 
-//               sender: log.userName,          
-//               moduleName: log.moduleName,    
-//               issue: log.subject,            
-//               severity: 'Medium'             
-//             };
-//           });
-
-//           // Add the newly fetched tickets to the dropdown list
-//           this.notifications = [...liveTickets, ...this.notifications];
-//         }
-//       },
-//       error: (err: any) => {
-//         console.error(err);
-//       }
-//     });
-//   }
-
-fetchNotifications() { 
-    const storedUserId = localStorage.getItem('UserId');
-    const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
+  fetchNotifications() {
+    const currentUserId = this.api.getUserId ? this.api.getUserId() : (parseInt(localStorage.getItem('UserId') || '0', 10));
     const currentUserType = localStorage.getItem('UserType') || 'Internal';
-
-    if (currentUserId === 0) return;
 
     this.api.getHelpDeskNotifications(currentUserId, currentUserType).subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
           const liveTickets: Notification[] = res.data.map((log: any) => {
             return {
-              id: log.ticketId, 
-              // 🔥 THIS IS THE FIX
+              id: log.ticketId,
               auditType: log.moduleName === 'System Escalation' ? 'System Escalation' : 'Help Desk',
-              date: new Date(log.createdDate).toLocaleDateString(), 
-              commodity: 'System', 
-              category: 'Support', 
-              sender: log.userName,          
-              moduleName: log.moduleName,    
-              issue: log.subject,            
-              severity: 'Medium'             
+              date: new Date(log.createdDate).toLocaleDateString(),
+              commodity: 'System',
+              category: 'Support',
+              sender: log.userName,
+              moduleName: log.moduleName,
+              issue: log.subject,
+              severity: 'Medium'
             };
           });
 
-          // Sort by ticket ID descending so latest item is at the top
           liveTickets.sort((a, b) => b.id - a.id);
 
           this.notifications = liveTickets;
+          this.cdr.markForCheck();
         }
       },
       error: (err: any) => {
@@ -126,11 +94,21 @@ fetchNotifications() {
 
   clearNotifications(): void {
     this.notifications = [];
+    this.cdr.markForCheck();
   }
 
   closeNotificationMenu(): void {
     if (this.notificationMenuTrigger) {
       this.notificationMenuTrigger.closeMenu();
+    }
+  }
+
+  openNotification(notification?: Notification): void {
+    this.closeNotificationMenu();
+    if (notification && notification.id) {
+      this.router.navigate(['/notifications'], { queryParams: { id: notification.id } });
+    } else {
+      this.router.navigate(['/notifications']);
     }
   }
 
@@ -157,6 +135,9 @@ fetchNotifications() {
   getNotificationSummary(notification: Notification): string {
     if (notification.auditType === 'Help Desk') {
       return `From: ${notification.sender} (${notification.moduleName}) - ${notification.issue}`;
+    }
+    if (notification.auditType === 'System Escalation') {
+      return `[${notification.moduleName || 'System'}] ${notification.issue || 'Escalation alert'}`;
     }
 
     const parts: string[] = [

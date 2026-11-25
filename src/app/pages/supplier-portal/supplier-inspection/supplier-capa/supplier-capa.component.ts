@@ -1,12 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 
-import { EditissuesComponent } from 'src/app/editissues/editissues.component';
-import { IssuesGridColumnsComponent } from 'src/app/pages/testing/testing-issues/issues-grid-columns/issues-grid-columns.component';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
-import { AddIssuesssComponent } from 'src/app/pages/testing/testing-issues/add-issuesss/add-issuesss.component';
 import { PartsActionsGridComponent } from 'src/app/pages/internal-portal/parts-audits/parts-actions/parts-actions-grid/parts-actions-grid.component';
 import { ActionDescRemarksComponent } from 'src/app/pages/internal-portal/process-audits/paudits-actions/action-desc-remarks/action-desc-remarks.component';
 import { InspectionService } from 'src/app/pages/internal-portal/inspection/inspection.service';
@@ -15,17 +13,17 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { PartAuditService } from 'src/app/pages/internal-portal/parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 
-// ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Import ManageUsersService and ProcessAuditService
 import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
 import { ProcessAuditService } from 'src/app/pages/internal-portal/process-audits/process-audit.service';
 import { jwtDecode } from 'jwt-decode';
+
 @Component({
   standalone: false,
   selector: 'app-supplier-capa',
   templateUrl: './supplier-capa.component.html',
   styleUrls: ['./supplier-capa.component.scss']
 })
-export class SupplierCapaComponent implements OnInit {
+export class SupplierCapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   filterToggle: boolean = false;
   isAlertsView: boolean = false;
@@ -35,39 +33,45 @@ export class SupplierCapaComponent implements OnInit {
   tableList: any[] = [];
   pagedTableList: any[] = [];
   totalSize = 0;
-  pageSize = 5;
+  pageSize = 20;
   pageIndex = 0;
   alertsCount: number = 0;
+  serverMode: boolean = false;
+  private pagedUnsupported: boolean = false;
+  isLoading: boolean = true;
 
   myGroup!: FormGroup;
 
-  // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Threshold Variables
+  // Threshold Variables
   overdueThreshold: number = 9999;
   escalateThreshold: number = 9999;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  TractorIdSections = [
-    { item_id: 1, item_text: 'ID-01' },
-    { item_id: 2, item_text: 'ID-02' },
-    { item_id: 3, item_text: 'ID-03' },
-  ];
-  responsibleSections = [
-    { item_id: 1, item_text: 'Front Axle Bracket Area' },
-    { item_id: 2, item_text: 'Gearbox' }
-  ];
-  resSectionFilterLeads = [
-    { UserId: 'U001', UserName: 'Lead A' },
-    { UserId: 'U002', UserName: 'Lead B' }
-  ];
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId === null) {
+      this.rafId = requestAnimationFrame(() => {
+        this.updateStickyHeader();
+        this.rafId = null;
+      });
+    }
+  };
+
+  TractorIdSections: any[] = [];
+  responsibleSections: any[] = [];
+  resSectionFilterLeads: any[] = [];
 
   constructor(
     public dialog: MatDialog,
     private api: InspectionService,
     private alertService: AlertService, 
     private partAuditService: PartAuditService,
-    private manageUserService: ManageUsersService, // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Injected
-    private processAuditApi: ProcessAuditService   // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Injected for sending emails
+    private manageUserService: ManageUsersService,
+    private processAuditApi: ProcessAuditService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) { }
 
   ngOnInit(): void {
@@ -84,7 +88,6 @@ export class SupplierCapaComponent implements OnInit {
 
     this.loadGridColumns();
 
-    // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Fetch Matrix FIRST, then fetch data
     this.manageUserService.getEscalation().subscribe((res: any) => {
       if (res.success && res.data) {
         const overdue = res.data.find((x: any) => x.escalationName === 'Overdue' || x.EscalationName === 'Overdue');
@@ -97,8 +100,71 @@ export class SupplierCapaComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+    if (this.paginator) {
+      this.paginator.page.subscribe(() => {
+        setTimeout(() => this.updateStickyHeader(), 50);
+      });
+    }
+  }
 
-private getSupplierId(): number {
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56;
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+  }
+
+
+  private getSupplierId(): number {
     const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
     if (token) {
       try {
@@ -121,73 +187,122 @@ private getSupplierId(): number {
     return Number(localSuppId) || 0;
   }
 
+  private mapRows(list: any[]): any[] {
+    return (list || []).map((item: any) => {
+      let delayVal: any = '-';
+      let calculatedDelay = 0;
+
+      if (item.dueDate) {
+        const due = new Date(item.dueDate);
+        const completion = item.completion ? new Date(item.completion) : new Date();
+        due.setHours(0, 0, 0, 0);
+        completion.setHours(0, 0, 0, 0);
+
+        const diffTime = completion.getTime() - due.getTime();
+        if (diffTime > 0) {
+          delayVal = Math.floor(diffTime / (1000 * 3600 * 24));
+          calculatedDelay = delayVal;
+        } else {
+          delayVal = '-';
+        }
+      }
+
+      return {
+        id: item.capaId,
+        inspectionRefId: item.inspectionRefId,
+        status: item.status === 1 ? 'WIP' :
+          item.status === 2 ? 'Open' :
+            item.status === 3 ? 'Closed' :
+              item.status === 4 ? 'Pending' :
+                item.status === 5 ? 'In Progress' :
+                  item.status === 6 ? 'Completed' : item.status,
+        resolved: item.resolved,
+        docs: item.docs,
+        reference: item.reference,
+        actionSubject: item.actionSubject,
+        parameterName: item.parameterName,
+        partFamilyName: item.partFamilyName,
+        partName: item.partName,
+        supplierName: item.supplierName,
+        actionType: item.actionType,
+        auditReference: item.auditReference,
+        processCategory: item.processCategory,
+        supplierRemarks: item.supplierRemarks,
+        logDate: item.logDate ? new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+        dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+        etaDate: item.etaDate ? new Date(item.etaDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+        auditorRemarks: item.auditorRemarks,
+        auditeeResponse: item.auditeeResponse,
+        delayInDays: delayVal,
+        calculatedDelayInDays: calculatedDelay,
+        completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+        severity: item.severity,
+        occurrence: item.occurrence,
+        detection: item.detection,
+        riskRating: item.riskRating || 'Medium',
+        rating: item.rating,
+        pdcaStatus: item.pdcaStatus || '-',
+        isAlert: calculatedDelay > 5
+      };
+    });
+  }
+
   loadData() {
-    // const supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+    if (this.pagedUnsupported) {
+      this.loadDataLegacy();
+      return;
+    }
+
+    const supplierId = this.getSupplierId();
+    const f = this.myGroup ? this.myGroup.value : {};
+    this.isLoading = true;
+
+    this.api.getPendingCapaPaged({
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      supplierId: supplierId > 0 ? supplierId : null,
+      keyword: f.Keyword?.trim(),
+      processCategory: f.TractorIdSections,
+      supplierName: f.ResponsibleSections,
+      actionType: f.ResponsibleSectionLeadId
+    }).pipe(finalize(() => { this.isLoading = false; })).subscribe({
+      next: (res: any) => {
+        if (!res || !res.success || res.totalCount === undefined) {
+          this.pagedUnsupported = true;
+          this.loadDataLegacy();
+          return;
+        }
+        this.serverMode = true;
+        this.originalTableList = this.mapRows(res.data || []);
+        this.tableList = [...this.originalTableList];
+        this.totalSize = res.totalCount ?? 0;
+        this.pagedTableList = this.tableList;
+        this.alertsCount = this.originalTableList.filter(item => item.isAlert).length;
+
+        const fo = res.filterOptions;
+        if (fo) {
+          this.TractorIdSections = (fo.processCategories || []).map((val: string) => ({ item_id: val, item_text: val }));
+          this.responsibleSections = (fo.suppliers || []).map((val: string) => ({ item_id: val, item_text: val }));
+          this.resSectionFilterLeads = (fo.actionTypes || []).map((val: string) => ({ UserId: val, UserName: val }));
+        }
+
+        setTimeout(() => this.updateStickyHeader(), 50);
+      },
+      error: () => {
+        this.pagedUnsupported = true;
+        this.loadDataLegacy();
+      }
+    });
+  }
+
+  private loadDataLegacy() {
     const supplierId = this.getSupplierId();
 
-    this.api.getPendingCapaRecords(supplierId).subscribe((res: any) => {
+    this.isLoading = true;
+    this.api.getPendingCapaRecords(supplierId).pipe(finalize(() => { this.isLoading = false; })).subscribe((res: any) => {
       if (res.success && res.data) {
-        this.originalTableList = res.data.map((item: any) => {
-          
-          let delayVal: any = '-';
-          let calculatedDelay = 0;
-
-          // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ PERMANENT DELAY CALCULATION
-          if (item.dueDate) {
-            const due = new Date(item.dueDate);
-            const completion = item.completion ? new Date(item.completion) : new Date();
-            due.setHours(0, 0, 0, 0);
-            completion.setHours(0, 0, 0, 0);
-
-            const diffTime = completion.getTime() - due.getTime();
-            if (diffTime > 0) {
-              delayVal = Math.floor(diffTime / (1000 * 3600 * 24));
-              // Let delay stay permanent for the UI history
-              calculatedDelay = delayVal;
-            } else {
-              delayVal = '-';
-            }
-          }
-
-          return {
-            id: item.capaId,
-            inspectionRefId: item.inspectionRefId,
-            status: item.status === 1 ? 'WIP' :
-              item.status === 2 ? 'Open' :
-                item.status === 3 ? 'Closed' :
-                  item.status === 4 ? 'Pending' :
-                    item.status === 5 ? 'In Progress' :
-                      item.status === 6 ? 'Completed' : item.status,
-            resolved: item.resolved,
-            docs: item.docs,
-            reference: item.reference,
-            actionSubject: item.actionSubject,
-            parameterName: item.parameterName,
-            partFamilyName: item.partFamilyName,
-            partName: item.partName,
-            supplierName: item.supplierName,
-            actionType: item.actionType,
-            auditReference: item.auditReference,
-            processCategory: item.processCategory,
-            supplierRemarks: item.supplierRemarks,
-            logDate: item.logDate ? new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            etaDate: item.etaDate ? new Date(item.etaDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            auditorRemarks: item.auditorRemarks,
-            auditeeResponse: item.auditeeResponse,
-            delayInDays: delayVal,
-            calculatedDelayInDays: calculatedDelay, // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Bind permanent delay here
-            completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            severity: item.severity,
-            occurrence: item.occurrence,
-            detection: item.detection,
-            riskRating: item.riskRating || 'Medium',
-            rating: item.rating,
-            pdcaStatus: item.pdcaStatus || '-',
-            isAlert: calculatedDelay > 5
-          };
-        });
-
+        this.serverMode = false;
+        this.originalTableList = this.mapRows(res.data || []);
         this.alertsCount = this.originalTableList.filter(item => item.isAlert).length;
         this.go();
       }
@@ -200,6 +315,16 @@ private getSupplierId(): number {
   }
 
   go() {
+    this.pageIndex = 0;
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+
+    if (this.serverMode && !this.isAlertsView) {
+      this.loadData();
+      return;
+    }
+
     const filters = this.myGroup.value;
     const keyword = filters.Keyword ? filters.Keyword.toLowerCase() : '';
 
@@ -220,37 +345,48 @@ private getSupplierId(): number {
     });
 
     this.totalSize = this.tableList.length;
-    this.pageIndex = 0;
-
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
     this.updatePagination();
   }
 
   clearFilter() {
     this.myGroup.reset();
     this.isAlertsView = false;
-    this.tableList = [...this.originalTableList];
-    this.totalSize = this.tableList.length;
     this.pageIndex = 0;
 
     if (this.paginator) {
       this.paginator.firstPage();
     }
+
+    if (this.serverMode) {
+      this.loadData();
+      return;
+    }
+
+    this.tableList = [...this.originalTableList];
+    this.totalSize = this.tableList.length;
     this.updatePagination();
   }
 
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.updatePagination();
+    if (this.serverMode && !this.isAlertsView) {
+      this.loadData();
+    } else {
+      this.updatePagination();
+    }
   }
 
   updatePagination() {
+    if (this.serverMode && !this.isAlertsView) {
+      this.pagedTableList = this.tableList;
+      setTimeout(() => this.updateStickyHeader(), 50);
+      return;
+    }
     const start = this.pageIndex * this.pageSize;
     const end = start + this.pageSize;
     this.pagedTableList = this.tableList.slice(start, end);
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   scrollRight() {
@@ -308,7 +444,6 @@ private getSupplierId(): number {
         if (res.success) {
           this.alertService.createAlert('Record updated successfully', 1);
 
-          // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ NOTIFICATION EMAIL LOGIC
           if (applicant.resolved) {
             const notifPayload = {
               UserId: Number(localStorage.getItem('UserId')) || 0,
@@ -402,11 +537,15 @@ private getSupplierId(): number {
           this.activeColumns = [...this.defaultColumns];
           this.frozenCount = 0;
         }
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
       },
       error: (error: any) => {
         console.error('Error loading grid columns', error);
         this.activeColumns = [...this.defaultColumns];
         this.frozenCount = 0;
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
       }
     });
   }

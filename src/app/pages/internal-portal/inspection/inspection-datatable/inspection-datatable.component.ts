@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, NgZone, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddRecordPopComponent } from '../add-record-pop/add-record-pop.component';
 import { DefectsPopComponent } from './defects-pop/defects-pop.component';
@@ -13,7 +13,7 @@ import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 export class CustomDateAdapter extends NativeDateAdapter {
   override format(date: Date, displayFormat: Object): string {
@@ -49,7 +49,7 @@ export const CUSTOM_DATE_FORMATS = {
     { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS }
   ]
 })
-export class InspectionDatatableComponent implements OnInit, AfterViewInit {
+export class InspectionDatatableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
 
@@ -78,6 +78,14 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   pageSize = 20;
   pageIndex = 0;
   totalSize = 0;
+  // Server-side paging state (falls back to client-side if the paged API is unavailable)
+  serverMode = false;
+  // private pagedUnsupported = true;
+
+   private pagedUnsupported = false;
+  totalCount = 0;
+  private serverFilterOptions: any = null;
+  private serverChartCounts: any = null;
   showFilter = false;
 
   inspectors: string[] = [];
@@ -111,13 +119,25 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   partsList: any[] = [];
   isLoading: boolean = true;
 
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
+
   constructor(
     private dialog: MatDialog,
     private inspectionService: InspectionService,
     private setupService: SetupService,
     private cdr: ChangeDetectorRef,
     private alertService: AlertService,
-    private partAuditService: PartAuditService
+    private partAuditService: PartAuditService,
+    private ngZone: NgZone
   ) { }
 
   ngOnInit(): void {
@@ -134,20 +154,111 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     this.loadGridColumns();
   }
 
+  // Date as yyyy-MM-dd in local time
+  private fmtDate(d: any): string | null {
+    if (!d) return null;
+    const x = new Date(d);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  }
+
+  // Tries the server-paged endpoint first; falls back to the legacy "get all" call if unavailable.
+  private fetchInspections() {
+    const legacy$ = this.inspectionService.getAllInspections();
+    if (this.pagedUnsupported) return legacy$;
+    const f = this.filterObj;
+    const params = {
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      date: this.fmtDate(f.date),
+      inspector: f.inspector,
+      partFamily: f.partFamily,
+      partName: f.partName,
+      partNumber: f.partNumber?.trim(),
+      batchNumber: f.batchNumber
+    };
+    return this.inspectionService.getInspectionsPaged(params).pipe(
+      map((r: any) => (r && r.success && r.totalCount !== undefined) ? { ...r, _server: true } : null),
+      catchError(() => of(null)),
+      switchMap((r: any) => {
+        if (r) return of(r);
+        this.pagedUnsupported = true;
+        return legacy$;
+      })
+    );
+  }
+
+  private rawItems: any[] = [];
+
+  private applySuppliers(r: any) {
+    if (r && r.success && Array.isArray(r.data)) {
+      this.suppliersList = r.data;
+      r.data.forEach((s: any) => {
+        const id = Number(s.supplierId ?? s.SupplierId ?? s.id);
+        const name = s.supplierName ?? s.SupplierName ?? s.name;
+        if (id && name) { this.supplierMap.set(id, name); }
+      });
+      this.refreshLookupNames();
+    }
+  }
+
+  private applyParts(r: any) {
+    const rawParts = r?.data?.data || (Array.isArray(r?.data) ? r.data : []);
+    if (Array.isArray(rawParts) && rawParts.length) {
+      this.partsList = rawParts;
+      rawParts.forEach((p: any) => {
+        const id = Number(p.partMasterId ?? p.PartMasterId ?? p.id);
+        const code = (p.partMasterCode ?? p.PartMasterCode ?? '').toString().trim().toLowerCase();
+        const name = p.partMasterName ?? p.PartMasterName ?? p.name;
+        if (id && name) { this.partIdMap.set(id, name); }
+        if (code && name) { this.partCodeMap.set(code, name); }
+      });
+      this.refreshLookupNames();
+    }
+  }
+
+  // Fills supplier / part names on already-rendered rows once the lookups arrive
+  private refreshLookupNames() {
+    let changed = false;
+    this.allMockData.forEach((row: any, i: number) => {
+      const item = this.rawItems[i];
+      if (!item) return;
+      if (row.Supplier === '-') {
+        const sId = Number(item.supplierId ?? item.SupplierId);
+        const n = sId ? this.supplierMap.get(sId) : null;
+        if (n) { row.Supplier = n; changed = true; }
+      }
+      const hasDirect = item.partMasterName || item.PartMasterName || item.partName || item.PartName;
+      if (!hasDirect) {
+        const pmId = Number(item.partMasterId ?? item.PartMasterId ?? item.partCodeId ?? item.PartCodeId ?? item.partId ?? item.PartId);
+        const pmCode = (item.partMasterCode || item.PartMasterCode || '').toString().trim().toLowerCase();
+        const n = (pmId ? this.partIdMap.get(pmId) : null) || (pmCode ? this.partCodeMap.get(pmCode) : null);
+        if (n && row.PartName !== n) { row.PartName = n; changed = true; }
+      }
+    });
+    if (changed) {
+      this.updatePagedList();
+      this.cdr.detectChanges();
+    }
+  }
+
   loadData() {
     this.isLoading = true;
     const suppliers$ = this.supplierMap.size > 0
       ? of({ success: true, data: this.suppliersList })
-      : this.setupService.getAllSuppliers().pipe(catchError(() => of({ success: false, data: [] })));
+      : this.partAuditService.getSupplierDD().pipe(catchError(() => of({ success: false, data: [] })));
 
     const parts$ = this.partIdMap.size > 0
       ? of({ success: true, data: { data: this.partsList } })
-      : this.setupService.getPartMaster({ Keyword: '', Status: '' }).pipe(catchError(() => of({ success: false, data: [] })));
+      : this.partAuditService.getPartDD().pipe(catchError(() => of({ success: false, data: [] })));
+
+    // Lookups load in the background - they must not delay the records grid
+    suppliers$.subscribe((r: any) => this.applySuppliers(r));
+    parts$.subscribe((r: any) => this.applyParts(r));
 
     forkJoin({
-      res: this.inspectionService.getAllInspections(),
-      suppliersRes: suppliers$,
-      partsRes: parts$
+      res: this.fetchInspections(),
+      suppliersRes: of(null),
+      partsRes: of(null)
     }).subscribe({
       next: ({ res, suppliersRes, partsRes }: any) => {
         if (suppliersRes && suppliersRes.success && Array.isArray(suppliersRes.data)) {
@@ -178,6 +289,11 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
         }
 
         if (res && res.success) {
+          this.serverMode = !!res._server;
+          this.totalCount = res.totalCount ?? 0;
+          this.serverFilterOptions = res.filterOptions || null;
+          this.serverChartCounts = res.chartCounts || null;
+          this.rawItems = res.data;
           this.allMockData = res.data.map((item: any) => {
 
             // Safely parse the "50%" string into a number (50) for the PPM calculation
@@ -239,11 +355,12 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
 
           this.mockdata = [...this.allMockData];
           this.populateFilterDropdowns();
-          this.pageIndex = 0;
+          if (!this.serverMode) { this.pageIndex = 0; }
           this.updatePagedList();
           this.updateChartData();
           this.isLoading = false;
           this.cdr.detectChanges();
+          setTimeout(() => this.updateStickyHeader(), 50);
         } else {
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -260,6 +377,15 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   }
 
   populateFilterDropdowns() {
+    const o = this.serverMode ? this.serverFilterOptions : null;
+    if (o) {
+      this.inspectors = o.inspectors || [];
+      this.partFamilies = o.partFamilies || [];
+      this.partNames = o.partNames || [];
+      this.filteredPartNames = [...this.partNames];
+      this.batchNumbers = o.batchNumbers || [];
+      return;
+    }
     this.inspectors = Array.from(new Set(this.allMockData.map(item => item.Inspector).filter(item => item && item !== '-'))).sort();
     this.partFamilies = Array.from(new Set(this.allMockData.map(item => item.PartFamily).filter(item => item && item !== '-'))).sort();
     this.partNames = Array.from(new Set(this.allMockData.map(item => item.PartName).filter(item => item && item !== '-'))).sort();
@@ -274,6 +400,11 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   }
 
   updatePagedList() {
+    if (this.serverMode) {
+      this.pagedMockdata = this.mockdata;
+      this.totalSize = this.totalCount;
+      return;
+    }
     const startIndex = this.pageIndex * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.pagedMockdata = this.mockdata.slice(startIndex, endIndex);
@@ -283,10 +414,13 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.pageIndex = event.pageIndex;
+    if (this.serverMode) { this.loadData(); return; }
     this.updatePagedList();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   applyFilter() {
+    if (this.serverMode) { this.pageIndex = 0; this.loadData(); return; }
     this.mockdata = this.allMockData.filter(item => {
       let matches = true;
       if (this.filterObj.date) {
@@ -311,16 +445,19 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     this.pageIndex = 0;
     this.updatePagedList();
     this.updateChartData();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   clearFilter() {
     this.filterObj = { date: null, inspector: '', partFamily: '', partName: '', partNumber: '', batchNumber: '' };
     this.partNameSearch = '';
+    if (this.serverMode) { this.pageIndex = 0; this.loadData(); return; }
     this.filteredPartNames = [...this.partNames];
     this.mockdata = [...this.allMockData];
     this.pageIndex = 0;
     this.updatePagedList();
     this.updateChartData();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   updateChartData() {
@@ -334,9 +471,11 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
       if (item.Inspector) inspectorCounts[item.Inspector] = (inspectorCounts[item.Inspector] || 0) + 1;
     });
 
-    this.first = Object.keys(stageCounts).map(key => ({ name: key, value: stageCounts[key] }));
-    this.multi = Object.keys(familyCounts).map(key => ({ name: key, value: familyCounts[key] }));
-    this.triple = Object.keys(inspectorCounts).map(key => ({ name: key, value: inspectorCounts[key] }));
+    const sc = this.serverMode ? this.serverChartCounts : null;
+    const toArr = (o: any) => Object.keys(o).map(key => ({ name: key, value: o[key] }));
+    this.first = toArr(sc?.stage || stageCounts);
+    this.multi = toArr(sc?.partFamily || familyCounts);
+    this.triple = toArr(sc?.inspector || inspectorCounts);
   }
 
   scrollLeft() { this.tableContainer?.nativeElement.scrollBy({ left: -300, behavior: 'smooth' }); }
@@ -347,12 +486,12 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   // -------------------------------------------------------------
 
   addrecord(data: any) {
-    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1500px', height: 'auto', data: null });
+    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '850px', maxWidth: '90vw', height: 'auto', data: null });
     dialogRef.afterClosed().subscribe(res => { if (res) this.loadData(); });
   }
 
   openEditDialog(item: any) {
-    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data: item });
+    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '850px', maxWidth: '90vw', height: 'auto', data: item });
     dialogRef.afterClosed().subscribe(res => { if (res) this.loadData(); });
   }
 
@@ -447,7 +586,63 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+  }
 
   defaultColumns: string[] = [
     'Actions',
@@ -550,11 +745,15 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
           this.activeColumns = [...this.defaultColumns];
           this.frozenCount = 0;
         }
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
       },
       error: (error) => {
         console.error('Error loading grid columns', error);
         this.activeColumns = [...this.defaultColumns];
         this.frozenCount = 0;
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
       }
     });
   }

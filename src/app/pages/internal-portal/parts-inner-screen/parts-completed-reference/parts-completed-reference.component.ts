@@ -144,7 +144,7 @@ export class PartsCompletedReferenceComponent implements OnInit {
   addchecklistaudit() {
     let dialogRef = this.dialog.open(PartsAddParameterComponent, {
       height: 'auto',
-      width: '850px'
+      width: '1200px', maxWidth: '90vw'
     });
     dialogRef.afterClosed().subscribe(data => {});
   }
@@ -159,7 +159,7 @@ export class PartsCompletedReferenceComponent implements OnInit {
   editParameter(item: any) {
     let dialogRef = this.dialog.open(PartsAddParameterComponent, {
       height: 'auto',
-      width: '850px',
+      width: '1200px', maxWidth: '90vw',
       data: item // Tells the popup it's in Edit mode
     });
     dialogRef.afterClosed().subscribe(data => {

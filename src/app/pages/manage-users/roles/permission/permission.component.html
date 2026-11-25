@@ -1,5 +1,5 @@
 <!-- Top Action Bar -->
-<div class="row mb-3 align-items-center px-3">
+<div class="row mb-3 align-items-center px-3" style="margin-top: 43px;">
   <div class="col-md-2">
   </div>
   <div class="col-md-10 d-flex justify-content-between align-items-center ps-2">
@@ -7,11 +7,11 @@
       Role: <span style="color: #1e73be; font-weight: 700;">{{ roleName || 'Admin' }}</span>
     </h4>
     <div class="d-flex justify-content-end align-items-center gap-2">
-      <button mat-raised-button color="primary" class="me-2" (click)="toggleAll()">
+      <button mat-raised-button color="primary" class="me-2 mdc-button mat-mdc-button-base mat-mdc-tooltip-trigger search-btn ms-2 mdc-button--raised mat-mdc-raised-button mat-primary" (click)="toggleAll()">
         <mat-icon>select_all</mat-icon> Toggle All
       </button>
 
-      <button mat-raised-button color="primary" class="me-2" (click)="saveUserPermissions()">
+      <button mat-raised-button color="primary" class="me-2 mdc-button mat-mdc-button-base mat-mdc-tooltip-trigger search-btn ms-2 mdc-button--raised mat-mdc-raised-button mat-primary" (click)="saveUserPermissions()">
         <mat-icon>save</mat-icon> Save
       </button>
 

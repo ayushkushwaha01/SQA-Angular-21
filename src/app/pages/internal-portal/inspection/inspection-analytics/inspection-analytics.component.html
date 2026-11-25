@@ -12,6 +12,25 @@
   <div class="top-controls-wrapper">
     <div class="top-bar">
 
+      <!-- <div class="filter-row">
+         <select class="form-control bac" [(ngModel)]="selectedYear" (change)="updateDaysInMonth()">
+          <option *ngFor="let yr of availableYears" [value]="yr">{{ yr }}</option>
+        </select>
+
+        
+        <select class="form-control bac" [(ngModel)]="selectedMonth" (change)="updateDaysInMonth()">
+          <option *ngFor="let m of availableMonths" [value]="m.value">{{ m.name }}</option>
+        </select>
+
+         <select class="form-control bac" [(ngModel)]="selectedDay" *ngIf="isDailyView">
+          <option *ngFor="let d of availableDays" [value]="d">{{ d }}</option>
+        </select>
+
+         <button mat-raised-button class="go-btn" (click)="fetchAnalyticsData()">Go</button>
+      </div> -->
+
+
+      <!-- Inside the top-bar -> filter-row div -->
       <div class="filter-row">
         <!-- Year Filter -->
         <select class="form-control bac" [(ngModel)]="selectedYear" (change)="updateDaysInMonth()">
@@ -23,6 +42,12 @@
           <option *ngFor="let m of availableMonths" [value]="m.value">{{ m.name }}</option>
         </select>
 
+        <!-- NEW: Stage Filter -->
+        <select class="form-control bac" [(ngModel)]="selectedStage">
+          <option [value]="0">All Stages</option>
+          <option *ngFor="let st of availableStages" [value]="st.stageId">{{ st.stageName }}</option>
+        </select>
+
         <!-- Day Filter (Only shows when in Daily View) -->
         <select class="form-control bac" [(ngModel)]="selectedDay" *ngIf="isDailyView">
           <option *ngFor="let d of availableDays" [value]="d">{{ d }}</option>
@@ -31,6 +56,7 @@
         <!-- Trigger API Call -->
         <button mat-raised-button class="go-btn" (click)="fetchAnalyticsData()">Go</button>
       </div>
+
 
       <div class="action-buttons">
         <button mat-raised-button (click)="openheatmapname()">
@@ -183,15 +209,15 @@
   <div class="row mt-1" *ngIf="chartsReady">
     <div class="col-lg-6 col-md-12 mt-3">
       <div class="chart-wrapper" [class.loading-chart]="isLoading">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeAnnualPpmOptions" [oneToOne]="true" [(update)]="updateFlag"
-          style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeAnnualPpmOptions" [oneToOne]="true"
+          [(update)]="updateFlag" style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>
     <div class="col-lg-6 col-md-12 mt-3">
       <div class="chart-wrapper" [class.loading-chart]="isLoading">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeMonthlyPpmOptions" [oneToOne]="true" [(update)]="updateFlag"
-          style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeMonthlyPpmOptions" [oneToOne]="true"
+          [(update)]="updateFlag" style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>
@@ -202,16 +228,16 @@
     <div class="col-lg-6 col-md-12 mt-3 text-center">
       <h4 class="section-title">Distribution By Defects</h4>
       <div class="chart-wrapper" [class.loading-chart]="isLoading">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeDefectsPieOptions" [oneToOne]="true" [(update)]="updateFlag"
-          style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeDefectsPieOptions" [oneToOne]="true"
+          [(update)]="updateFlag" style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>
     <div class="col-lg-6 col-md-12 mt-3 text-center">
       <h4 class="section-title">Distribution By Part Families</h4>
       <div class="chart-wrapper" [class.loading-chart]="isLoading">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeProductsPieOptions" [oneToOne]="true" [(update)]="updateFlag"
-          style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeProductsPieOptions" [oneToOne]="true"
+          [(update)]="updateFlag" style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>

@@ -219,4 +219,67 @@ export class RolesComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  // ====== Screen Permissions Count Helpers ======
+
+  private readonly PERM_KEYS = ['canCreate', 'canRead', 'canUpdate', 'canDelete'];
+  private readonly PERM_HAS_KEYS = ['hasCreate', 'hasRead', 'hasUpdate', 'hasDelete'];
+
+  getPermissionsText(item: any): string {
+    const total = this.getTotalPermissions(item);
+    const checked = this.getCheckedPermissions(item);
+    if (total === 0) return '0/0';
+    return `${checked}/${total}`;
+  }
+
+  getTotalPermissions(item: any): number {
+    const modules = this.extractModules(item);
+    let total = 0;
+    for (const mod of modules) {
+      const screens = mod.screens || [];
+      for (const screen of screens) {
+        for (let i = 0; i < 4; i++) {
+          const hasKey = this.PERM_HAS_KEYS[i];
+          if (screen[hasKey] === true) {
+            total++;
+          } else if (screen[hasKey] === undefined || screen[hasKey] === null) {
+            const permKey = this.PERM_KEYS[i];
+            const val = screen[permKey];
+            if (val === true || val === false) total++;
+          }
+        }
+      }
+    }
+    return total;
+  }
+
+  getCheckedPermissions(item: any): number {
+    const modules = this.extractModules(item);
+    let checked = 0;
+    for (const mod of modules) {
+      const screens = mod.screens || [];
+      for (const screen of screens) {
+        for (let i = 0; i < 4; i++) {
+          const hasKey = this.PERM_HAS_KEYS[i];
+          const permKey = this.PERM_KEYS[i];
+          if (screen[hasKey] === true && screen[permKey] === true) {
+            checked++;
+          } else if ((screen[hasKey] === undefined || screen[hasKey] === null) && screen[permKey] === true) {
+            checked++;
+          }
+        }
+      }
+    }
+    return checked;
+  }
+
+  private extractModules(item: any): any[] {
+    if (!item) return [];
+    if (Array.isArray(item.modules)) return item.modules;
+    if (Array.isArray(item.Modules)) return item.Modules;
+    if (Array.isArray(item.screens)) return [{ screens: item.screens }];
+    if (Array.isArray(item.Screens)) return [{ screens: item.Screens }];
+    if (Array.isArray(item.permissionsData)) return item.permissionsData;
+    return [];
+  }
 }

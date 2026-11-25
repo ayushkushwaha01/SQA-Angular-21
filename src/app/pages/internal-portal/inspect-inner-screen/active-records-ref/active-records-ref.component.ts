@@ -111,6 +111,62 @@ export class ActiveRecordsRefComponent implements OnInit {
           let totalOverallCount = 0;
 
           // Map the new nested JSON structure
+          // res.data.forEach((categoryGroup: any) => {
+          //   const catName = categoryGroup.categoryName || categoryGroup.CategoryName;
+          //   const catCode = categoryGroup.categoryCode || categoryGroup.CategoryCode || 'UNCAT';
+          //   const count = categoryGroup.parametersCount || categoryGroup.ParametersCount || 0;
+
+          //   // Prepare button data
+          //   this.categories.push({
+          //     name: catName,
+          //     code: catCode,
+          //     count: count
+          //   });
+          //   totalOverallCount += count;
+
+          //   // Map data for create/edit tracking mapping
+          //   if (!this.categoryMap[catName]) {
+          //     const firstParam = categoryGroup.parameters && categoryGroup.parameters.length > 0
+          //       ? categoryGroup.parameters[0] : null;
+
+          //     this.categoryMap[catName] = {
+          //       partId: categoryGroup.partId || categoryGroup.PartId,
+          //       partFamilyId: firstParam ? (firstParam.partFamilyId || firstParam.PartFamilyId) : null,
+          //       partNameId: firstParam ? (firstParam.partNameId || firstParam.PartNameId) : null
+          //     };
+          //   }
+
+          //   // Flatten the parameters array back into a single tableData array
+          //   if (categoryGroup.parameters && categoryGroup.parameters.length > 0) {
+          //     categoryGroup.parameters.forEach((item: any) => {
+          //       this.tableData.push({
+          //         id: item.id || item.Id,
+          //         parameter: item.parameter || item.Parameter,
+          //         categoryName: catName, // Included to allow table filtering to work
+          //         categoryCode: catCode,
+          //         spec: item.spec || item.Spec,
+          //         unit: item.unit || item.Unit,
+          //         unitId: item.unitId || item.UnitId,
+          //         min: item.min || item.Min,
+          //         max: item.max || item.Max,
+          //         special: item.special || item.Special,
+          //         defects: item.defects || item.Defects || '0',
+          //         defectRate: item.defectRate || item.DefectRate || '0%',
+          //         okay: item.okay || item.Okay,
+          //         capa: item.capa || item.Capa,
+          //         method: item.method || item.Method,
+          //         s1: item.s1 || item.S1,
+          //         s2: item.s2 || item.S2,
+          //         s3: item.s3 || item.S3,
+          //         s4: item.s4 || item.S4,
+          //         s5: item.s5 || item.S5,
+          //         remarks: item.remarks || item.Remarks
+          //       });
+          //     });
+          //   }
+          // });
+
+          // Map the new nested JSON structure
           res.data.forEach((categoryGroup: any) => {
             const catName = categoryGroup.categoryName || categoryGroup.CategoryName;
             const catCode = categoryGroup.categoryCode || categoryGroup.CategoryCode || 'UNCAT';
@@ -126,8 +182,9 @@ export class ActiveRecordsRefComponent implements OnInit {
 
             // Map data for create/edit tracking mapping
             if (!this.categoryMap[catName]) {
-              const firstParam = categoryGroup.parameters && categoryGroup.parameters.length > 0
-                ? categoryGroup.parameters[0] : null;
+              // Check both cases for the array
+              const paramsList = categoryGroup.parameters || categoryGroup.Parameters;
+              const firstParam = paramsList && paramsList.length > 0 ? paramsList[0] : null;
 
               this.categoryMap[catName] = {
                 partId: categoryGroup.partId || categoryGroup.PartId,
@@ -136,13 +193,15 @@ export class ActiveRecordsRefComponent implements OnInit {
               };
             }
 
-            // Flatten the parameters array back into a single tableData array
-            if (categoryGroup.parameters && categoryGroup.parameters.length > 0) {
-              categoryGroup.parameters.forEach((item: any) => {
+            // FIX: Flatten the array using a case-insensitive fallback
+            const paramsArray = categoryGroup.parameters || categoryGroup.Parameters;
+
+            if (paramsArray && paramsArray.length > 0) {
+              paramsArray.forEach((item: any) => {
                 this.tableData.push({
                   id: item.id || item.Id,
                   parameter: item.parameter || item.Parameter,
-                  categoryName: catName, // Included to allow table filtering to work
+                  categoryName: catName,
                   categoryCode: catCode,
                   spec: item.spec || item.Spec,
                   unit: item.unit || item.Unit,
@@ -212,7 +271,7 @@ export class ActiveRecordsRefComponent implements OnInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(AddInsParameterComponent, { height: 'auto', width: '850px' });
+    const dialogRef = this.dialog.open(AddInsParameterComponent, { height: 'auto', width: '800px', maxWidth: '90vw' });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -223,7 +282,7 @@ export class ActiveRecordsRefComponent implements OnInit {
 
   editParameter(item: any) {
     if (this.isReadOnly) return;
-    const dialogRef = this.dialog.open(AddInsParameterComponent, { height: 'auto', width: '850px', data: item });
+    const dialogRef = this.dialog.open(AddInsParameterComponent, { height: 'auto', width: '800px', maxWidth: '90vw', data: item });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

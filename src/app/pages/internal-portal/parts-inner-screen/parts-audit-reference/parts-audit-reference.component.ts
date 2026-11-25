@@ -320,7 +320,7 @@ export class PartsAuditReferenceComponent implements OnInit {
   addchecklistaudit(item?: any) {
 
     const dialogRef = this.dialog.open(PartsAddParameterComponent, {
-      width: '800px',
+      width: '800px', maxWidth: '90vw',
       height: 'auto',
       //data: item || null
       data: {
@@ -344,7 +344,7 @@ export class PartsAuditReferenceComponent implements OnInit {
   editParameter(item: any) {
     let dialogRef = this.dialog.open(PartsAddParameterComponent, {
       height: 'auto',
-      width: '850px',
+      width: '800px', maxWidth: '90vw',
       data: item // <--- This tells the popup it's in Edit mode
     });
     dialogRef.afterClosed().subscribe(data => {

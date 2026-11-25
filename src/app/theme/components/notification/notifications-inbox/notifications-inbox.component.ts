@@ -1,12 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PageHeaderService } from 'src/app/shared/page-header.service';
 import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
 
 export interface NotificationItem {
   id: number;
-  auditType: 'Process Audit' | 'Parts Audit' | 'Help Desk' | 'System Escalation'; 
+  auditType: 'Process Audit' | 'Parts Audit' | 'Help Desk' | 'System Escalation';
   date: string;
   commodity: string;
   category: string;
@@ -22,6 +28,15 @@ export interface NotificationItem {
 
 @Component({
   selector: 'app-notifications-inbox',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule
+  ],
   templateUrl: './notifications-inbox.component.html',
   styleUrls: ['./notifications-inbox.component.scss']
 })
@@ -37,7 +52,8 @@ export class NotificationsInboxComponent implements OnInit, OnDestroy {
     private location: Location,
     private router: Router,
     private route: ActivatedRoute,
-    private pageHeaderService: PageHeaderService
+    private pageHeaderService: PageHeaderService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -51,16 +67,13 @@ export class NotificationsInboxComponent implements OnInit, OnDestroy {
     if (window.history.length > 1) {
       this.location.back();
     } else {
-      this.router.navigate(['/app/sqm']);
+      this.router.navigate(['/internal-portal/dashboard']);
     }
   }
 
   fetchData(): void {
-    const storedUserId = localStorage.getItem('UserId');
-    const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
+    const currentUserId = this.api.getUserId ? this.api.getUserId() : (parseInt(localStorage.getItem('UserId') || '0', 10));
     const currentUserType = localStorage.getItem('UserType') || 'Internal';
-
-    if (currentUserId === 0) return;
 
     this.api.getHelpDeskNotifications(currentUserId, currentUserType).subscribe({
       next: (res: any) => {
@@ -81,15 +94,26 @@ export class NotificationsInboxComponent implements OnInit, OnDestroy {
             };
           });
 
-          // Sort by ticket ID descending so latest item is at the top
           liveTickets.sort((a, b) => b.id - a.id);
 
           this.notificationsList = liveTickets;
-          this.autoSelectFirst();
+          const paramId = Number(this.route.snapshot.queryParams['id']);
+          if (paramId) {
+            const match = this.filteredItems.find(i => i.id === paramId);
+            if (match) {
+              this.selectItem(match);
+            } else {
+              this.autoSelectFirst();
+            }
+          } else {
+            this.autoSelectFirst();
+          }
+          this.cdr.markForCheck();
         }
       },
       error: (err) => {
         console.error('Failed to fetch help desk logs', err);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -110,12 +134,10 @@ export class NotificationsInboxComponent implements OnInit, OnDestroy {
 
   get filteredItems(): NotificationItem[] {
     return this.notificationsList.filter(item => {
-      // Exclude Help Desk Mails so Notifications contains ONLY system notifications/escalations
       if (item.auditType === 'Help Desk') {
         return false;
       }
 
-      // Search query
       if (this.searchQuery.trim()) {
         const q = this.searchQuery.toLowerCase();
         const text = `${item.auditType} ${item.commodity} ${item.category} ${item.issue || ''} ${item.sender || ''} ${item.moduleName || ''} ${item.parameter || ''} ${item.description || ''}`.toLowerCase();

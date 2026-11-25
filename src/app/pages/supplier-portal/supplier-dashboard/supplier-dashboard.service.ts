@@ -61,4 +61,15 @@ export class SupplierDashboardService {
   
   getCommodities(): Observable<any> { return this.http.get(this.apiUrl + 'Commodity/get-commodities'); }
   getSeverities(): Observable<any> { return this.http.get(this.apiUrl + 'Severity/get-all'); }
+
+
+    // Save filters
+  saveUserFilters(payload: any) {
+    return this.http.post(this.apiUrl + 'UserFilterSettings/save-user-filters', payload);
+  }
+
+  // Get filters
+  getUserFilters(userId: number, screenName: string) {
+    return this.http.get(this.apiUrl + `UserFilterSettings/get-user-filters?userId=${userId}&screenName=${screenName}`);
+  }
 }

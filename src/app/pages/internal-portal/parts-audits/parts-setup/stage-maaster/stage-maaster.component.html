@@ -1,0 +1,113 @@
+<div class="custom-layout-wrapper">
+
+    <div class="toolbar-row mb-3 d-flex justify-content-end" style="width: 100%;">
+        <button mat-raised-button
+            style="background-color: #1a1a1a; color: white; padding: 10px 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
+            (click)="toggleFilters()">
+            <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">filter_list</mat-icon>
+            Filter
+        </button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <!-- Add Stage -->
+        <button mat-raised-button class="search-btn" [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Stage'"
+            (click)="canCreate && addStage(null)">
+
+            <mat-icon>add</mat-icon>
+            <span class="button-text">
+                Add Stage
+            </span>
+        </button>
+    </div>
+
+    <div *ngIf="showFilters" class="mb-3">
+        <div>
+            <form [formGroup]="filterForm">
+                <mat-card class="filter">
+                    <mat-card-content>
+                        <div class="row col-sm-12">
+
+                            <div class="col-sm-4 row me-2">
+                                <div class="col-sm-3 d-flex align-items-center"><b>Keyword:</b></div>
+                                <div class="col-sm-9">
+                                    <input type="text" formControlName="keyword" class="form-control"
+                                        placeholder="Search by Stage Name...">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4 row me-2">
+                                <div class="col-sm-3 d-flex align-items-center"><b>Status:</b></div>
+                                <div class="col-sm-8">
+                                    <mat-select formControlName="status" placeholder="Select Status"
+                                        class="form-control">
+                                        <mat-option *ngFor="let option of Status" [value]="option.value">
+                                            {{option.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <button mat-raised-button class="search-btn pull-right" (click)="applyFilter()">
+                                    <mat-icon>search</mat-icon> Search
+                                </button>
+                                <button mat-raised-button class="pull-right btn-default margin-right-10"
+                                    (click)="clearFilter()">
+                                    <mat-icon>settings_backup_restore</mat-icon> Clear
+                                </button>
+                            </div>
+
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" style="width: 100%;">
+            <thead class="tbl-head">
+                <tr>
+                    <th>Stage Name</th>
+                    <th class="text-center" style="width: 120px;">Status</th>
+                    <th class="text-center" style="width: 120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of filteredStages">
+                    <td>{{ item.stageName }}</td>
+                    <td class="text-center">
+                        <span (click)="canUpdate && !isActionDisabled(item.stageName) && toggleStatus(item)"
+                            [style.color]="item.isActive ? 'green' : 'red'"
+                            [style.pointer-events]="isActionDisabled(item.stageName) || !canUpdate ? 'none' : 'auto'"
+                            [style.opacity]="isActionDisabled(item.stageName) || !canUpdate ? '0.5' : '1'"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : ''"
+                            style="cursor:pointer; font-weight: 500;">
+                            {{ item.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                       
+                        <a [style.pointer-events]="isActionDisabled(item.stageName) || !canUpdate ? 'none' : 'auto'"
+                            [style.opacity]="isActionDisabled(item.stageName) || !canUpdate ? '0.5' : '1'"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Record'"
+                            style="margin-right: 12px; cursor: pointer;" (click)="canUpdate && !isActionDisabled(item.stageName) && addStage(item)">
+                            <i class="fa fa-edit text-primary"></i>
+                        </a>
+                       
+                        <a [style.pointer-events]="isActionDisabled(item.stageName) || !canDelete ? 'none' : 'auto'"
+                            [style.opacity]="isActionDisabled(item.stageName) || !canDelete ? '0.5' : '1'"
+                            [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Record'"
+                            style="cursor: pointer;" (click)="canDelete && !isActionDisabled(item.stageName) && deleteStage(item)">
+                            <i class="fa fa-trash text-danger"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr *ngIf="!filteredStages || filteredStages.length === 0">
+                    <td colspan="3" class="text-center">No records found</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

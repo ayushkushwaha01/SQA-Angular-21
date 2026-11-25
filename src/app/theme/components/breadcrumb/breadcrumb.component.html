@@ -4,7 +4,8 @@
         <div class="breadcrumb-header">
             <h1 class="page-title">{{ pageTitle }}</h1>
 
-            <nav class="breadcrumb-trail">
+            <!-- Breadcrumb trail (path) hidden as requested -->
+            <!-- <nav class="breadcrumb-trail">
                 <a routerLink="/" (click)="closeSubMenus()" class="trail-link">Home</a>
                 @for (breadcrumb of breadcrumbs; track breadcrumb.url; let last = $last) {
                     <span class="trail-separator">&gt;&gt;</span>
@@ -16,12 +17,12 @@
                         <span class="trail-current">{{ breadcrumb.name }}</span>
                     }
                 }
-            </nav>
+            </nav> -->
         </div>
 
         <!-- Description Banner (Grey Box with Blue Left Border) -->
         @if (description) {
-            <div class="description-banner">
+            <div >
                 <div class="accent-bar"></div>
                 <div class="description-content">
                     {{ description }}

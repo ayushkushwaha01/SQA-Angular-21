@@ -178,8 +178,13 @@ export class PartsFamiliesComponent implements OnInit {
       }
     }
 
+    const totalDefects = this.allDefectsMaster?.length || 0;
+    const defectCols = totalDefects <= 1 ? 1 : 2;
+    const calculatedWidth = defectCols === 1 ? '350px' : '550px';
+
     const dialogRef = this.dialog.open(PartsFamilyPopComponent, {
-      width: '550px',
+      width: calculatedWidth,
+      maxWidth: '90vw',
       disableClose: true,
       data: {
         fullItem: item,

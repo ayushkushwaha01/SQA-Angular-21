@@ -3,7 +3,7 @@ import { Settings, SettingsService } from '../../../services/settings.service';
 import { MenuService } from '../../../services/menu.service';
 import { VerticalMenuComponent } from '../menu/vertical-menu/vertical-menu.component';
 import { Router, NavigationEnd } from '@angular/router';
-
+import { jwtDecode } from 'jwt-decode';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
@@ -47,7 +47,21 @@ export class SidenavComponent implements OnInit {
   }
 
   private loadMenuItems() {
-    this.menuItems = this.router.url.startsWith('/app/supplier-login')
+    let isSupplier = false;
+    const token = sessionStorage.getItem('jwt_token') || localStorage.getItem('jwt_token');
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        const uType = decoded.UserType || decoded.userType;
+        if (uType === 'Supplier') {
+          isSupplier = true;
+        }
+      } catch (e) {}
+    } else {
+      isSupplier = this.router.url.startsWith('/app/supplier-login');
+    }
+
+    this.menuItems = isSupplier
       ? this.menuService.getSupplierMenuItems()
       : this.menuService.getVerticalMenuItems();
   }

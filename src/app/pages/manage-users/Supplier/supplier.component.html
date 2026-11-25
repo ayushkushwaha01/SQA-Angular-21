@@ -10,8 +10,9 @@
 </div>
 
 <!-- 🔥 MAIN SCREEN (Only renders if canRead is true) 🔥 -->
-<div *ngIf="canRead" fxLayout="row wrap" #resizedDiv>
-    <div class="flex-p w-100">
+<div *ngIf="canRead" fxLayout="row wrap" #resizedDiv style="width: 97%;
+    margin-left: 22px;">
+    <div class="flex-p w-100" >
 
         <div class="row" style="margin-bottom:14px;">
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"></div>
@@ -19,7 +20,7 @@
                 <div class="w-100 flex-p">
 
                     <!-- 🔥 Add Supplier Button (Locked by canCreate) -->
-                    <button mat-raised-button color="primary" class="pull-right" 
+                    <button mat-raised-button   class="pull-right mdc-button mat-mdc-button-base mat-mdc-tooltip-trigger search-btn ms-2 mdc-button--raised mat-mdc-raised-button mat-primary" 
                         [class.disable-custom]="!canCreate"
                         [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Supplier'"
                         (click)="canCreate && openAddSupplier()">

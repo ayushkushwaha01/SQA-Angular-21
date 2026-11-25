@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import * as Highcharts from 'highcharts';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { PartAuditService } from 'src/app/pages/internal-portal/parts-audits/part-audit.service';
@@ -16,11 +17,22 @@ import { jwtDecode } from 'jwt-decode';
   templateUrl: './sup-proactivegrid.component.html',
   styleUrls: ['./sup-proactivegrid.component.scss']
 })
-export class SupProactivegridComponent implements OnInit {
+export class SupProactivegridComponent implements OnInit, AfterViewInit, OnDestroy {
   Highcharts: typeof Highcharts = Highcharts;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-    updateFlag: boolean = false;
+  updateFlag: boolean = false;
+
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
 
   // Chart Configuration
   auditScoreChartOptions: Highcharts.Options = {
@@ -54,11 +66,23 @@ export class SupProactivegridComponent implements OnInit {
   uniqueStates: string[] = [];
   uniqueStages: string[] = [];
 
+  pageSize: number = 20;
+  pageIndex: number = 0;
+  totalCount: number = 0;
+  serverMode: boolean = false;
+  private pagedUnsupported: boolean = false;
+  private latest10Cache: any[] = [];
+
+  isLoading: boolean = true;
+
   constructor(
     private dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService,
-    private fb: FormBuilder, private partAuditService: PartAuditService
+    private fb: FormBuilder,
+    private partAuditService: PartAuditService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
@@ -72,7 +96,6 @@ export class SupProactivegridComponent implements OnInit {
       ToDate: ['']
     });
   }
-  pageSize: number = 20;
 
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
@@ -82,12 +105,9 @@ export class SupProactivegridComponent implements OnInit {
     }
     this.loadLookups();
     this.loadGridColumns();
-    
   }
 
-  
-
-private getSupplierId(): number {
+  private getSupplierId(): number {
     const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
     if (token) {
       try {
@@ -119,35 +139,106 @@ private getSupplierId(): number {
     });
   }
 
+  private fmtDate(d: any): string | null {
+    if (!d) return null;
+    const x = new Date(d);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  }
+
+  private mapRows(list: any[]): any[] {
+    return (list || []).map((item: any) => {
+      const statusObj = this.statusLookups.find((l: any) => l.lookupId === item.statusId);
+      const cleanReport = item.report != null ? item.report.toString().replace(/%/g, '').trim() : '0';
+      return {
+        processAuditId: item.processAuditId,
+        auditReference: item.auditReference,
+        ref: item.auditReference,
+        commodity: item.commodityName,
+        location: item.cityName,
+        supplier: item.supplierName,
+        auditor: item.auditorName,
+        date: new Date(item.auditDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
+        action: item.capaSummary,
+        score: cleanReport + ' %',
+        status: statusObj ? statusObj.lookupName : 'Open',
+        done: item.isDone,
+        rawScore: parseInt(cleanReport || '0', 10),
+        state: item.stateName,
+        stage: item.stageName,
+        auditDateObj: new Date(item.auditDate)
+      };
+    });
+  }
+
   loadData() {
-    // const supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+    if (this.pagedUnsupported) {
+      this.loadDataLegacy();
+      return;
+    }
 
     const supplierId = this.getSupplierId();
+    const f = this.filterForm.value;
+    this.isLoading = true;
 
-    this.api.getAllAuditsSupplier(supplierId).subscribe((res: any) => {
+    this.api.getAuditsPaged({
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      supplierId: supplierId > 0 ? supplierId : null,
+      keyword: f.Keyword?.trim(),
+      commodity: f.Commodity,
+      state: f.State,
+      city: f.City,
+      supplier: f.Supplier,
+      stage: f.Stage,
+      auditor: f.Auditor,
+      fromDate: this.fmtDate(f.FromDate),
+      toDate: this.fmtDate(f.ToDate)
+    }).pipe(finalize(() => { this.isLoading = false; })).subscribe({
+      next: (res: any) => {
+        if (!res || !res.success || res.totalCount === undefined) {
+          this.pagedUnsupported = true;
+          this.loadDataLegacy();
+          return;
+        }
+        this.serverMode = true;
+        this.totalCount = res.totalCount ?? 0;
+        this.originalAuditData = this.mapRows(res.data || []);
+        this.auditData = [...this.originalAuditData];
+
+        if (this.pageIndex === 0) {
+          this.latest10Cache = (this.auditData || []).slice(0, 10);
+        }
+
+        const fo = res.filterOptions;
+        if (fo) {
+          this.uniqueCommodities = fo.commodities || [];
+          this.uniqueSuppliers = fo.suppliers || [];
+          this.uniqueAuditors = fo.auditors || [];
+          this.uniqueStates = fo.states || [];
+          this.uniqueStages = fo.stages || [];
+          const cityObjs: Array<{ state: string; city: string }> = fo.cities || [];
+          this.uniqueCities = [...new Set(cityObjs.map((c: any) => typeof c === 'string' ? c : c.city).filter(Boolean))].sort();
+        }
+
+        this.updatePagination();
+        this.updateChart();
+        setTimeout(() => this.updateStickyHeader(), 50);
+      },
+      error: () => {
+        this.pagedUnsupported = true;
+        this.loadDataLegacy();
+      }
+    });
+  }
+
+  private loadDataLegacy() {
+    const supplierId = this.getSupplierId();
+
+    this.isLoading = true;
+    this.api.getAllAuditsSupplier(supplierId).pipe(finalize(() => { this.isLoading = false; })).subscribe((res: any) => {
       if (res.success) {
-        this.originalAuditData = res.data.map((item: any) => {
-          const statusObj = this.statusLookups.find((l: any) => l.lookupId === item.statusId);
-          const cleanReport = item.report != null ? item.report.toString().replace(/%/g, '').trim() : '0';
-          return {
-            processAuditId: item.processAuditId,
-            auditReference: item.auditReference,
-            ref: item.auditReference,
-            commodity: item.commodityName,
-            location: item.cityName,
-            supplier: item.supplierName,
-            auditor: item.auditorName,
-            date: new Date(item.auditDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
-            action: item.capaSummary,
-            score: cleanReport + ' %',
-            status: statusObj ? statusObj.lookupName : 'Open',
-            done: item.isDone,
-            rawScore: parseInt(cleanReport || '0', 10),
-            state: item.stateName,
-            stage: item.stageName,
-            auditDateObj: new Date(item.auditDate)
-          };
-        });
+        this.serverMode = false;
+        this.originalAuditData = this.mapRows(res.data || []);
 
         // Extract unique values for filters
         this.uniqueCommodities = [...new Set(this.originalAuditData.map(a => a.commodity).filter(Boolean))];
@@ -158,16 +249,21 @@ private getSupplierId(): number {
         this.uniqueStages = [...new Set(this.originalAuditData.map(a => a.stage).filter(Boolean))];
 
         this.auditData = [...this.originalAuditData];
+        this.totalCount = this.auditData.length;
+        this.latest10Cache = (this.auditData || []).slice(0, 10);
         this.updatePagination();
         this.updateChart();
+        setTimeout(() => this.updateStickyHeader(), 50);
       }
     });
   }
 
   updateChart() {
-    const latest10 = (this.auditData || []).slice(0, 10);
-    const categories = latest10.map(a => (a.ref || '').split('/').pop() || '');
-    const scores = latest10.map(a => Number(a.rawScore ?? a.score ?? 0));
+    const sourceRows = (this.serverMode && this.pageIndex > 0 && this.latest10Cache.length > 0)
+      ? this.latest10Cache
+      : (this.auditData || []).slice(0, 10);
+    const categories = sourceRows.map(a => (a.ref || '').split('/').pop() || '');
+    const scores = sourceRows.map(a => Number(a.rawScore ?? a.score ?? 0));
 
     this.auditScoreChartOptions = {
       ...this.auditScoreChartOptions,
@@ -191,19 +287,27 @@ private getSupplierId(): number {
   }
 
   filterData() {
+    this.pageIndex = 0;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+
+    if (this.serverMode) {
+      this.loadData();
+      return;
+    }
+
     const filters = this.filterForm.value;
     const kw = (filters.Keyword || '').toLowerCase();
 
     this.auditData = this.originalAuditData.filter(item => {
       let isMatch = true;
 
-      // Keyword match
       if (kw) {
         const searchStr = `${item.ref} ${item.commodity} ${item.location} ${item.supplier} ${item.auditor} ${item.status}`.toLowerCase();
         if (!searchStr.includes(kw)) isMatch = false;
       }
 
-      // Dropdown matches
       if (filters.Commodity && item.commodity !== filters.Commodity) isMatch = false;
       if (filters.Supplier && item.supplier !== filters.Supplier) isMatch = false;
       if (filters.Stage && item.stage !== filters.Stage) isMatch = false;
@@ -211,7 +315,6 @@ private getSupplierId(): number {
       if (filters.State && item.state !== filters.State) isMatch = false;
       if (filters.City && item.location !== filters.City) isMatch = false;
 
-      // Date matches
       if (filters.FromDate && item.auditDateObj) {
         if (item.auditDateObj < filters.FromDate) isMatch = false;
       }
@@ -222,42 +325,55 @@ private getSupplierId(): number {
       return isMatch;
     });
 
-    // Reset pagination to first page on filter
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
+    this.totalCount = this.auditData.length;
     this.updatePagination();
     this.updateChart();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   clearFilter() {
     this.filterForm.reset();
-    this.auditData = [...this.originalAuditData];
-
-    // Reset pagination to first page on clear
+    this.pageIndex = 0;
     if (this.paginator) {
-      this.paginator.firstPage();
+      this.paginator.pageIndex = 0;
     }
+
+    if (this.serverMode) {
+      this.loadData();
+      return;
+    }
+
+    this.auditData = [...this.originalAuditData];
+    this.totalCount = this.auditData.length;
     this.updatePagination();
     this.updateChart();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   pagedAuditData: any[] = [];
 
-  updatePagination() {
-    if (this.paginator) {
-      const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
-      this.pagedAuditData = this.auditData.slice(startIndex, startIndex + this.paginator.pageSize);
+  onPageChange(event: PageEvent) {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    if (this.serverMode) {
+      this.loadData();
     } else {
-      this.pagedAuditData = this.auditData.slice(0, 5); // Default page size is 5
+      this.updatePagination();
+      setTimeout(() => this.updateStickyHeader(), 50);
     }
   }
 
+  updatePagination() {
+    if (this.serverMode) {
+      this.pagedAuditData = this.auditData;
+      return;
+    }
+    const startIndex = this.pageIndex * this.pageSize;
+    this.pagedAuditData = this.auditData.slice(startIndex, startIndex + this.pageSize);
+  }
+
   ngAfterViewInit() {
-    this.paginator.page.subscribe(() => {
-      this.updatePagination();
-    });
-    // Ensure initial pagination is set after view inits if data loaded early
+    this.setupStickyHeader();
     this.updatePagination();
   }
 
@@ -266,6 +382,60 @@ private getSupplierId(): number {
   }
 
   openscorepdf(fileName: string): void { window.open(`assets/${fileName}`, '_blank'); }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container') || document.getElementById('table-responsive');
+    if (!container) return;
+
+    const table = (container.querySelector('.audit-table') || container.querySelector('.custom-grid-table')) as HTMLElement;
+    const thead = container.querySelector('thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+  }
 
   onDoneClick(event: MouseEvent, audit: any): void {
     event.preventDefault();
@@ -400,6 +570,8 @@ private getSupplierId(): number {
           ];
 
           this.frozenCount = 0;
+          this.cdr.detectChanges();
+          setTimeout(() => this.updateStickyHeader(), 50);
         }
 
       },
@@ -416,6 +588,8 @@ private getSupplierId(): number {
         ];
 
         this.frozenCount = 0;
+        this.cdr.detectChanges();
+        setTimeout(() => this.updateStickyHeader(), 50);
 
       }
 

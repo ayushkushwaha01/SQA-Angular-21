@@ -56,6 +56,14 @@
               <div *ngIf="item.subject === 'Email of the Director'">
                 <input type="email" class="form-control" [(ngModel)]="item.newValue" placeholder="Enter Director Email">
               </div>
+
+              <div *ngIf="item.subject === 'Escalation Mails'" style="display: flex; align-items: center; justify-content: center;">
+  <mat-slide-toggle 
+    color="primary" 
+    [checked]="item.newValue === 'true'" 
+    (change)="item.newValue = $event.checked ? 'true' : 'false'">
+  </mat-slide-toggle>
+</div>
             </td>
 
             <td class="text-center">

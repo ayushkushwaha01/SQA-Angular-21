@@ -174,3 +174,39 @@ td[mat-cell]:nth-child(13) {
   margin-bottom: 8px;
 }
 
+/* =========================================
+   FROZEN COLUMNS & STICKY HEADER
+========================================= */
+
+.frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important;
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+.last-frozen {
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.audit-table thead.is-sticky {
+  position: relative;
+  z-index: 100;
+  transform: translateY(var(--sticky-header-offset, 0px));
+  background-color: #3f3f3f !important;
+
+  tr {
+    background-color: #3f3f3f !important;
+  }
+
+  th {
+    background-color: #3f3f3f !important;
+    box-shadow: 0 0 0 1px #3f3f3f, inset 0 0 0 1px #555;
+  }
+}
+

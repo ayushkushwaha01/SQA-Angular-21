@@ -1,3 +1,274 @@
+// import { Component, OnInit, AfterViewInit } from '@angular/core';
+// import { FormBuilder, FormGroup } from '@angular/forms';
+// import { MatDialog } from '@angular/material/dialog';
+// import * as Highcharts from 'highcharts';
+// import { AlertService } from 'src/app/shared/alert.service';
+// import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
+// import { PartsAuditAnalayticsService } from '../../../process-audits/paudits-analytics/parts-audit-analaytics.service';
+// import { PartAuditService } from '../../part-audit.service';
+
+// @Component({
+//   standalone: false,
+//   selector: 'app-parts-pareto',
+//   templateUrl: './parts-pareto.component.html',
+//   styleUrls: ['./parts-pareto.component.scss']
+// })
+// export class PartsParetoComponent implements OnInit, AfterViewInit {
+
+//   Highcharts: typeof Highcharts = Highcharts;
+//   years: number[] = [2023, 2024, 2025, 2026];
+
+//   constructor(private dialog: MatDialog, private fb: FormBuilder,
+//     private alertService: AlertService, private api: CommodityService, private PartsAuditAnalayticsService: PartsAuditAnalayticsService,
+//     private PartAuditService: PartAuditService
+//   ) { }
+
+//   filterForm!: FormGroup;
+
+//   ngOnInit(): void {
+//     this.forminit();
+//     this.getCommodities();
+//     this.getPareto();
+//   }
+
+
+//   originalTableData: any[] = [];
+//   getCommodities() {
+//     this.PartAuditService.getCommodityDD()
+//       .subscribe({
+//         next: (res: any) => {
+//           console.log('Commodities response:', res);
+//           if (res.success) {
+//             this.originalTableData = res.data;
+//           }
+//         },
+//         error: (err) => {
+//           console.error('Commodities API error:', err);
+//           this.alertService.createAlert(err.error?.message || 'Failed to load commodities', 0);
+//         }
+//       });
+//   }
+//   getPareto() {
+
+//     const filter = { ...this.filterForm.value };
+
+//     Object.keys(filter).forEach(key => {
+//       if (
+//         filter[key] === null ||
+//         filter[key] === undefined ||
+//         filter[key] === '' ||
+//         filter[key] === 'null'
+//       ) {
+//         delete filter[key];
+//       }
+//     });
+
+//     this.PartsAuditAnalayticsService.getDashboardPareto(filter)
+//       .subscribe({
+//         next: (res: any) => {
+
+//           if (res.success) {
+
+//             this.loadCritical(res.data.critical);
+
+//             this.loadImportant(res.data.important);
+
+//             this.loadCriticalImportant(res.data.criticalImportant);
+
+//           }
+
+//         }
+//       });
+
+//   }
+
+//   loadCritical(data: any[]) {
+
+//     this.pareto = data.map(x => ({
+//       name: x.categoryName,
+//       action: x.capa
+//     }));
+
+//     this.commodityPieOptions = {
+
+//       ...this.commodityPieOptions,
+
+//       series: [{
+//         type: 'pie',
+//         data: data.map(x => ({
+//           name: x.categoryName,
+//           y: x.capa
+//         }))
+//       }]
+
+//     };
+
+//   }
+
+//   loadImportant(data: any[]) {
+
+//     this.statusList = data.map(x => ({
+//       name: x.categoryName,
+//       action: x.capa
+//     }));
+
+//     this.statusPieOptions = {
+
+//       ...this.statusPieOptions,
+
+//       series: [{
+//         type: 'pie',
+//         data: data.map(x => ({
+//           name: x.categoryName,
+//           y: x.capa
+//         }))
+//       }]
+
+//     };
+
+//   }
+//   loadCriticalImportant(data: any[]) {
+
+//     this.criticalList = data.map(x => ({
+//       name: x.categoryName,
+//       action: x.capa
+//     }));
+
+//     this.criticalPieOptions = {
+
+//       ...this.criticalPieOptions,
+
+//       series: [{
+//         type: 'pie',
+//         data: data.map(x => ({
+//           name: x.categoryName,
+//           y: x.capa
+//         }))
+//       }]
+
+//     };
+
+//   }
+
+//   forminit() {
+//     const currentDate = new Date();
+//     this.filterForm = this.fb.group({
+//       commodityId: [null],
+//       Year: [currentDate.getFullYear()],
+//     });
+//   }
+//   onClearFilter() {
+//     this.filterForm.reset({
+//       commodityId: null,
+//       Year: null,
+//     });
+//     this.getPareto();
+
+//   }
+
+//   // Parts Audit Categories (Critical NCs)
+//   pareto = [
+//     { name: 'Dimensional Clock', action: '12' },
+//     { name: 'Surface Finish', action: '17' },
+//     { name: 'Performance', action: '15' },
+//     { name: 'Metallurgical', action: '8' },
+//     { name: 'Mechanical', action: '5' },
+//   ];
+
+//   // Parts Audit Categories (Important NCs)
+//   statusList = [
+//     { name: 'Dimensional Clock', action: '14' },
+//     { name: 'Surface Finish', action: '10' },
+//     { name: 'Performance', action: '19' },
+//     { name: 'Metallurgical', action: '6' },
+//     { name: 'Mechanical', action: '9' },
+//   ];
+
+//   // Commodities List
+//   criticalList = [
+//     { name: 'Casting', action: '22' },
+//     { name: 'Forging', action: '14' },
+//     { name: 'Machining', action: '18' },
+//     { name: 'Fasteners', action: '9' },
+//     { name: 'Sheet Metal', action: '11' },
+//   ];
+
+//   commodityPieOptions: Highcharts.Options = {
+//     chart: { type: 'pie', backgroundColor: 'transparent' },
+//     title: { text: '' },
+//     credits: { enabled: false },
+//     plotOptions: {
+//       pie: {
+//         dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.y:.0f}%' },
+//         showInLegend: false
+//       }
+//     },
+//     series: [{
+//       type: 'pie',
+//       data: [
+//         { name: 'Dimensional', y: 21, color: '#87ceeb' },
+//         { name: 'Surface', y: 30, color: '#008000' },
+//         { name: 'Performance', y: 26, color: '#ff0000' },
+//         { name: 'Metallurgical', y: 14, color: '#ffff00' },
+//         { name: 'Mechanical', y: 9, color: '#0000ff' },
+//       ]
+//     }]
+//   };
+
+//   statusPieOptions: Highcharts.Options = {
+//     chart: { type: 'pie', backgroundColor: 'transparent' },
+//     title: { text: '' },
+//     credits: { enabled: false },
+//     plotOptions: {
+//       pie: {
+//         dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.y:.0f}%' },
+//         showInLegend: false
+//       }
+//     },
+//     series: [{
+//       type: 'pie',
+//       data: [
+//         { name: 'Dimensional', y: 24, color: '#87ceeb' },
+//         { name: 'Surface', y: 17, color: '#008000' },
+//         { name: 'Performance', y: 32, color: '#ff0000' },
+//         { name: 'Metallurgical', y: 11, color: '#ffff00' },
+//         { name: 'Mechanical', y: 16, color: '#0000ff' },
+//       ]
+//     }]
+//   };
+
+//   criticalPieOptions: Highcharts.Options = {
+//     chart: { type: 'pie', backgroundColor: 'transparent' },
+//     title: { text: '' },
+//     credits: { enabled: false },
+//     plotOptions: {
+//       pie: {
+//         dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.y:.0f}%' },
+//         showInLegend: false
+//       }
+//     },
+//     series: [{
+//       type: 'pie',
+//       data: [
+//         { name: 'Casting', y: 30, color: '#87ceeb' },
+//         { name: 'Forging', y: 19, color: '#008000' },
+//         { name: 'Machining', y: 24, color: '#ff0000' },
+//         { name: 'Fasteners', y: 12, color: '#ffff00' },
+//         { name: 'Sheet Metal', y: 15, color: '#0000ff' },
+//       ]
+//     }]
+//   };
+
+
+//   ngAfterViewInit(): void {
+//     setTimeout(() => {
+//       window.dispatchEvent(new Event('resize'));
+//     }, 200);
+//   }
+// }
+
+
+
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,20 +288,93 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
 
   Highcharts: typeof Highcharts = Highcharts;
   years: number[] = [2023, 2024, 2025, 2026];
+  filterForm!: FormGroup;
 
-  constructor(private dialog: MatDialog, private fb: FormBuilder,
-    private alertService: AlertService, private api: CommodityService, private PartsAuditAnalayticsService: PartsAuditAnalayticsService,
+  // 1. UNIQUE SCREEN NAME FOR THE DATABASE
+  private readonly SCREEN_NAME = 'PartsAnalyticsPareto';
+
+  // 2. GET CURRENT USER ID (Grabs from localStorage or defaults to 0)
+  private get currentUserId(): number {
+    const userId = localStorage.getItem('UserId') || sessionStorage.getItem('UserId');
+    return userId ? parseInt(userId, 10) : 0; 
+  }
+
+  constructor(
+    private dialog: MatDialog, 
+    private fb: FormBuilder,
+    private alertService: AlertService, 
+    private api: CommodityService, 
+    private PartsAuditAnalayticsService: PartsAuditAnalayticsService,
     private PartAuditService: PartAuditService
   ) { }
-
-  filterForm!: FormGroup;
 
   ngOnInit(): void {
     this.forminit();
     this.getCommodities();
-    this.getPareto();
+    
+    // 3. RESTORE DB FILTERS BEFORE LOADING DATA
+    this.restoreDbFilters();
   }
 
+  forminit() {
+    const currentDate = new Date();
+    this.filterForm = this.fb.group({
+      commodityId: [null],
+      Year: [currentDate.getFullYear()],
+    });
+  }
+
+  /**
+   * Retrieves saved filter state from the DB and patches the reactive form.
+   */
+  private restoreDbFilters(): void {
+    this.PartsAuditAnalayticsService.getUserFilters(this.currentUserId, this.SCREEN_NAME).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          try {
+            const parsed = JSON.parse(res.data);
+            const currentDate = new Date();
+            this.filterForm.patchValue({
+              commodityId: parsed.commodityId !== undefined ? parsed.commodityId : null,
+              Year: parsed.Year !== undefined ? parsed.Year : currentDate.getFullYear()
+            });
+          } catch (e) {
+            console.error('Failed to parse DB filters', e);
+          }
+        }
+        // Load data AFTER filters are restored
+        this.getPareto();
+      },
+      error: () => {
+        // Fallback if API fails
+        this.getPareto();
+      }
+    });
+  }
+
+  /**
+   * Silently saves current form values to DB
+   */
+  private saveCurrentFiltersToDb(): void {
+    const payload = {
+      userId: this.currentUserId,
+      screenName: this.SCREEN_NAME,
+      filterJSON: JSON.stringify(this.filterForm.value)
+    };
+    this.PartsAuditAnalayticsService.saveUserFilters(payload).subscribe();
+  }
+
+  onClearFilter() {
+    this.filterForm.reset({
+      commodityId: null,
+      Year: null,
+    });
+    
+    // Save the cleared state to DB
+    this.saveCurrentFiltersToDb();
+    
+    this.getPareto();
+  }
 
   originalTableData: any[] = [];
   getCommodities() {
@@ -48,9 +392,17 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
         }
       });
   }
+
   getPareto() {
+    // 4. SAVE FILTERS TO DB EVERY TIME 'GO' IS CLICKED OR DATA IS REFRESHED
+    this.saveCurrentFiltersToDb();
 
     const filter = { ...this.filterForm.value };
+
+    // Standardize 'year' property mapping for backend if it expects lowercase 'year'
+    if (filter.Year !== undefined) {
+      filter.year = filter.Year; 
+    }
 
     Object.keys(filter).forEach(key => {
       if (
@@ -66,33 +418,23 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
     this.PartsAuditAnalayticsService.getDashboardPareto(filter)
       .subscribe({
         next: (res: any) => {
-
           if (res.success) {
-
             this.loadCritical(res.data.critical);
-
             this.loadImportant(res.data.important);
-
             this.loadCriticalImportant(res.data.criticalImportant);
-
           }
-
         }
       });
-
   }
 
   loadCritical(data: any[]) {
-
     this.pareto = data.map(x => ({
       name: x.categoryName,
       action: x.capa
     }));
 
     this.commodityPieOptions = {
-
       ...this.commodityPieOptions,
-
       series: [{
         type: 'pie',
         data: data.map(x => ({
@@ -100,22 +442,17 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
           y: x.capa
         }))
       }]
-
     };
-
   }
 
   loadImportant(data: any[]) {
-
     this.statusList = data.map(x => ({
       name: x.categoryName,
       action: x.capa
     }));
 
     this.statusPieOptions = {
-
       ...this.statusPieOptions,
-
       series: [{
         type: 'pie',
         data: data.map(x => ({
@@ -123,21 +460,17 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
           y: x.capa
         }))
       }]
-
     };
-
   }
-  loadCriticalImportant(data: any[]) {
 
+  loadCriticalImportant(data: any[]) {
     this.criticalList = data.map(x => ({
       name: x.categoryName,
       action: x.capa
     }));
 
     this.criticalPieOptions = {
-
       ...this.criticalPieOptions,
-
       series: [{
         type: 'pie',
         data: data.map(x => ({
@@ -145,25 +478,7 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
           y: x.capa
         }))
       }]
-
     };
-
-  }
-
-  forminit() {
-    const currentDate = new Date();
-    this.filterForm = this.fb.group({
-      commodityId: [null],
-      Year: [currentDate.getFullYear()],
-    });
-  }
-  onClearFilter() {
-    this.filterForm.reset({
-      commodityId: null,
-      Year: null,
-    });
-    this.getPareto();
-
   }
 
   // Parts Audit Categories (Critical NCs)
@@ -258,7 +573,6 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
       ]
     }]
   };
-
 
   ngAfterViewInit(): void {
     setTimeout(() => {

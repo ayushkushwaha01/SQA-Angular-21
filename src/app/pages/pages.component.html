@@ -35,13 +35,26 @@
                 }
                 <div fxLayout="row" fxLayoutAlign="end center" class="toolbar-right-icons h-100">
                     <!-- Envelope Icon for Sent Mails -->
-                    <button mat-icon-button matTooltip="Sent Mails" [matBadge]="sentMailsCount"
-                        [matBadgeHidden]="sentMailsCount === 0" matBadgeColor="accent" matBadgeSize="small"
+                    <!-- <button mat-icon-button matTooltip="Sent Mails"
+                        [matBadge]="sentMailsCount > 0 ? sentMailsCount : null"
+                        matBadgeColor="accent" matBadgeSize="small"
                         routerLink="/sent-mails">
                         <mat-icon style="color: white;">mail</mat-icon>
-                    </button>
+                    </button> -->
 
-                    <app-messages></app-messages>
+                    <!-- Mail badge with custom UI -->
+                    <div style='position: relative; display: inline-flex; align-items: center;'>
+                      <button mat-icon-button matTooltip="Sent Mails" routerLink="/sent-mails">
+                        <mat-icon style="color: white;">email</mat-icon>
+                      </button>
+                      @if (sentMailsCount > 0) {
+                        <span style="position: absolute; top: 4px; right: 2px; background: #f44336; color: white; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; line-height: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.35); pointer-events: none; z-index: 10;">
+                          {{ sentMailsCount }}
+                        </span>
+                      }
+                    </div>
+
+                    <app-user-notification></app-user-notification>
 
                     <app-fullscreen></app-fullscreen>
                     <app-user-menu></app-user-menu>

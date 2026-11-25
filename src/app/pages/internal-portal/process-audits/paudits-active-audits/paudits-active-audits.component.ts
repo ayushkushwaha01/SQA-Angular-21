@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import * as Highcharts from 'highcharts';
@@ -17,9 +17,10 @@ import { PartAuditService } from '../../parts-audits/part-audit.service';
   templateUrl: "./paudits-active-audits.component.html",
   styleUrls: ["./paudits-active-audits.component.scss"]
 })
-export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
+export class PauditsActiveAuditsComponent implements OnInit, AfterViewInit, OnDestroy {
   Highcharts: typeof Highcharts = Highcharts;
   private isDestroyed = false;
+
 
   auditData: any[] = [];
   originalAuditData: any[] = [];
@@ -42,9 +43,28 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
 
   // Helper arrays for filter dropdowns
-  get uniqueCommodities() { return [...new Set(this.originalAuditData.map(a => a.commodityName).filter(Boolean))].sort(); }
-  get uniqueStates() { return [...new Set(this.originalAuditData.map(a => a.stateName).filter(Boolean))].sort(); }
+  // Server-side paging state (falls back to client-side if API has no paged endpoint)
+  serverMode = false;
+  private pagedUnsupported = false;
+  totalCount = 0;
+  filterOptions: any = null;   // { commodities, states, cities:[{state,city}]|string[], suppliers, stages, auditors }
+  private serverCharts: any = null; // { commodity:{name:count}, auditor:{...}, status:{...} }
+
+  get gridLength() { return this.serverMode ? this.totalCount : this.filteredAuditData.length; }
+
+  get uniqueCommodities() { if (this.filterOptions?.commodities) return this.filterOptions.commodities; return [...new Set(this.originalAuditData.map(a => a.commodityName).filter(Boolean))].sort(); }
+  get uniqueStates() { if (this.filterOptions?.states) return this.filterOptions.states; return [...new Set(this.originalAuditData.map(a => a.stateName).filter(Boolean))].sort(); }
   get uniqueCities() {
+    // if (this.filterOptions?.cities) return this.filterOptions.cities;
+
+    if (this.filterOptions?.cities) {
+      const list = this.filterOptions.cities;
+      if (list.length && typeof list[0] === 'object') {
+        const sel = this.filterForm?.value?.State;
+        return [...new Set(list.filter((c: any) => !sel || c.state === sel).map((c: any) => c.city))].sort();
+      }
+      return list;
+    }
     const selectedState = this.filterForm?.value?.State;
     let data = this.originalAuditData;
     if (selectedState) {
@@ -57,6 +77,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   get uniqueAuditors() { return [...new Set(this.originalAuditData.map(a => a.auditorName).filter(Boolean))].sort(); }
 
   get pagedAuditData() {
+    if (this.serverMode) return this.filteredAuditData;
     const start = this.pageIndex * this.pageSize;
     return this.filteredAuditData.slice(start, start + this.pageSize);
   }
@@ -206,12 +227,24 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   // --- EXISTING COMPONENT LOGIC ---
   // ==========================================
 
+  // Sticky Header state
+  private rafId: number | null = null;
+  private scrollContainer: HTMLElement | null = null;
+  private onScrollHandler = () => {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.updateStickyHeader();
+    });
+  };
+
   constructor(
     private dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService,
     private fb: FormBuilder,
-    private partAuditService: PartAuditService
+    private partAuditService: PartAuditService,
+    private ngZone: NgZone
   ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
@@ -227,6 +260,51 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.setupStickyHeader();
+  }
+
+  setupStickyHeader(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollContainer = document.getElementById('main') || document.querySelector('mat-sidenav-content');
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandler, { passive: true });
+      }
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true, capture: true });
+      window.addEventListener('resize', this.onScrollHandler, { passive: true });
+    });
+    setTimeout(() => this.updateStickyHeader(), 100);
+  }
+
+  updateStickyHeader(): void {
+    const container = document.getElementById('grid-table-container');
+    if (!container) return;
+
+    const table = container.querySelector('.audit-table') as HTMLElement;
+    const thead = container.querySelector('.audit-table thead') as HTMLElement;
+    if (!table || !thead) return;
+
+    const rect = container.getBoundingClientRect();
+    const theadHeight = thead.offsetHeight || 44;
+    const navHeight = 56; // Fixed black top navigation bar height
+
+    const offset = navHeight - rect.top;
+    const maxOffset = Math.max(0, rect.height - theadHeight);
+    const translateY = Math.max(0, Math.min(offset, maxOffset));
+
+    if (translateY > 0) {
+      table.style.setProperty('--sticky-header-offset', `${Math.round(translateY)}px`);
+      if (!thead.classList.contains('is-sticky')) {
+        thead.classList.add('is-sticky');
+      }
+    } else {
+      table.style.removeProperty('--sticky-header-offset');
+      if (thead.classList.contains('is-sticky')) {
+        thead.classList.remove('is-sticky');
+      }
+    }
+  }
+
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
@@ -239,6 +317,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
     this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
 
+    this.loadData();
     this.loadLookups();
     this.loadGridColumns();
   }
@@ -246,6 +325,8 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   onPageChange(event: any) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    if (this.serverMode) { this.loadData(); return; }
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   loadLookups() {
@@ -253,11 +334,68 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
       if (res.success) {
         this.statusLookups = res.data.filter((l: any) => l.codeMasterName === 'Audit-Status');
       }
-      this.loadData();
     });
   }
 
+  private fmtDate(d: any): string | null {
+    if (!d) return null;
+    const x = new Date(d);
+    const m = String(x.getMonth() + 1).padStart(2, '0');
+    const day = String(x.getDate()).padStart(2, '0');
+    return `${x.getFullYear()}-${m}-${day}`;
+  }
+
+  private buildPagedParams() {
+    const f = this.filterForm.value;
+    return {
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize,
+      keyword: f.Keyword,
+      commodity: f.Commodity,
+      state: f.State,
+      city: f.City,
+      supplier: f.Supplier,
+      stage: f.Stage,
+      auditor: f.Auditor,
+      fromDate: this.fmtDate(f.FromDate),
+      toDate: this.fmtDate(f.ToDate),
+      hideDone: this.maskDone
+    };
+  }
+
   loadData() {
+    if (this.pagedUnsupported) {
+      this.loadAllData();
+      return;
+    }
+    this.isLoading = true;
+    this.api.getAuditsPaged(this.buildPagedParams()).subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.totalCount !== undefined) {
+          this.serverMode = true;
+          this.isLoading = false;
+          this.totalCount = res.totalCount;
+          this.auditData = res.data || [];
+          this.filteredAuditData = this.auditData;
+          if (res.filterOptions) { this.filterOptions = res.filterOptions; }
+          this.serverCharts = res.chartCounts || null;
+          this.updateCharts();
+          setTimeout(() => this.updateStickyHeader(), 50);
+        } else {
+          this.pagedUnsupported = true;
+          this.loadAllData();
+        }
+      },
+      // Paged endpoint not available yet -> fall back to the legacy full load
+      error: () => {
+        this.pagedUnsupported = true;
+        this.loadAllData();
+      }
+    });
+  }
+
+  private loadAllData() {
+    this.serverMode = false;
     this.isLoading = true;
     this.api.getAllAudits().subscribe({
       next: (res: any) => {
@@ -281,6 +419,11 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   }
 
   filter() {
+    if (this.serverMode) {
+      this.pageIndex = 0;
+      this.loadData();
+      return;
+    }
     const keyword = this.filterForm.value.Keyword?.toLowerCase() || '';
     const commodity = this.filterForm.value.Commodity;
     const state = this.filterForm.value.State;
@@ -343,10 +486,16 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
 
     this.pageIndex = 0;
     this.updateCharts();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   clearFilter() {
     this.filterForm.reset();
+    if (this.serverMode) {
+      this.pageIndex = 0;
+      this.loadData();
+      return;
+    }
     this.filteredAuditData = [...this.originalAuditData];
     if (this.maskDone) {
       this.filteredAuditData = this.filteredAuditData.filter(item => !item.isDone);
@@ -356,6 +505,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
       this.pageIndex = maxPage;
     }
     this.updateCharts();
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 
   onMaskDoneChange() {
@@ -383,10 +533,11 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
       }, {});
     };
 
-    const commodityCounts = getCounts('commodityName');
-    const auditorCounts = getCounts('auditorName');
+    const sc = this.serverMode ? this.serverCharts : null;
+    const commodityCounts = sc?.commodity || getCounts('commodityName');
+    const auditorCounts = sc?.auditor || getCounts('auditorName');
 
-    const statusCounts = chartData.reduce((acc: any, curr: any) => {
+    const statusCounts = sc?.status || chartData.reduce((acc: any, curr: any) => {
       const statusObj = this.statusLookups.find((l: any) => l.lookupId === curr.statusId);
       const name = statusObj ? statusObj.lookupName : 'Pending/None';
       acc[name] = (acc[name] || 0) + 1;
@@ -529,6 +680,17 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.isDestroyed = true;
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    if (this.scrollContainer) {
+      this.scrollContainer.removeEventListener('scroll', this.onScrollHandler);
+    }
+    window.removeEventListener('scroll', this.onScrollHandler, { capture: true } as any);
+    window.removeEventListener('scroll', this.onScrollHandler);
+    window.removeEventListener('resize', this.onScrollHandler);
+
     try {
       if (this.commodityChartRef) {
         this.commodityChartRef.destroy();
@@ -641,5 +803,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
         this.frozenCount = 0;
       }
     });
+
+    setTimeout(() => this.updateStickyHeader(), 50);
   }
 }

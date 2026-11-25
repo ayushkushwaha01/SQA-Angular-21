@@ -326,7 +326,16 @@
 
         <tbody>
 
-          <tr *ngFor="let applicant of pagedTableList">
+          <tr *ngIf="isLoading">
+            <td [attr.colspan]="activeColumns.length || defaultColumns.length" class="text-center p-0">
+              <div class="table-loader-wrapper">
+                <mat-spinner diameter="45" strokeWidth="4"></mat-spinner>
+                <div class="loader-text">Loading data, please wait...</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let applicant of pagedTableList" [hidden]="isLoading">
 
             <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
 
@@ -344,21 +353,10 @@
 
 
               <!-- Resolved -->
-              <!-- <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
-                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
-                [style.min-width.px]="getColumnWidth(col)">
-
-                <mat-checkbox [checked]="applicant.resolved" color="primary">
-                </mat-checkbox>
-
-              </td> -->
-
-              <!-- Resolved -->
               <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
-                <!-- 🔥 Added ngModel and change event to make it clickable! -->
                 <mat-checkbox 
                   [(ngModel)]="applicant.resolved" 
                   (change)="onResolvedChange(applicant, $event)"
@@ -378,33 +376,6 @@
 
               </td>
 
-
-              <!-- Reference -->
-              <!-- <td *ngSwitchCase="'Reference'" class="text-center" [class.frozen-col]="i < frozenCount"
-                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
-                [style.min-width.px]="getColumnWidth(col)">
-
-                <a [routerLink]="[
-                '/app',
-                'sqm',
-                'process-inner-screen',
-                'process-audit-reference'
-              ]" [queryParams]="{
-                id: applicant.processAuditId,
-                ref: applicant.auditReference,
-                categoryId: applicant.processCategoryId,
-                checklistId: applicant.checklistId,
-                role: 'supplier'
-              }" [ngStyle]="{
-                color: applicant.isAlert ? 'red' : 'blue',
-                'font-weight': applicant.isAlert ? 'bold' : 'normal'
-              }">
-
-                  {{ applicant.reference }}
-
-                </a>
-
-              </td> -->
 
               <!-- REFERENCE -->
               <td *ngSwitchCase="'Reference'" class="text-center" [class.frozen-col]="i < frozenCount"
@@ -431,24 +402,12 @@
               </td>
 
 
-              <!-- CAPA Subject -->
-              <!-- <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
-                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
-                [style.min-width.px]="getColumnWidth(col)">
-
-                {{ applicant.actionSubject }}
-
-              </td>
- -->
-
-
- <!-- CAPA SUBJECT -->
+              <!-- CAPA SUBJECT -->
               <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
                 <div style="line-height: 1.4;">
-                  <!-- 🔥 Color and weight rely on OVERDUE threshold -->
                   <span
                     [ngStyle]="{
                       'color': applicant.delayInDays !== '-' && applicant.delayInDays >= overdueThreshold ? 'red' : 'inherit',
@@ -456,7 +415,6 @@
                     }"
                     style="display: inline-flex; align-items: center; justify-content: center;">
                     
-                    <!-- 🔥 The Flag Icon relies on the ESCALATE threshold -->
                     <mat-icon *ngIf="applicant.delayInDays !== '-' && applicant.delayInDays >= escalateThreshold" 
                       style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">
                       flag
@@ -658,7 +616,7 @@
 
 
           <!-- No records -->
-          <tr *ngIf="tableList.length === 0">
+          <tr *ngIf="!isLoading && pagedTableList.length === 0">
 
             <td [attr.colspan]="activeColumns.length || defaultColumns.length" class="text-center">
 
@@ -695,8 +653,8 @@
     </div>
 
     <div style="width: 100%">
-      <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"
-        showFirstLastButtons>
+      <mat-paginator [length]="totalSize" [pageIndex]="pageIndex" [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
       </mat-paginator>
     </div>
   </div>

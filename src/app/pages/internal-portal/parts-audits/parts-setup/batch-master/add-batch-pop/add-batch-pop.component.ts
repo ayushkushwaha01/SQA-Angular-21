@@ -29,18 +29,46 @@ export class AddBatchPopComponent implements OnInit {
   }
 
 
+  // partsFamilies: any[] = [];
+  // getPartsFamilies() {
+  //   const userId = localStorage.getItem('UserId');
+  //   const payload = {
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService.getPartFamilies(payload)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.partsFamilies = res.data.data;
+
+  //       }
+  //     });
+  // }
+
+
+  // partsMasters: any[] = [];
+  // getPartsMasters() {
+  //   const userId = localStorage.getItem('UserId');
+  //   const payload = {
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService.getPartMaster(payload)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.partsMasters = res.data.data;
+
+  //       }
+  //     });
+  // }
+
   partsFamilies: any[] = [];
   getPartsFamilies() {
-    const userId = localStorage.getItem('UserId');
-    const payload = {
-      UserId: userId ? Number(userId) : null
-    };
-    this._setupService.getPartFamilies(payload)
+    // 🔥 ZERO TRUST: Removed UserId from payload
+    this._setupService.getPartFamilies({})
       .subscribe((res: any) => {
         if (res.success) {
-
           this.partsFamilies = res.data.data;
-
         }
       });
   }
@@ -48,16 +76,11 @@ export class AddBatchPopComponent implements OnInit {
 
   partsMasters: any[] = [];
   getPartsMasters() {
-    const userId = localStorage.getItem('UserId');
-    const payload = {
-      UserId: userId ? Number(userId) : null
-    };
-    this._setupService.getPartMaster(payload)
+    // 🔥 ZERO TRUST: Removed UserId from payload
+    this._setupService.getPartMaster({})
       .subscribe((res: any) => {
         if (res.success) {
-
           this.partsMasters = res.data.data;
-
         }
       });
   }
@@ -90,7 +113,7 @@ export class AddBatchPopComponent implements OnInit {
 
       BatchDate: [
         data?.batchDate || '',
-
+        Validators.required
       ],
 
       Remakrs: [

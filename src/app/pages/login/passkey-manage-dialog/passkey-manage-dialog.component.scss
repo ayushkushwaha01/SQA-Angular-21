@@ -1,16 +1,20 @@
 .dialog-header {
     display: flex;
     align-items: center;
-    padding: 24px 24px 0 24px;
+    border-bottom: 1px solid #e5e7eb;
+    /* mat-dialog-title adds default padding, we just adjust the bottom */
+    padding-bottom: 16px !important; 
+    margin-bottom: 0;
 }
 
 .passkey-card {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 12px 16px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 
     .icon-circle {
         background-color: #f3f4f6;
@@ -20,15 +24,12 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-right: 16px;
     }
 
     .passkey-details {
-        flex: 1;
-
         h4 {
-            margin: 0;
-            font-size: 15px;
+            margin: 0 0 4px 0;
+            font-size: 14px;
             font-weight: 600;
             color: #111827;
         }
@@ -41,10 +42,15 @@
 }
 
 .add-dashed-box {
-    border: 1px dashed #d1d5db;
+    border: 2px dashed #d1d5db;
     border-radius: 8px;
-    padding: 16px;
+    padding: 24px;
     color: #6b7280;
-    font-size: 14px;
+    font-size: 13px;
     background-color: #f9fafb;
+    margin-top: 15px;
+}
+
+.text-center {
+    text-align: center;
 }

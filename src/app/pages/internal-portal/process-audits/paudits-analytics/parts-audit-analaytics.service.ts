@@ -46,5 +46,24 @@ export class PartsAuditAnalayticsService {
   }
 
 
+    getperformance(filter: any) {
+    // Assuming this maps to your ProcessAnalyticsController
+    return this.http.get(this.apiUrl + 'ProcessAnalytics/get-process-performance', { params: filter });
+  }
+
+
+  // ==========================================
+  // Shared Filter Settings API Calls
+  // ==========================================
+  saveUserFilters(payload: any) {
+    // Uses the dedicated controller we created earlier!
+    return this.http.post(this.apiUrl + 'UserFilterSettings/save-user-filters', payload);
+  }
+
+  getUserFilters(userId: number, screenName: string) {
+    return this.http.get(this.apiUrl + `UserFilterSettings/get-user-filters?userId=${userId}&screenName=${screenName}`);
+  }
+
+  
 
 }

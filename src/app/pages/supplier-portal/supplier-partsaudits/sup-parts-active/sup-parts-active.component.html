@@ -150,11 +150,11 @@
             </div>
             <div class="filter-group">
               <label class="filter-label mb-0">From Date :</label>
-              <input type="date" class="custom-mat-input" />
+              <input type="date" class="custom-mat-input" formControlName="fromDate" />
             </div>
             <div class="filter-group">
               <label class="filter-label mb-0">To Date :</label>
-              <input type="date" class="custom-mat-input" style="width: 74%" />
+              <input type="date" class="custom-mat-input" style="width: 74%" formControlName="toDate" />
             </div>
 
             <div class="button-group">
@@ -179,7 +179,7 @@
     </form>
   </div>
 
-  <div class="table-responsive" id="table-responsive">
+  <div class="table-responsive" id="grid-table-container">
     <table class="audit-table">
       <thead>
         <tr>
@@ -364,7 +364,16 @@
       </thead>
 
       <tbody>
-        <tr *ngFor="let audit of tableLists">
+                <tr *ngIf="isLoading">
+          <td colspan="10" class="text-center p-0">
+            <div class="table-loader-wrapper">
+              <mat-spinner diameter="45" strokeWidth="4"></mat-spinner>
+              <div class="loader-text">Loading data, please wait...</div>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngFor="let audit of tableLists" [hidden]="isLoading">
           <ng-container
             *ngFor="let col of activeColumns; let i = index"
             [ngSwitch]="col"
@@ -607,7 +616,7 @@
           </ng-container>
         </tr>
 
-        <tr *ngIf="tableLists.length === 0">
+        <tr *ngIf="!isLoading && tableLists.length === 0">
           <td colspan="7" class="text-center py-4 center">No Data Available</td>
         </tr>
       </tbody>

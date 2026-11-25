@@ -10,6 +10,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ManageUsersService } from '../manage-users/manage-users.service';
 import { UserPermissionService } from '../helpers/user-permission.service';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-preferences',
@@ -22,8 +23,9 @@ import { UserPermissionService } from '../helpers/user-permission.service';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    FlexLayoutModule
-  ],
+    FlexLayoutModule,
+    MatSlideToggle
+],
   templateUrl: './preferences.component.html',
   styleUrl: './preferences.component.scss',
 })

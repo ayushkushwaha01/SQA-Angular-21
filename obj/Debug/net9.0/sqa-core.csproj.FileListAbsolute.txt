@@ -1,0 +1,11 @@
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.csproj.AssemblyReference.cache
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.GeneratedMSBuildEditorConfig.editorconfig
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.AssemblyInfoInputs.cache
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.AssemblyInfo.cs
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.csproj.CoreCompileInputs.cache
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.MvcApplicationPartsAssemblyInfo.cs
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.MvcApplicationPartsAssemblyInfo.cache
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.sourcelink.json
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.dll
+D:\SQA-ANG-21\obj\Debug\net9.0\refint\sqa-core.dll
+D:\SQA-ANG-21\obj\Debug\net9.0\sqa-core.pdb

@@ -341,6 +341,26 @@
           </a>
         </li>
 
+         <!-- <li  routerLinkActive="active">
+          <a  routerLink="./parts/setup/stage-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Stage Master">map</mat-icon>
+            <span *ngIf="isSidenavOpen">Stage Master</span>
+          </a>
+          
+        </li> -->
+
+        <!-- Stage Master (Screen ID: 50) -->
+        <li [ngClass]="{'disabled-nav': !canRead(50)}" routerLinkActive="active">
+          <a *ngIf="canRead(50)" routerLink="./parts/setup/stage-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Stage Master">map</mat-icon>
+            <span *ngIf="isSidenavOpen">Stage Master</span>
+          </a>
+          <a *ngIf="!canRead(50)" (click)="showAccessDenied('view Stage Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Stage Master (Access Denied)">map</mat-icon>
+            <span *ngIf="isSidenavOpen">Stage Master</span>
+          </a>
+        </li>
+        
         <!-- State Master (Screen ID: 44) -->
         <li [ngClass]="{'disabled-nav': !canRead(44)}" routerLinkActive="active">
           <a *ngIf="canRead(44)" routerLink="./parts/setup/state-master">
@@ -352,6 +372,9 @@
             <span *ngIf="isSidenavOpen">State Master</span>
           </a>
         </li>
+
+
+          
 
         <!-- City Master (Screen ID: 45) -->
         <li [ngClass]="{'disabled-nav': !canRead(45)}" routerLinkActive="active">
